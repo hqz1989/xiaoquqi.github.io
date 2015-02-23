@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>RaySun&#8217;s Blog</title>
+  <title>使用MongoDB作为Salt Pillar后端存储数据 - RaySun&#8217;s Blog</title>
   <meta name="author" content="Ray Sun <xiaoquqi@gmail.com>&#8221;>
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://xiaoquqi.github.io/">
+  <link rel="canonical" href="http://xiaoquqi.github.io/blog/2015/02/23/use-mongodb-to-store-salt-pillar/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="RaySun's Blog" type="application/atom+xml">
@@ -63,15 +63,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2015/02/23/use-mongodb-to-store-salt-pillar/">使用MongoDB作为Salt Pillar后端存储数据</a></h1>
+      <h1 class="entry-title">使用MongoDB作为Salt Pillar后端存储数据</h1>
     
     
       <p class="meta">
@@ -87,7 +84,7 @@
   </header>
 
 
-  <div class="entry-content"><p>今天在查找salt中pillar嵌套pillar的方法时，无意之间发现了pillar除了可以直接使用文件(sls)外，也同时支持多种后端的数据存储方式。例如：MySQL, MongoDB, Ldap, json, cobbler甚至是puppet。这无疑为开发中的接口提供了极大的便利。</p>
+<div class="entry-content"><p>今天在查找salt中pillar嵌套pillar的方法时，无意之间发现了pillar除了可以直接使用文件(sls)外，也同时支持多种后端的数据存储方式。例如：MySQL, MongoDB, Ldap, json, cobbler甚至是puppet。这无疑为开发中的接口提供了极大的便利。</p>
 
 <p>详细的支持列表可见：<a href="http://docs.saltstack.com/en/latest/ref/pillar/all/index.html#all-salt-pillars">http://docs.saltstack.com/en/latest/ref/pillar/all/index.html#all-salt-pillars</a></p>
 
@@ -201,18 +198,48 @@ connecting to: test
 
 <p>pillar应该是salt中一个比较灵活的配置选项，个人理解pillar的作用就像puppet中init定义的初始化的参数的默认值，每次部署时，只需要更改pillar的文件就可以啦。但是随着代码的增长(主要用于部署OpenStack)，发现pillar的管理越来越难，pillar本身对如何组织结构并没有严格的限制，而且嵌套(extend)功能暂时还不能很完美的支持(<a href="https://github.com/saltstack/salt/issues/3991">https://github.com/saltstack/salt/issues/3991</a>)，这也给pillar的管理提高了复杂度。</p>
 </div>
-  
-  
 
 
-    </article>
+  <footer>
+    <p class="meta">
+      
   
-  <div class="pagination">
+
+<span class="byline author vcard">Posted by <span class="fn">Ray Sun</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-02-23T15:19:21+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>3:19 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cloud-computing/'>cloud computing</a>, <a class='category' href='/blog/categories/openstack/'>openstack</a>, <a class='category' href='/blog/categories/salt/'>salt</a>
+  
+</span>
+
+
+    </p>
     
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
+      <div class="sharing">
+  
+  
+  
 </div>
+
+    
+    <p class="meta">
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
 <aside class="sidebar">
   
     <section>
@@ -261,6 +288,7 @@ connecting to: test
 
   
 </aside>
+
 
     </div>
   </div>
