@@ -4,7 +4,7 @@
   <title><![CDATA[RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-03-05T21:47:11+08:00</updated>
+  <updated>2015-03-05T22:04:21+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,245 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[(Havana)将OpenStack Havana源代码编译为DEB包]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/03/05/build-openstack-source-code-to-deb-package/"/>
+    <updated>2015-03-05T21:57:16+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/03/05/build-openstack-source-code-to-deb-package</id>
+    <content type="html"><![CDATA[<h2>Why</h2>
+
+<p>我想有以下有几个原因促使我写这篇Blog：</p>
+
+<ul>
+<li>很多人开始OpenStack之旅是从Ubuntu开始，但是却没有一篇文章系统的介绍如何将修改后的代码重新编译回DEB包。</li>
+<li>如果我们采用源代码直接安装的方式对OpenStack模块进行管理，一致性很难保证，难以维护。</li>
+<li>Debian类系统的打包看起来比RPM包复杂很多。</li>
+</ul>
+
+
+<h2>Who</h2>
+
+<p>谁需要看这篇文章呢？</p>
+
+<ul>
+<li>不了解如何编译DEB包</li>
+<li>想把修改过的OpenStack源代码重新发布，供内部使用</li>
+<li>希望改变直接维护源代码</li>
+</ul>
+
+
+<p>当然，如果您已经是这方面的高手，欢迎给我指正我Blog中的不足，十分感谢。</p>
+
+<!-- more -->
+
+
+<h2>Quick Start</h2>
+
+<p>我已经将整个的编译过程集成在Vagrant脚本中，你可以直接安装Vagrant后，下载我的源代码，启动后就能看到整个的编译过程。</p>
+
+<p>Vagrant 版本要求为1.3.5，Virtualbox版本要求为4.1或者4.2均可。</p>
+
+<h2>Let&rsquo;s play some magic</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/xiaoquqi/vagrant-build-openstack-deb
+</span><span class='line'>cd vagrant-build-openstack-deb
+</span><span class='line'>vagrant up</span></code></pre></td></tr></table></div></figure>
+
+
+<p>虚拟机启动后，将会自动从github(这里使用的是csdn code的镜像代码)同步最新代码，然后使用编译脚本，执行打包操作。如果不考虑下载的时间，整个过程大概持续5分钟左右的时间，编译好的Deb包将会存放在/root/build目录下。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vagrant ssh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>即可登陆到虚拟机，切换到root目录就可以查看到所有打包好的DEB的情况了，当然你也可以直接使用dpkg -i命令进行安装。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo -s
+</span><span class='line'>cd /root/build
+</span><span class='line'>ls -lrt *.deb
+</span><span class='line'>dpkg -i python-glance_2013.2.2.dev1.g5cd7a22~precise-0ubuntu1_all.deb</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step by Step</h2>
+
+<p>看过了整个的编译过程，下面来介绍一点点细节。</p>
+
+<p>全部的编译部分代码都在这个文件中：<a href="https://github.com/xiaoquqi/vagrant-build-openstack-deb/blob/master/scripts/build.sh">https://github.com/xiaoquqi/vagrant-build-openstack-deb/blob/master/scripts/build.sh</a></p>
+
+<p>下面让我们来仔细分析一下整个编译过程。</p>
+
+<ul>
+<li>添加必要的源</li>
+</ul>
+
+
+<p>这里面我们用的源包含sohu的Ubuntu 12.04源以及Ubuntu的Havana源</p>
+
+<pre><code>deb http://mirrors.sohu.com/ubuntu/ precise main restricted
+deb http://mirrors.sohu.com/ubuntu/ precise-updates main restricted
+deb http://mirrors.sohu.com/ubuntu/ precise universe
+deb http://mirrors.sohu.com/ubuntu/ precise-updates universe
+deb http://mirrors.sohu.com/ubuntu/ precise multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-updates multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-backports main restricted universe multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-security main restricted
+deb http://mirrors.sohu.com/ubuntu/ precise-security universe
+deb http://mirrors.sohu.com/ubuntu/ precise-security multiverse
+deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
+</code></pre>
+
+<ul>
+<li>安装必要的编译软件</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>apt-get install -y debootstrap equivs schroot
+</span><span class='line'>apt-get install -y devscripts
+</span><span class='line'>apt-get install -y build-essential checkinstall sbuild
+</span><span class='line'>apt-get install -y dh-make
+</span><span class='line'>apt-get install -y bzr bzr-builddeb
+</span><span class='line'>apt-get install -y git
+</span><span class='line'>apt-get install -y python-setuptools</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>编译脚本的源代码仓库</li>
+</ul>
+
+
+<p>Ubuntu维护源代码编译脚本是使用叫做bzr的工具，常使用Launchpad的朋友应该比较熟悉，这是一套类似于git的分布式管理工具，不同的是这是一套完全用python语言实现的管理工具，不仅具有代码版本控制功能并且与Launchpad高度整合，作为Ubuntu维护不可缺少的重要工具之一。例如，这里面用到的glance编译脚本就可以在这里找到：</p>
+
+<p><a href="https://code.launchpad.net/~ubuntu-server-dev/glance/havana">https://code.launchpad.net/~ubuntu-server-dev/glance/havana</a></p>
+
+<p>页面上方有下载代码的方式：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>bzr branch lp:~ubuntu-server-dev/glance/havana
+</span><span class='line'>git clone https://code.csdn.net/openstack/glance.git --branch "stable/havana" glance_source</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>准备环境</li>
+</ul>
+
+
+<p>在Vagrant启动一台新虚拟机之后，并没有pip，如果不安装pip，则会在python setup.py sdist过程中，把pip安装到源代码目录中，引起Build失败。将//vagrant/pip/pip-1.4.1.tar.gz解压缩并安装，之后安装pbr：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tar zxvf pip-1.4.1.tar.gz
+</span><span class='line'>cd pip-1.4.1
+</span><span class='line'>sudo python setup.py install
+</span><span class='line'>sudo pip install pbr</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>生成source文件</li>
+</ul>
+
+
+<p>进入glance_source目录，执行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>python setup.py sdist</span></code></pre></td></tr></table></div></figure>
+
+
+<p>生成的tar.gz文件会在glance_source/dist下，注意此时该文件的名称为：</p>
+
+<pre><code>glance-2013.2.2.dev1.g5cd7a22.tar.gz
+</code></pre>
+
+<p>接下来我们需要将该文件重命名为：</p>
+
+<pre><code>glance_2013.2.2.dev1.g5cd7a22~precise.orig.tar.gz
+</code></pre>
+
+<p>特别注意：glance后面已经变为下划线！！！</p>
+
+<p>把文件移动到与glance和glance_source同一级别的目录，这样在编译的时候，才能找到source文件。此时的目录结构为：</p>
+
+<pre><code>├── glance
+│   ├── debian
+├── glance_source
+├── glance_2013.2.2.dev1.g5cd7a22~precise.orig.tar.gz
+</code></pre>
+
+<ul>
+<li>安装依赖包</li>
+</ul>
+
+
+<p>为了保证顺利的完成编译，我们需要安装要编译包的所有依赖包，简单来说就是glance/debian/control文件中定义的Depends部分的内容。当然在编译的时候我们也可以完全忽略依赖，但是并不推荐。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mk-build-deps -i -t 'apt-get -y' debian/control</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样系统就会自动安装所有依赖包，并且生成一个glance-build-deps_1.0_all.deb文件。</p>
+
+<ul>
+<li>生成日志信息</li>
+</ul>
+
+
+<p>开始编译前，我们还需要告诉编译器我们要编译的版本，还记得刚才生成的dist包吗，把那个版本拿出来作为我们commit的版本。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd glance
+</span><span class='line'>dch -b -D precise --newversion "1:2013.2.2.dev1.g5cd7a22~precise-0ubuntu1" 'This is a build test.'
+</span><span class='line'>debcommit</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样在glance/debian/changelog中就会增加一条新的日志。</p>
+
+<ul>
+<li>开始编译</li>
+</ul>
+
+
+<p>万事俱备，只欠东风。我们利用bzr提供的builddeb开始编译，这里我们忽略签名问题。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd glance
+</span><span class='line'>bzr builddeb -- -sa -us -uc</span></code></pre></td></tr></table></div></figure>
+
+
+<p>大功告成啦。快去/root/build/glance下看看你的deb包吧。</p>
+
+<h2>总结</h2>
+
+<p>Debian包的编译的确涉及很多知识点，而且可使用的编译工具很多，关系很复杂。这篇博文，只为了帮助大家对DEB包的编译有一个快速的认识，如果想了解更多关于编译的知识，请关注后续的博文。</p>
+
+<p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
+
+<ul>
+<li>邮箱：<a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x78;&#x69;&#x61;&#x6f;&#113;&#x75;&#113;&#x69;&#64;&#x67;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#x6f;&#x6d;">&#x78;&#x69;&#x61;&#111;&#113;&#117;&#113;&#105;&#64;&#x67;&#x6d;&#x61;&#105;&#108;&#46;&#x63;&#x6f;&#109;</a></li>
+<li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[(Juno)OpenStack Neutron L3高可靠]]></title>
