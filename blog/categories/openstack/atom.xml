@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-05-06T20:00:00+08:00</updated>
+  <updated>2015-05-06T20:19:46+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -18,7 +18,7 @@
     <link href="http://xiaoquqi.github.io/blog/2015/05/04/what-is-new-in-kilo/"/>
     <updated>2015-05-04T10:37:22+08:00</updated>
     <id>http://xiaoquqi.github.io/blog/2015/05/04/what-is-new-in-kilo</id>
-    <content type="html"><![CDATA[<p>OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第11个版本，距离OpenStack项目推出已经整整过去了5年多的时间。在这个阶段OpenStack得到不断的增强，同时OpenStack社区也成为即Linux之后的第二大开源社区，参与的人数、厂商众多，也成就了OpenStack今天盛世的局面。虽然OpenStack在今年经历了一些初创型企业的倒闭，但是随着国内的传统行业用户对OpenStack越来越重视，我们坚信OpenStack明天会更好。</p>
+    <content type="html"><![CDATA[<p>OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第11个版本，距离OpenStack项目推出已经整整过去了5年多的时间。在这个阶段OpenStack得到不断的增强，同时OpenStack社区也成为即Linux之后的第二大开源社区，参与的人数、厂商众多，也成就了OpenStack今天盛世的局面。虽然OpenStack在今年经历了Nebula的倒闭，但是随着国内的传统行业用户对OpenStack越来越重视，我们坚信OpenStack明天会更好。</p>
 
 <p>OpenStack Kilo版本的完整翻译版本可见：<a href="https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans">https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans</a></p>
 
@@ -553,7 +553,7 @@ bzr builddeb -- -sa -us -uc
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#111;&#58;&#120;&#105;&#97;&#x6f;&#113;&#x75;&#113;&#105;&#x40;&#103;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#109;">&#x78;&#x69;&#97;&#111;&#113;&#117;&#x71;&#105;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a></li>
+<li>邮箱：<a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x78;&#105;&#97;&#111;&#113;&#x75;&#113;&#105;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#99;&#111;&#x6d;">&#120;&#105;&#97;&#111;&#x71;&#117;&#x71;&#105;&#64;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#111;&#109;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
