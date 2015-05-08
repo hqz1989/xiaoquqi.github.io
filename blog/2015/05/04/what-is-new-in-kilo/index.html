@@ -189,7 +189,7 @@
 </ul>
 
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>local_setting.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>LAUNCH_INSTANCE_NG_ENABLED = True</span></code></pre></td></tr></table></div></figure>
 
 
@@ -202,7 +202,7 @@
 </ul>
 
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>local_setting.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>CUSTOM_THEME_PATH = 'static/themes/blue'</span></code></pre></td></tr></table></div></figure>
 
 
@@ -285,9 +285,8 @@
 <h3>Nova Scheduler</h3>
 
 <ul>
-<li>标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备</li>
+<li>标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备，对于部分直接访问nova数据库的filters进行了优化，不再允许直接访问，参考链接：<a href="https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst">https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst</a></li>
 <li>对Scheduler做了一些优化，例如：Scheduler对于每一个请求都会重新进行Filters/Weighers，为了优化这个问题，将filter/weighter的初始化从handler移到scheduler，这样每次请求的时候都可以重新使用了。</li>
-<li>在下一个版本的时候，Scheduler将会分离到Gantt，所以在这个版本中为分离做了一些准备</li>
 </ul>
 
 
@@ -313,7 +312,7 @@
 
 <p>包含版本的返回:</p>
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Result</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -351,7 +350,7 @@
 
 <p>客户端的Header信息：</p>
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Header</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>X-OpenStack-Nova-API-Version: 2.114</span></code></pre></td></tr></table></div></figure>
 
 
@@ -359,7 +358,7 @@
 
 <p>这个问题的产生主要是因为Evacuate的清理机制，主机名的变化会导致nova-compute重启过程中误删所有虚拟机，所以一个变通的方法是设置</p>
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>nova.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>destroy_after_evacuate=False</span></code></pre></td></tr></table></div></figure>
 
 
@@ -373,7 +372,7 @@
 </ul>
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>API</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>/images?sort_key=status&sort_dir=asc&sort_key=name&sort_dir=asc&sort_key=created_at&sort_dir=desc</span></code></pre></td></tr></table></div></figure>
 
 
@@ -392,7 +391,7 @@
 </ul>
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>cinder</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -408,7 +407,7 @@
 
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>cinder</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -423,7 +422,7 @@
 </ul>
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>cinder</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>cinder type-create &lt;name&gt; --is-public
 </span><span class='line'>cinder type-create &lt;name&gt; &lt;description&gt;</span></code></pre></td></tr></table></div></figure>
@@ -448,7 +447,7 @@
 </ul>
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>keystone</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -487,7 +486,7 @@
 </ul>
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>swift</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -528,7 +527,7 @@
 </ul>
 
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Ceilometer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>{
@@ -538,7 +537,7 @@
 
 <p>更细粒度的控制</p>
 
-<figure class='code'><figcaption><span>static/themes/blue/_style.scss</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>Ceilometer</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>

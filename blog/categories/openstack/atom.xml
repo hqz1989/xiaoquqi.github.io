@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-05-06T20:19:46+08:00</updated>
+  <updated>2015-05-08T09:52:22+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -64,7 +64,7 @@
 </ul>
 
 
-<pre><code>LAUNCH_INSTANCE_NG_ENABLED = True
+<pre><code class="plain local_setting.py">LAUNCH_INSTANCE_NG_ENABLED = True
 </code></pre>
 
 <p><img class="left" src="/images/blogs/what-is-new-in-kilo-instance-guide1.png"></p>
@@ -76,7 +76,7 @@
 </ul>
 
 
-<pre><code>CUSTOM_THEME_PATH = 'static/themes/blue'
+<pre><code class="plain local_setting.py">CUSTOM_THEME_PATH = 'static/themes/blue'
 </code></pre>
 
 <pre><code class="plain static/themes/blue/_variables.scss">$gray:                   #2751DB !default;
@@ -123,9 +123,8 @@ $brand-danger:          #E74C3C !default;
 <h3>Nova Scheduler</h3>
 
 <ul>
-<li>标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备</li>
+<li>标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备，对于部分直接访问nova数据库的filters进行了优化，不再允许直接访问，参考链接：<a href="https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst">https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst</a></li>
 <li>对Scheduler做了一些优化，例如：Scheduler对于每一个请求都会重新进行Filters/Weighers，为了优化这个问题，将filter/weighter的初始化从handler移到scheduler，这样每次请求的时候都可以重新使用了。</li>
-<li>在下一个版本的时候，Scheduler将会分离到Gantt，所以在这个版本中为分离做了一些准备</li>
 </ul>
 
 
@@ -150,7 +149,7 @@ $brand-danger:          #E74C3C !default;
 <p>先来解释一下为什么需要API的微版本：主要原因在于现在这种API扩展方式，对于API实现的代码的增加或减少管理非常不方便，容易导致不一致性。引入微版本主要目的就是让开发人员在修改API代码时能够向前兼容，而不是加入一个新的API扩展；用户通过指定API的版本，在请求时也能决定是使用的具体的动作。</p>
 
 <p>包含版本的返回:
-<code>
+<code>plain Result
 GET /
 {
      "versions": [
@@ -171,7 +170,7 @@ GET /
 </code></p>
 
 <p>客户端的Header信息：
-<code>
+<code>plain Header
 X-OpenStack-Nova-API-Version: 2.114
 </code></p>
 
@@ -179,7 +178,7 @@ X-OpenStack-Nova-API-Version: 2.114
 
 <p>这个问题的产生主要是因为Evacuate的清理机制，主机名的变化会导致nova-compute重启过程中误删所有虚拟机，所以一个变通的方法是设置</p>
 
-<pre><code>destroy_after_evacuate=False
+<pre><code class="plain nova.conf">destroy_after_evacuate=False
 </code></pre>
 
 <p>这个问题会在Liberty中得到修复，相关的Spec：<a href="https://review.openstack.org/#/c/161444/3/specs/liberty/approved/robustify_evacuate.rst">https://review.openstack.org/#/c/161444/3/specs/liberty/approved/robustify_evacuate.rst</a></p>
@@ -189,7 +188,7 @@ X-OpenStack-Nova-API-Version: 2.114
 <ul>
 <li>自动进行镜像格式转化，例如，Ceph是使用RAW格式的，假如我们上传的是QCOW2，创建虚拟机时，就会经历一番上传下载的过程，速度异常缓慢。而且RAW格式通常都是原始大小，上传时候非常慢，完全可以通过上传小镜像自动转换为指定格式。</li>
 <li>Glance支持多字段排序
-<code>
+<code>plain API
 /images?sort_key=status&amp;sort_dir=asc&amp;sort_key=name&amp;sort_dir=asc&amp;sort_key=created_at&amp;sort_dir=desc
 </code></li>
 <li>临时将镜像设置为非活跃状态，假如一个镜像里有病毒，管理员就会将该镜像设置为非活跃状态，在清理后重新发布该镜像，在这个过程中，所有非管理员用户都无法使用或者下载这个镜像</li>
@@ -206,7 +205,7 @@ X-OpenStack-Nova-API-Version: 2.114
 </ul>
 
 
-<pre><code>cinder consisgroup-update
+<pre><code class="plain cinder">cinder consisgroup-update
 [--name NAME]
 [--description DESCRIPTION]
 [--add-volumes UUID1,UUID2,......]
@@ -214,7 +213,7 @@ X-OpenStack-Nova-API-Version: 2.114
 CG
 </code></pre>
 
-<pre><code>cinder consisgroup-create-from-src
+<pre><code class="plain cinder">cinder consisgroup-create-from-src
 [--cgsnapshot CGSNAPSHOT]
 [--name NAME]
 [--description DESCRIPTION]
@@ -225,7 +224,7 @@ CG
 </ul>
 
 
-<pre><code>cinder type-create &lt;name&gt; --is-public
+<pre><code class="plain cinder">cinder type-create &lt;name&gt; --is-public
 cinder type-create &lt;name&gt; &lt;description&gt;
 </code></pre>
 
@@ -248,7 +247,7 @@ cinder type-create &lt;name&gt; &lt;description&gt;
 </ul>
 
 
-<pre><code>POST /projects
+<pre><code class="plain keystone">POST /projects
 
 {
     "project": {
@@ -276,7 +275,7 @@ cinder type-create &lt;name&gt; &lt;description&gt;
 </ul>
 
 
-<pre><code>client
+<pre><code class="plain swift">client
    \
     \   &lt;request&gt;: &lt;path-specific-to-the-service&gt;
      \  x-auth-token: &lt;user-token&gt;
@@ -302,13 +301,13 @@ cinder type-create &lt;name&gt; &lt;description&gt;
 <ul>
 <li>支持Ceph对象存储监控，当对象存储为Ceph而不是Swfit的时候，使用Polling机制，使用Ceph的Rados Gateway的API接口获取数据，具体的设计文档：<a href="https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst">https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst</a></li>
 <li>Ceilometer API RBAC - 更细粒度的权限控制: <a href="https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst">https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst</a>
-<code>
+<code>plain Ceilometer
 {
   "context_is_admin": [["role:admin"]]
 }
 </code>
 更细粒度的控制
-<code>
+<code>plain Ceilometer
 {
    "context_is_admin": [["role:admin"]],
    "admin_or_cloud_admin": [["rule:context_is_admin"],
@@ -553,7 +552,7 @@ bzr builddeb -- -sa -us -uc
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x78;&#105;&#97;&#111;&#113;&#x75;&#113;&#105;&#x40;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#99;&#111;&#x6d;">&#120;&#105;&#97;&#111;&#x71;&#117;&#x71;&#105;&#64;&#103;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#111;&#109;</a></li>
+<li>邮箱：<a href="&#109;&#97;&#x69;&#108;&#116;&#x6f;&#58;&#x78;&#105;&#97;&#111;&#x71;&#x75;&#113;&#x69;&#x40;&#103;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#x78;&#x69;&#97;&#111;&#113;&#x75;&#x71;&#105;&#64;&#x67;&#109;&#x61;&#x69;&#x6c;&#46;&#x63;&#x6f;&#x6d;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
