@@ -4,7 +4,7 @@
   <title><![CDATA[RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-05-08T09:52:22+08:00</updated>
+  <updated>2015-05-11T16:59:38+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,186 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[(Kilo)Devstack Kilo版本localrc推荐]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/05/11/best-localrc-for-devstack-kilo/"/>
+    <updated>2015-05-11T11:33:44+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/05/11/best-localrc-for-devstack-kilo</id>
+    <content type="html"><![CDATA[<p>Devstack在Kilo版本中发生了一些变化，其中一个commit(279cfe75198c723519f1fb361b2bff3c641c6cef)的就是优化默认启动的程序，尽量减小对硬件的要求。如果不修改默认的配置进行安装，会产生一些问题，例如VNC无法打开，Heat模块没有加载等。这里给出一个个人比较常用的localrc，供大家参考。该配置在Ubuntu 14.04 Server LTS进行了测试。</p>
+
+<!-- more -->
+
+
+<p>该配置文件中开启了所有的OpenStack的核心模块，以下几点需要注意：</p>
+
+<ul>
+<li>为了运行Neutron，服务器必须是双网卡，否则外网不会通</li>
+<li>我的实验网段为200.21.0.0/16，eth0的IP为200.21.1.61，eth1与eth0为同一网段</li>
+<li>eth1为公网访问网络，floating网络范围200.21.50.1/24，配置的GATEWAY为200.21.50.2</li>
+<li>保证eth1所处的网段能够连接外网，但是配置为manual模式，配置如下：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>/etc/network/interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet manual
+</span><span class='line'>up ifconfig $IFACE 0.0.0.0 up
+</span><span class='line'>down ifconfig $IFACE 0.0.0.0 down</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>localrc的配置</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>localrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Misc
+</span><span class='line'>ADMIN_PASSWORD=sysadmin
+</span><span class='line'>DATABASE_PASSWORD=$ADMIN_PASSWORD
+</span><span class='line'>RABBIT_PASSWORD=$ADMIN_PASSWORD
+</span><span class='line'>SERVICE_PASSWORD=$ADMIN_PASSWORD
+</span><span class='line'>SERVICE_TOKEN=$ADMIN_PASSWORD
+</span><span class='line'>
+</span><span class='line'># Target Path
+</span><span class='line'>DEST=/opt/stack.kilo
+</span><span class='line'>
+</span><span class='line'># Enable Logging
+</span><span class='line'>LOGFILE=$DEST/logs/stack.sh.log
+</span><span class='line'>VERBOSE=True
+</span><span class='line'>LOG_COLOR=True
+</span><span class='line'>SCREEN_LOGDIR=$DEST/logs
+</span><span class='line'>
+</span><span class='line'># Nova
+</span><span class='line'>enable_service n-novnc n-cauth
+</span><span class='line'>
+</span><span class='line'># Neutron
+</span><span class='line'>disable_service n-net
+</span><span class='line'>ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
+</span><span class='line'>ENABLED_SERVICES+=,q-lbaas,q-vpn,q-fwaas
+</span><span class='line'>
+</span><span class='line'># Ceilometer
+</span><span class='line'>enable_service ceilometer-acompute ceilometer-acentral ceilometer-anotification ceilometer-collector ceilometer-api
+</span><span class='line'>enable_service ceilometer-alarm-notifier ceilometer-alarm-evaluator
+</span><span class='line'>
+</span><span class='line'># Enable Heat
+</span><span class='line'>enable_service heat h-api h-api-cfn h-api-cw h-eng
+</span><span class='line'>
+</span><span class='line'># Trove
+</span><span class='line'>enable_service trove tr-api tr-tmgr tr-cond
+</span><span class='line'>
+</span><span class='line'># Sahara
+</span><span class='line'>enable_service sahara
+</span><span class='line'>
+</span><span class='line'>#FIXED_RANGE=10.0.0.0/24
+</span><span class='line'>HOST_IP=200.21.1.61
+</span><span class='line'>FLOATING_RANGE=200.21.50.1/24
+</span><span class='line'>PUBLIC_NETWORK_GATEWAY=200.21.50.2
+</span><span class='line'>Q_FLOATING_ALLOCATION_POOL=start=200.21.50.100,end=200.21.50.150</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>确认br-ex是否存在</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>sudo ovs-vsctl show</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Bridge br-ex
+</span><span class='line'>    Port br-ex
+</span><span class='line'>        Interface br-ex
+</span><span class='line'>            type: internal
+</span><span class='line'>    Port "qg-7ec5be02-69"
+</span><span class='line'>        Interface "qg-7ec5be02-69"
+</span><span class='line'>            type: internal
+</span><span class='line'>ovs_version: "2.0.2"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>将eth1作为br-ex的接口</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo ovs-vsctl add-port br-ex eth1
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>sudo ovs-vsctl show</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Bridge br-ex
+</span><span class='line'>    Port br-ex
+</span><span class='line'>        Interface br-ex
+</span><span class='line'>            type: internal
+</span><span class='line'>    Port "qg-7ec5be02-69"
+</span><span class='line'>        Interface "qg-7ec5be02-69"
+</span><span class='line'>            type: internal
+</span><span class='line'>    Port "eth1"
+</span><span class='line'>        Interface "eth1"
+</span><span class='line'>ovs_version: "2.0.2"</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[OpenStack Kilo版本新功能分析]]></title>
@@ -692,7 +872,7 @@ deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x78;&#105;&#x61;&#x6f;&#113;&#117;&#x71;&#105;&#x40;&#103;&#x6d;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#120;&#x69;&#x61;&#x6f;&#x71;&#x75;&#113;&#105;&#64;&#x67;&#109;&#97;&#105;&#108;&#46;&#x63;&#x6f;&#x6d;</a></li>
+<li>邮箱：<a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#x78;&#x69;&#97;&#111;&#113;&#117;&#x71;&#105;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#99;&#111;&#x6d;">&#120;&#105;&#x61;&#x6f;&#113;&#117;&#113;&#x69;&#64;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#x6f;&#x6d;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 

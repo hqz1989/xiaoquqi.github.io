@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>(Kilo)Devstack Kilo版本localrc推荐 - RaySun&#8217;s Blog</title>
+  <meta name="author" content="Ray Sun <xiaoquqi@gmail.com>&#8221;>
+
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://xiaoquqi.github.io/blog/2015/05/11/best-localrc-for-devstack-kilo/">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="RaySun's Blog" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://xiaoquqi.github.io/blog/2015/05/11/best-localrc-for-devstack-kilo/">
+  <meta property="og:title" content="(Kilo)Devstack Kilo版本localrc推荐 - RaySun's Blog">
+  
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+
+
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+  
+
+  
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?d43617b82d6762df4e16d4c93de17177";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+
+
+</head>
+
+  <body   >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">RaySun&#8217;s Blog</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a rel="index" href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+                <li >
+                    <a href="/aboutme">About Me</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <form class="search navbar-form navbar-right" action="https://www.google.com/search" method="GET">
+                            <input type="hidden" name="sitesearch" value="xiaoquqi.github.io">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="q" placeholder="Search">
+                            </div>
+                        </form>
+                    </li>
+                
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9" itemscope itemtype="http://schema.org/Blog">
+    <meta itemprop="name" content="RaySun's Blog" />
+    
+    <meta itemprop="url" content="http://xiaoquqi.github.io" />
+    <article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-11T11:33:44+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-05-11 11:33</time>
+        
+        
+           | <a href="#comments">Comments</a>
+        
+      </p>
+    
+    
+    <h1 class="entry-title" itemprop="name headline">
+        (Kilo)Devstack Kilo版本localrc推荐
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>Devstack在Kilo版本中发生了一些变化，其中一个commit(279cfe75198c723519f1fb361b2bff3c641c6cef)的就是优化默认启动的程序，尽量减小对硬件的要求。如果不修改默认的配置进行安装，会产生一些问题，例如VNC无法打开，Heat模块没有加载等。这里给出一个个人比较常用的localrc，供大家参考。该配置在Ubuntu 14.04 Server LTS进行了测试。</p>
+
+<!-- more -->
+
+
+<p>该配置文件中开启了所有的OpenStack的核心模块，以下几点需要注意：</p>
+
+<ul>
+<li>为了运行Neutron，服务器必须是双网卡，否则外网不会通</li>
+<li>我的实验网段为200.21.0.0/16，eth0的IP为200.21.1.61，eth1与eth0为同一网段</li>
+<li>eth1为公网访问网络，floating网络范围200.21.50.1/24，配置的GATEWAY为200.21.50.2</li>
+<li>保证eth1所处的网段能够连接外网，但是配置为manual模式，配置如下：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>/etc/network/interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet manual
+</span><span class='line'>up ifconfig $IFACE 0.0.0.0 up
+</span><span class='line'>down ifconfig $IFACE 0.0.0.0 down</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>localrc的配置</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>localrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Misc
+</span><span class='line'>ADMIN_PASSWORD=sysadmin
+</span><span class='line'>DATABASE_PASSWORD=$ADMIN_PASSWORD
+</span><span class='line'>RABBIT_PASSWORD=$ADMIN_PASSWORD
+</span><span class='line'>SERVICE_PASSWORD=$ADMIN_PASSWORD
+</span><span class='line'>SERVICE_TOKEN=$ADMIN_PASSWORD
+</span><span class='line'>
+</span><span class='line'># Target Path
+</span><span class='line'>DEST=/opt/stack.kilo
+</span><span class='line'>
+</span><span class='line'># Enable Logging
+</span><span class='line'>LOGFILE=$DEST/logs/stack.sh.log
+</span><span class='line'>VERBOSE=True
+</span><span class='line'>LOG_COLOR=True
+</span><span class='line'>SCREEN_LOGDIR=$DEST/logs
+</span><span class='line'>
+</span><span class='line'># Nova
+</span><span class='line'>enable_service n-novnc n-cauth
+</span><span class='line'>
+</span><span class='line'># Neutron
+</span><span class='line'>disable_service n-net
+</span><span class='line'>ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
+</span><span class='line'>ENABLED_SERVICES+=,q-lbaas,q-vpn,q-fwaas
+</span><span class='line'>
+</span><span class='line'># Ceilometer
+</span><span class='line'>enable_service ceilometer-acompute ceilometer-acentral ceilometer-anotification ceilometer-collector ceilometer-api
+</span><span class='line'>enable_service ceilometer-alarm-notifier ceilometer-alarm-evaluator
+</span><span class='line'>
+</span><span class='line'># Enable Heat
+</span><span class='line'>enable_service heat h-api h-api-cfn h-api-cw h-eng
+</span><span class='line'>
+</span><span class='line'># Trove
+</span><span class='line'>enable_service trove tr-api tr-tmgr tr-cond
+</span><span class='line'>
+</span><span class='line'># Sahara
+</span><span class='line'>enable_service sahara
+</span><span class='line'>
+</span><span class='line'>#FIXED_RANGE=10.0.0.0/24
+</span><span class='line'>HOST_IP=200.21.1.61
+</span><span class='line'>FLOATING_RANGE=200.21.50.1/24
+</span><span class='line'>PUBLIC_NETWORK_GATEWAY=200.21.50.2
+</span><span class='line'>Q_FLOATING_ALLOCATION_POOL=start=200.21.50.100,end=200.21.50.150</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>确认br-ex是否存在</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>sudo ovs-vsctl show</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Bridge br-ex
+</span><span class='line'>    Port br-ex
+</span><span class='line'>        Interface br-ex
+</span><span class='line'>            type: internal
+</span><span class='line'>    Port "qg-7ec5be02-69"
+</span><span class='line'>        Interface "qg-7ec5be02-69"
+</span><span class='line'>            type: internal
+</span><span class='line'>ovs_version: "2.0.2"</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>将eth1作为br-ex的接口</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo ovs-vsctl add-port br-ex eth1
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>sudo ovs-vsctl show</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Bridge br-ex
+</span><span class='line'>    Port br-ex
+</span><span class='line'>        Interface br-ex
+</span><span class='line'>            type: internal
+</span><span class='line'>    Port "qg-7ec5be02-69"
+</span><span class='line'>        Interface "qg-7ec5be02-69"
+</span><span class='line'>            type: internal
+</span><span class='line'>    Port "eth1"
+</span><span class='line'>        Interface "eth1"
+</span><span class='line'>ovs_version: "2.0.2"</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person">Posted by <span class="fn" itemprop="name">Ray Sun <xiaoquqi@gmail.com></span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-11T11:33:44+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-05-11 11:33</time>
+          
+
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cloud-computing/'>cloud computing</a>, <a class='category' href='/blog/categories/devstack/'>devstack</a>, <a class='category' href='/blog/categories/kilo/'>kilo</a>, <a class='category' href='/blog/categories/openstack/'>openstack</a>
+  
+</span>
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/blog/2015/05/04/what-is-new-in-kilo/" title="Previous Post: OpenStack Kilo版本新功能分析">&laquo; OpenStack Kilo版本新功能分析</a></li>
+            
+            
+          </ul>
+        
+      </footer>
+    </article>
+    
+    
+      <section>
+        <h2>Comments</h2>
+        <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="(Kilo)Devstack Kilo版本localrc推荐"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"xiaoquqi"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div>
+      </section>
+    
+  </div>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item active" href="/blog/2015/05/11/best-localrc-for-devstack-kilo/">(Kilo)Devstack Kilo版本localrc推荐</a>
+    
+    <a class="list-group-item " href="/blog/2015/05/04/what-is-new-in-kilo/">OpenStack Kilo版本新功能分析</a>
+    
+    <a class="list-group-item " href="/blog/2015/03/05/build-openstack-source-code-to-deb-package/">(Havana)将OpenStack Havana源代码编译为DEB包</a>
+    
+    <a class="list-group-item " href="/blog/2015/03/05/openstack-neutron-l3-high-availability/">(Juno)OpenStack Neutron L3高可靠</a>
+    
+    <a class="list-group-item " href="/blog/2015/03/04/ceph-reliability/">Ceph可靠性的量化分析</a>
+    
+  </div>
+</section>
+
+<section class="panel panel-default clearfix">
+  <div class="panel-heading">
+      <h3 class="panel-title">GitHub Repos</h3>
+  </div>
+  <div class="list-group" id="gh_repos">
+    <p class="loading">Status updating&#8230;</p>
+  </div>
+  
+    <div class="gh-profile-link pull-right text-muted">
+      <a href="https://github.com/xiaoquqi">@xiaoquqi</a> on GitHub
+    </div>
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'xiaoquqi',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2015 - Ray Sun <xiaoquqi@gmail.com><br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+
+
+
+
+
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr.js"></script>
+
+
+  </body>
+</html>
