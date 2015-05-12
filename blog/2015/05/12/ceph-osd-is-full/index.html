@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ceph集群磁盘没有剩余空间的解决方法 - RaySun&#8217;s Blog</title>
+  <meta name="author" content="Ray Sun <xiaoquqi@gmail.com>&#8221;>
+
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://xiaoquqi.github.io/blog/2015/05/12/ceph-osd-is-full/">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="RaySun's Blog" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://xiaoquqi.github.io/blog/2015/05/12/ceph-osd-is-full/">
+  <meta property="og:title" content="Ceph集群磁盘没有剩余空间的解决方法 - RaySun's Blog">
+  
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+
+
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+  
+
+  
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?d43617b82d6762df4e16d4c93de17177";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+
+
+</head>
+
+  <body   >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">RaySun&#8217;s Blog</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a rel="index" href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+                <li >
+                    <a href="/aboutme">About Me</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <form class="search navbar-form navbar-right" action="https://www.google.com/search" method="GET">
+                            <input type="hidden" name="sitesearch" value="xiaoquqi.github.io">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="q" placeholder="Search">
+                            </div>
+                        </form>
+                    </li>
+                
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9" itemscope itemtype="http://schema.org/Blog">
+    <meta itemprop="name" content="RaySun's Blog" />
+    
+    <meta itemprop="url" content="http://xiaoquqi.github.io" />
+    <article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-12T09:21:42+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-05-12 09:21</time>
+        
+        
+           | <a href="#comments">Comments</a>
+        
+      </p>
+    
+    
+    <h1 class="entry-title" itemprop="name headline">
+        Ceph集群磁盘没有剩余空间的解决方法
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix" itemprop="articleBody description"><h2>故障描述</h2>
+
+<p>OpenStack + Ceph集群在使用过程中，由于虚拟机拷入大量新的数据，导致集群的磁盘迅速消耗，没有空余空间，虚拟机无法操作，Ceph集群所有操作都无法执行。</p>
+
+<!-- more -->
+
+
+<h2>故障现象</h2>
+
+<ul>
+<li>尝试使用OpenStack重启虚拟机无效</li>
+<li>尝试直接用rbd命令直接删除块失败</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@controller ~]# rbd -p volumes rm volume-c55fd052-212d-4107-a2ac-cf53bfc049be
+</span><span class='line'>2015-04-29 05:31:31.719478 7f5fb82f7760  0 client.4781741.objecter  FULL, paused modify 0xe9a9e0 tid 6</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>查看ceph健康状态</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>ceph -s</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cluster 059f27e8-a23f-4587-9033-3e3679d03b31
+</span><span class='line'> health HEALTH_ERR 20 pgs backfill_toofull; 20 pgs degraded; 20 pgs stuck unclean; recovery 7482/129081 objects degraded (5.796%); 2 full osd(s); 1 near full osd(s)
+</span><span class='line'> monmap e6: 4 mons at {node-5e40.cloud.com=10.10.20.40:6789/0,node-6670.cloud.com=10.10.20.31:6789/0,node-66c4.cloud.com=10.10.20.36:6789/0,node-fb27.cloud.com=10.10.20.41:6789/0}, election epoch 886, quorum 0,1,2,3 node-6670.cloud.com,node-66c4.cloud.com,node-5e40.cloud.com,node-fb27.cloud.com
+</span><span class='line'> osdmap e2743: 3 osds: 3 up, 3 in
+</span><span class='line'>        flags full
+</span><span class='line'>  pgmap v6564199: 320 pgs, 4 pools, 262 GB data, 43027 objects
+</span><span class='line'>        786 GB used, 47785 MB / 833 GB avail
+</span><span class='line'>        7482/129081 objects degraded (5.796%)
+</span><span class='line'>             300 active+clean
+</span><span class='line'>              20 active+degraded+remapped+backfill_toofull</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>ceph health detail</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>HEALTH_ERR 20 pgs backfill_toofull; 20 pgs degraded; 20 pgs stuck unclean; recovery 7482/129081 objects degraded (5.796%); 2 full osd(s); 1 near full osd(s)
+</span><span class='line'>pg 3.8 is stuck unclean for 7067109.597691, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.7d is stuck unclean for 1852078.505139, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.21 is stuck unclean for 7072842.637848, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.22 is stuck unclean for 7070880.213397, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.a is stuck unclean for 7067057.863562, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.7f is stuck unclean for 7067122.493746, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.5 is stuck unclean for 7067088.369629, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.1e is stuck unclean for 7073386.246281, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.19 is stuck unclean for 7068035.310269, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.5d is stuck unclean for 1852078.505949, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.1a is stuck unclean for 7067088.429544, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.1b is stuck unclean for 7072773.771385, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.3 is stuck unclean for 7067057.864514, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.15 is stuck unclean for 7067088.825483, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.11 is stuck unclean for 7067057.862408, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.6d is stuck unclean for 7067083.634454, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.6e is stuck unclean for 7067098.452576, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.c is stuck unclean for 5658116.678331, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.e is stuck unclean for 7067078.646953, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+</span><span class='line'>pg 3.20 is stuck unclean for 7067140.530849, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+</span><span class='line'>pg 3.7d is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.7f is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.6d is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.6e is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.5d is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.20 is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.21 is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.22 is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.1e is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.19 is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.1a is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.1b is active+degraded+remapped+backfill_toofull, acting [0,2]
+</span><span class='line'>pg 3.15 is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.11 is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.c is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.e is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.8 is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.a is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.5 is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>pg 3.3 is active+degraded+remapped+backfill_toofull, acting [2,0]
+</span><span class='line'>recovery 7482/129081 objects degraded (5.796%)
+</span><span class='line'>osd.0 is full at 95%
+</span><span class='line'>osd.2 is full at 95%
+</span><span class='line'>osd.1 is near full at 93%</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>解决方案一(已验证)</h2>
+
+<p>增加OSD节点，这也是官方文档中推荐的做法，增加新的节点后，Ceph开始重新平衡数据，OSD使用空间开始下降</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>2015-04-29 06:51:58.623262 osd.1 [WRN] OSD near full (91%)
+</span><span class='line'>2015-04-29 06:52:01.500813 osd.2 [WRN] OSD near full (92%)</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>解决方案二(理论上，没有进行验证)</h2>
+
+<p>如果在没有新的硬盘的情况下，只能采用另外一种方式。在当前状态下，Ceph不允许任何的读写操作，所以此时任何的Ceph命令都不好使，解决的方案就是尝试降低Ceph对于full的比例定义，我们从上面的日志中可以看到Ceph的full的比例为95%，我们需要做的就是提高full的比例，之后尽快尝试删除数据，将比例下降。</p>
+
+<ul>
+<li>尝试直接用命令设置，但是失败了，Ceph集群并没有重新同步数据，怀疑可能仍然需要重启服务本身</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ceph mon tell \* injectargs '--mon-osd-full-ratio 0.98'</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修改配置文件，之后重启monitor服务，但是担心出问题，所以没有敢尝试该方法，后续经过在邮件列表确认，该方法应该不会对数据产生影响，但是前提是在恢复期间，所有的虚拟机不要向Ceph再写入任何数据。</li>
+</ul>
+
+
+<p>默认情况下full的比例是95%，而near full的比例是85%，所以需要根据实际情况对该配置进行调整。</p>
+
+<figure class='code'><figcaption><span>/etc/ceph/ceph.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[global]
+</span><span class='line'>    mon osd full ratio = .98
+</span><span class='line'>    mon osd nearfull ratio = .80</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>分析总结</h2>
+
+<h3>原因</h3>
+
+<p>根据Ceph官方文档中的描述，当一个OSD full比例达到95%时，集群将不接受任何Ceph Client端的读写数据的请求。所以导致虚拟机在重启时，无法启动的情况。</p>
+
+<h3>解决方法</h3>
+
+<p>从官方的推荐来看，应该比较支持添加新的OSD的方式，当然临时的提高比例是一个解决方案，但是并不推荐，因为需要手动的删除数据去解决，而且一旦再有一个新的节点出现故障，仍然会出现比例变满的状况，所以解决之道最好是扩容。</p>
+
+<h3>思考</h3>
+
+<p>在这次故障过程中，有两点是值得思考的：</p>
+
+<ul>
+<li>监控：由于当时服务器在配置过程中DNS配置错误，导致监控邮件无法正常发出，从而没有收到Ceph WARN的提示信息</li>
+<li>云平台本身： 由于Ceph的机制，在OpenStack平台中分配中，大多时候是超分的，从用户角度看，拷贝大量数据的行为并没有不妥之处，但是由于云平台并没有相应的预警机制，导致了该问题的发生</li>
+</ul>
+
+
+<h2>参考文档</h2>
+
+<ul>
+<li><a href="http://ceph.com/docs/master/rados/configuration/mon-config-ref/#storage-capacity">http://ceph.com/docs/master/rados/configuration/mon-config-ref/#storage-capacity</a></li>
+</ul>
+
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person">Posted by <span class="fn" itemprop="name">Ray Sun <xiaoquqi@gmail.com></span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-12T09:21:42+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-05-12 09:21</time>
+          
+
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ceph/'>ceph</a>, <a class='category' href='/blog/categories/openstack/'>openstack</a>
+  
+</span>
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/blog/2015/05/11/best-localrc-for-devstack-kilo/" title="Previous Post: (Kilo)Devstack Kilo版本localrc推荐">&laquo; (Kilo)Devstack Kilo版本localrc推荐</a></li>
+            
+            
+          </ul>
+        
+      </footer>
+    </article>
+    
+    
+      <section>
+        <h2>Comments</h2>
+        <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="Ceph集群磁盘没有剩余空间的解决方法"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"xiaoquqi"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div>
+      </section>
+    
+  </div>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item active" href="/blog/2015/05/12/ceph-osd-is-full/">Ceph集群磁盘没有剩余空间的解决方法</a>
+    
+    <a class="list-group-item " href="/blog/2015/05/11/best-localrc-for-devstack-kilo/">(Kilo)Devstack Kilo版本localrc推荐</a>
+    
+    <a class="list-group-item " href="/blog/2015/05/04/what-is-new-in-kilo/">OpenStack Kilo版本新功能分析</a>
+    
+    <a class="list-group-item " href="/blog/2015/03/05/build-openstack-source-code-to-deb-package/">(Havana)将OpenStack Havana源代码编译为DEB包</a>
+    
+    <a class="list-group-item " href="/blog/2015/03/05/openstack-neutron-l3-high-availability/">(Juno)OpenStack Neutron L3高可靠</a>
+    
+  </div>
+</section>
+
+<section class="panel panel-default clearfix">
+  <div class="panel-heading">
+      <h3 class="panel-title">GitHub Repos</h3>
+  </div>
+  <div class="list-group" id="gh_repos">
+    <p class="loading">Status updating&#8230;</p>
+  </div>
+  
+    <div class="gh-profile-link pull-right text-muted">
+      <a href="https://github.com/xiaoquqi">@xiaoquqi</a> on GitHub
+    </div>
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'xiaoquqi',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2015 - Ray Sun <xiaoquqi@gmail.com><br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+
+
+
+
+
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr.js"></script>
+
+
+  </body>
+</html>

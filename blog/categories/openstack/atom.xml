@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-05-11T16:59:38+08:00</updated>
+  <updated>2015-05-12T14:10:55+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,155 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ceph集群磁盘没有剩余空间的解决方法]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/05/12/ceph-osd-is-full/"/>
+    <updated>2015-05-12T09:21:42+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/05/12/ceph-osd-is-full</id>
+    <content type="html"><![CDATA[<h2>故障描述</h2>
+
+<p>OpenStack + Ceph集群在使用过程中，由于虚拟机拷入大量新的数据，导致集群的磁盘迅速消耗，没有空余空间，虚拟机无法操作，Ceph集群所有操作都无法执行。</p>
+
+<!-- more -->
+
+
+<h2>故障现象</h2>
+
+<ul>
+<li>尝试使用OpenStack重启虚拟机无效</li>
+<li>尝试直接用rbd命令直接删除块失败</li>
+</ul>
+
+
+<pre><code class="plain">[root@controller ~]# rbd -p volumes rm volume-c55fd052-212d-4107-a2ac-cf53bfc049be
+2015-04-29 05:31:31.719478 7f5fb82f7760  0 client.4781741.objecter  FULL, paused modify 0xe9a9e0 tid 6
+</code></pre>
+
+<ul>
+<li>查看ceph健康状态</li>
+</ul>
+
+
+<pre><code class="plain ceph -s">cluster 059f27e8-a23f-4587-9033-3e3679d03b31
+ health HEALTH_ERR 20 pgs backfill_toofull; 20 pgs degraded; 20 pgs stuck unclean; recovery 7482/129081 objects degraded (5.796%); 2 full osd(s); 1 near full osd(s)
+ monmap e6: 4 mons at {node-5e40.cloud.com=10.10.20.40:6789/0,node-6670.cloud.com=10.10.20.31:6789/0,node-66c4.cloud.com=10.10.20.36:6789/0,node-fb27.cloud.com=10.10.20.41:6789/0}, election epoch 886, quorum 0,1,2,3 node-6670.cloud.com,node-66c4.cloud.com,node-5e40.cloud.com,node-fb27.cloud.com
+ osdmap e2743: 3 osds: 3 up, 3 in
+        flags full
+  pgmap v6564199: 320 pgs, 4 pools, 262 GB data, 43027 objects
+        786 GB used, 47785 MB / 833 GB avail
+        7482/129081 objects degraded (5.796%)
+             300 active+clean
+              20 active+degraded+remapped+backfill_toofull
+</code></pre>
+
+<pre><code class="plain ceph health detail">HEALTH_ERR 20 pgs backfill_toofull; 20 pgs degraded; 20 pgs stuck unclean; recovery 7482/129081 objects degraded (5.796%); 2 full osd(s); 1 near full osd(s)
+pg 3.8 is stuck unclean for 7067109.597691, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.7d is stuck unclean for 1852078.505139, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.21 is stuck unclean for 7072842.637848, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.22 is stuck unclean for 7070880.213397, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.a is stuck unclean for 7067057.863562, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.7f is stuck unclean for 7067122.493746, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.5 is stuck unclean for 7067088.369629, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.1e is stuck unclean for 7073386.246281, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.19 is stuck unclean for 7068035.310269, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.5d is stuck unclean for 1852078.505949, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.1a is stuck unclean for 7067088.429544, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.1b is stuck unclean for 7072773.771385, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.3 is stuck unclean for 7067057.864514, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.15 is stuck unclean for 7067088.825483, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.11 is stuck unclean for 7067057.862408, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.6d is stuck unclean for 7067083.634454, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.6e is stuck unclean for 7067098.452576, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.c is stuck unclean for 5658116.678331, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.e is stuck unclean for 7067078.646953, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
+pg 3.20 is stuck unclean for 7067140.530849, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
+pg 3.7d is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.7f is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.6d is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.6e is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.5d is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.20 is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.21 is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.22 is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.1e is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.19 is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.1a is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.1b is active+degraded+remapped+backfill_toofull, acting [0,2]
+pg 3.15 is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.11 is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.c is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.e is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.8 is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.a is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.5 is active+degraded+remapped+backfill_toofull, acting [2,0]
+pg 3.3 is active+degraded+remapped+backfill_toofull, acting [2,0]
+recovery 7482/129081 objects degraded (5.796%)
+osd.0 is full at 95%
+osd.2 is full at 95%
+osd.1 is near full at 93%
+</code></pre>
+
+<h2>解决方案一(已验证)</h2>
+
+<p>增加OSD节点，这也是官方文档中推荐的做法，增加新的节点后，Ceph开始重新平衡数据，OSD使用空间开始下降</p>
+
+<pre><code class="plain">2015-04-29 06:51:58.623262 osd.1 [WRN] OSD near full (91%)
+2015-04-29 06:52:01.500813 osd.2 [WRN] OSD near full (92%)
+</code></pre>
+
+<h2>解决方案二(理论上，没有进行验证)</h2>
+
+<p>如果在没有新的硬盘的情况下，只能采用另外一种方式。在当前状态下，Ceph不允许任何的读写操作，所以此时任何的Ceph命令都不好使，解决的方案就是尝试降低Ceph对于full的比例定义，我们从上面的日志中可以看到Ceph的full的比例为95%，我们需要做的就是提高full的比例，之后尽快尝试删除数据，将比例下降。</p>
+
+<ul>
+<li>尝试直接用命令设置，但是失败了，Ceph集群并没有重新同步数据，怀疑可能仍然需要重启服务本身</li>
+</ul>
+
+
+<pre><code class="plain">ceph mon tell \* injectargs '--mon-osd-full-ratio 0.98'
+</code></pre>
+
+<ul>
+<li>修改配置文件，之后重启monitor服务，但是担心出问题，所以没有敢尝试该方法，后续经过在邮件列表确认，该方法应该不会对数据产生影响，但是前提是在恢复期间，所有的虚拟机不要向Ceph再写入任何数据。</li>
+</ul>
+
+
+<p>默认情况下full的比例是95%，而near full的比例是85%，所以需要根据实际情况对该配置进行调整。</p>
+
+<pre><code class="plain /etc/ceph/ceph.conf">[global]
+    mon osd full ratio = .98
+    mon osd nearfull ratio = .80
+</code></pre>
+
+<h2>分析总结</h2>
+
+<h3>原因</h3>
+
+<p>根据Ceph官方文档中的描述，当一个OSD full比例达到95%时，集群将不接受任何Ceph Client端的读写数据的请求。所以导致虚拟机在重启时，无法启动的情况。</p>
+
+<h3>解决方法</h3>
+
+<p>从官方的推荐来看，应该比较支持添加新的OSD的方式，当然临时的提高比例是一个解决方案，但是并不推荐，因为需要手动的删除数据去解决，而且一旦再有一个新的节点出现故障，仍然会出现比例变满的状况，所以解决之道最好是扩容。</p>
+
+<h3>思考</h3>
+
+<p>在这次故障过程中，有两点是值得思考的：</p>
+
+<ul>
+<li>监控：由于当时服务器在配置过程中DNS配置错误，导致监控邮件无法正常发出，从而没有收到Ceph WARN的提示信息</li>
+<li>云平台本身： 由于Ceph的机制，在OpenStack平台中分配中，大多时候是超分的，从用户角度看，拷贝大量数据的行为并没有不妥之处，但是由于云平台并没有相应的预警机制，导致了该问题的发生</li>
+</ul>
+
+
+<h2>参考文档</h2>
+
+<ul>
+<li><a href="http://ceph.com/docs/master/rados/configuration/mon-config-ref/#storage-capacity">http://ceph.com/docs/master/rados/configuration/mon-config-ref/#storage-capacity</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[(Kilo)Devstack Kilo版本localrc推荐]]></title>
@@ -660,7 +809,7 @@ bzr builddeb -- -sa -us -uc
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#x6d;&#x61;&#105;&#108;&#x74;&#111;&#58;&#120;&#105;&#x61;&#x6f;&#x71;&#x75;&#x71;&#x69;&#x40;&#x67;&#x6d;&#97;&#x69;&#108;&#x2e;&#99;&#111;&#109;">&#120;&#x69;&#97;&#111;&#113;&#x75;&#x71;&#105;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#109;</a></li>
+<li>邮箱：<a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#58;&#x78;&#105;&#x61;&#111;&#x71;&#117;&#x71;&#105;&#x40;&#x67;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x78;&#105;&#x61;&#x6f;&#x71;&#x75;&#x71;&#x69;&#x40;&#x67;&#109;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
@@ -891,128 +1040,6 @@ min_l3_agents_per_router = 2
 <li><a href="https://wiki.openstack.org/wiki/Neutron/L3_High_Availability_VRRP">Dedicated wiki page</a></li>
 <li><a href="https://wiki.openstack.org/wiki/Meetings/Neutron-L3-Subteam#Blueprint:_l3-high-availability_.28safchain.2C_amuller.29">Section in Neutron L3 sub team wiki (Including overview of patch dependencies and future work)</a></li>
 <li><a href="http://assafmuller.com/2014/08/16/layer-3-high-availability/">http://assafmuller.com/2014/08/16/layer-3-high-availability/</a></li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ceph可靠性的量化分析]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/03/04/ceph-reliability/"/>
-    <updated>2015-03-04T08:36:06+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/03/04/ceph-reliability</id>
-    <content type="html"><![CDATA[<p>在开始正文之前，首先要感谢UnitedStack工程师朱荣泽对这篇博文的大力帮助和悉心指教。本文主要针对UnitedStack公司在巴黎峰会上对Ceph可靠性的计算方法(<a href="https://www.ustack.com/blog/build-block-storage-service/">https://www.ustack.com/blog/build-block-storage-service/</a>)做了一个更明确的分析和阐述，供对此话题感兴趣的朋友一起来讨论、研究，文章中如果有不当之处，还请各位高人指教。</p>
-
-<!-- more -->
-
-
-<h2>什么情况下数据会丢失？</h2>
-
-<p>这个话题的另外一种提法就是存储的可靠性，所谓存储的可靠性最基本的一点就是数据不要丢失，也就是我们俗称的“找不回来了”。所以，要分析Ceph的可靠性我们只需要搞清楚，到底在什么情况下我们的数据会丢失，并且再也无法恢复，基于此我们便可以创建我们的计算模型。</p>
-
-<p>我们先来假定一套简单的Ceph环境，3个OSD节点，每个OSD节点对应一块物理硬盘，副本数为3。那么我们排除MON的因素影响Ceph集群的运行的问题，显而易见，当三个OSD对应的物理硬盘全部损坏时，数据必然无法恢复。所以此时集群的可靠性是与硬盘本身的可靠性直接相关。</p>
-
-<p>我们再来假定一套更大的Ceph环境，30个OSD节点，分3个机架摆放，每一个机架有10个OSD节点，每个OSD节点仍然对应一块物理硬盘，副本数为3，并且通过CRUSH MAP，将每一份副本均匀分布在三个机架上，不会出现两份副本同时出现在一个机架的情况。此时，什么时候会出现数据丢失的情况呢？当三个机架上都有一块硬盘损坏，而恰恰这三块硬盘又保存了同一个Object的全部副本，此时数据就会出现丢失的情况。</p>
-
-<p>所以根据以上的分析，我们认为，Ceph的可靠性的计算是与OSD的数量(N)、副本数(R)、每一个服务节点的OSD数量(S)、硬盘的年失败概率(AFR)。这里我们使用UnitedStack相关参数进行计算。</p>
-
-<p>具体取值如下图所示：</p>
-
-<p><img src="/images/blogs/ceph-reliability-formula.jpg" width="640" height="480"></p>
-
-<p><img src="/images/blogs/ceph-reliability-constant.jpg" width="640" height="480"></p>
-
-<h2>硬盘年失败概率</h2>
-
-<p>根据维基百科的计算方法(<a href="http://en.wikipedia.org/wiki/Annualized_failure_rate">http://en.wikipedia.org/wiki/Annualized_failure_rate</a>)，AFR的计算方法如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-afr.jpg" width="640" height="480"></p>
-
-<p>例如，计算Seagate某企业级硬盘的AFR，根据文档查到MTBF为1,200,000小时，则AFR为0.73%，计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-afr-example.jpg" width="640" height="480"></p>
-
-<p>但是，根据Google的相关计算，在一个大规模集群环境下，往往AFR的值并没有硬盘厂商那样乐观，下面的统计告诉了我们在真实环境下AFR变化的情况：</p>
-
-<p><img src="/images/blogs/ceph-reliability-google-afr.jpg" width="640" height="480"></p>
-
-<p>所以我们可以看到实际的AFR的变化范围随着年份而变化，取值范围在1.7%-8%左右，所以本文中AFR为1.7%。</p>
-
-<h2>硬盘在一年之内损坏的概率</h2>
-
-<p>有了AFR，我们就可以尝试计算硬盘在一年中出现故障的概率，根据相关研究，硬盘在一定时间内的失败概率符合Possion分布(已经把知识还给老师的同学请移步：<a href="http://en.wikipedia.org/wiki/Poisson_distribution">http://en.wikipedia.org/wiki/Poisson_distribution</a>)。具体的计算公式为：</p>
-
-<p><img src="/images/blogs/ceph-reliability-Pn.jpg" width="640" height="480"></p>
-
-<p>当我最初拿到这个计算公式时，一下子懵了，到底该如何确定数学期望值lamda呢？</p>
-
-<h2>lamda的计算过程</h2>
-
-<p>根据相关的研究资料，单块的硬盘损坏的期望值(Failures in Time)是指每10亿小时硬盘的失败率(Failure Rate λ)，计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-fit.jpg" width="640" height="480"></p>
-
-<p>这里的Af(Acceleration Factor)是由测试时间乘以阿伦尼乌斯方程的值得出来的结果，好吧，我承认，我也是现学现卖，这个方程式是化学反应的速率常数与温度之间的关系式，适用于基元反应和非基元反应，甚至某些非均相反应。不过可以看出Failure Rate的计算过程实质主要是计算环境因素引起的物理变化，最终导致失败的数学期望值。所以根据相关研究，最终FIT的计算方法为：</p>
-
-<p><img src="/images/blogs/ceph-reliability-fit-afr.jpg" width="640" height="480"></p>
-
-<p>有了这些参数后，我们就可以开始正式计算Ceph集群中，不同机架上有三块硬盘同时出现损坏的概率啦。</p>
-
-<h2>任意一个OSD出现损坏的概率P1(any)</h2>
-
-<p>我们不太容易直接去计算任意一个OSD出现损坏的概率，但是我们很容易计算没有OSD出现问题的概率，方法如下，用一减去无OSD节点出现问题的概率，得到P1(any)。</p>
-
-<p><img src="/images/blogs/ceph-reliability-osd1-failure.jpg" width="640" height="480"></p>
-
-<h2>在恢复时间内第二个节点出现故障的概率P2(any)</h2>
-
-<p>我们知道当Ceph发现一个有问题的OSD节点时，会自动的将节点OUT出去，这个时间大约为10min，同时Ceph的自我修复机制会自动平衡数据，将故障节点的数据重新分配在其他的OSD节点上。</p>
-
-<p>我们假设我们单盘的容量为1000 GB，使用率为75%，也就是此时将有750 GB的数据需要同步。我们的数据只在本机架平衡，节点写入速度为50 MB/s，计算方法如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-recovery-time.jpg" width="640" height="480"></p>
-
-<p>注意：由于每个节点有三个OSD，所以要求每台物理机所承受的节点带宽至少要大于150 MB/s。并且在这个计算模型下，并没有计算元数据、请求数据、IP包头等额外的信息的大小。</p>
-
-<p>有了Recovery Time，我们就可以计算我们第二个节点在Recovery Time内失败的概率，具体的计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-osd2-failure.jpg" width="640" height="480"></p>
-
-<h2>在恢复时间内第三个节点出现故障的概率P3(any)</h2>
-
-<p>计算方法同上，计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-osd3-failure.jpg" width="640" height="480"></p>
-
-<h2>一年内任意副本数&reg;个OSD出现故障的概率</h2>
-
-<p>所以将上述概率相乘即可得到一年内任意副本数&reg;个OSD出现故障的概率。</p>
-
-<p><img src="/images/blogs/ceph-reliability-arbitrary-osd-failure.jpg" width="640" height="480"></p>
-
-<h2>Copy Sets(M)</h2>
-
-<p>在这个计算模型中，因为任意R个OSD节点的损坏并不意外着副本的完全丢失，因为损坏的R个OSD未必保存着一个Object的全部副本信息，所以未必造成数据不可恢复，所以这里引入了Copy Sets的概念。简单来说，Copyset就是存放所有拷贝的一个集合，具体的定义和计算方法可以查看参考链接。那么这里的场景下，Copy Sets为三个机架OSD数量相乘，即M=24<em>24</em>24。当然如果是两个副本的情况下，M应该为24<em>24+24</em>24+24*24。</p>
-
-<p><img src="/images/blogs/ceph-reliability-copysets.jpg" width="640" height="480"></p>
-
-<h2>CEPH的可靠性</h2>
-
-<p>所以最终归纳出CEPH可靠性的算法为：</p>
-
-<p><img src="/images/blogs/ceph-reliability-copysets-failure.jpg" width="640" height="480"></p>
-
-<p>可以看出Ceph三副本的可靠性大约为9个9，由于Recovery Time和AFR取值的问题，所以计算结果和UnitedStack上略有出入。</p>
-
-<h2>参考链接</h2>
-
-<ul>
-<li><a href="http://en.wikipedia.org/wiki/Annualized_failure_rate">Annualized Failure Rate</a></li>
-<li><a href="http://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a></li>
-<li><a href="http://www.microsemi.com/document-portal/doc_view/124041-calculating-reliability-using-fit-mttf-arrhenius-htol-model">Calculating Reliability using FIT &amp; MTTF: Arrhenius HTOL Model</a></li>
-<li><a href="http://storagemojo.com/2007/02/19/googles-disk-failure-experience/">Google’s Disk Failure Experience</a></li>
-<li><a href="https://static.googleusercontent.com/media/research.google.com/en//archive/disk_failures.pdf">Failure Trends in a Large Disk Drive Population</a></li>
-<li><a href="http://0b4af6cdc2f0c5998459-c0245c5c937c5dedcca3f1764ecc9b2f.r43.cf2.rackcdn.com/11727-atc13-cidon.pdf">Copysets: Reducing the Frequency of Data Loss in Cloud Storage</a></li>
 </ul>
 
 ]]></content>
