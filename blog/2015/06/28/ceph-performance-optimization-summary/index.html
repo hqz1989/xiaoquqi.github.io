@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ceph性能优化总结(v0.94) - RaySun&#8217;s Blog</title>
+  <meta name="author" content="Ray Sun <xiaoquqi@gmail.com>&#8221;>
+
+  
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://xiaoquqi.github.io/blog/2015/06/28/ceph-performance-optimization-summary/">
+  <link href="/favicon.png" type="image/png" rel="icon">
+  <link href="/atom.xml" rel="alternate" title="RaySun's Blog" type="application/atom+xml">
+
+  <!-- http://opengraphprotocol.org/ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://xiaoquqi.github.io/blog/2015/06/28/ceph-performance-optimization-summary/">
+  <meta property="og:title" content="Ceph性能优化总结(v0.94) - RaySun's Blog">
+  
+
+  <script src="/javascripts/libs/jquery/jquery-2.1.3.min.js"></script>
+
+<link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/assets/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+
+
+  
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+
+  
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?d43617b82d6762df4e16d4c93de17177";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+
+
+</head>
+
+  <body   >
+    <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+    <div id="wrap">
+      <header role="banner">
+        <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" title="toggle navbar" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">RaySun&#8217;s Blog</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a rel="index" href="/">Blog</a>
+                </li>
+                <li >
+                    <a href="/blog/archives">Archives</a>
+                </li>
+                <li >
+                    <a href="/aboutme">About Me</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <form class="search navbar-form navbar-right" action="https://www.google.com/search" method="GET">
+                            <input type="hidden" name="sitesearch" value="xiaoquqi.github.io">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="q" placeholder="Search">
+                            </div>
+                        </form>
+                    </li>
+                
+                <li>
+                    <a class="subscribe-rss" href="/atom.xml" title="subscribe via RSS">
+                        <span class="visible-xs">RSS</span>
+                        <img class="hidden-xs" src="/images/rss.png" alt="RSS">
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+      </header>
+      <div id="main" role="main" class="container">
+        <div id="content">
+          <div class="row">
+  <div class="page-content col-md-9" itemscope itemtype="http://schema.org/Blog">
+    <meta itemprop="name" content="RaySun's Blog" />
+    
+    <meta itemprop="url" content="http://xiaoquqi.github.io" />
+    <article class="hentry" role="article" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+      
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-28T14:30:22+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-06-28 14:30</time>
+        
+        
+           | <a href="#comments">Comments</a>
+        
+      </p>
+    
+    
+    <h1 class="entry-title" itemprop="name headline">
+        Ceph性能优化总结(v0.94)
+        
+    </h1>
+    
+  </header>
+
+
+<div class="entry-content clearfix" itemprop="articleBody description"><p>最近一直在忙着搞Ceph存储的优化和测试，看了各种资料，但是好像没有一篇文章把其中的方法论交代清楚，所以呢想在这里进行一下总结，很多内容并不是我原创，只是做一个总结。如果其中有任何的问题，欢迎各位喷我，以便我提高。</p>
+
+<h2>优化方法论</h2>
+
+<p>做任何事情还是要有个方法论的，“授人以鱼不如授人以渔”的道理吧，方法通了，所有的问题就有了解决的途径。通过对公开资料的分析进行总结，对分布式存储系统的优化离不开以下几点：</p>
+
+<h3>1. 硬件层面</h3>
+
+<ul>
+<li>硬件规划</li>
+<li>SSD选择</li>
+<li>BIOS设置</li>
+</ul>
+
+
+<h3>2. 软件层面</h3>
+
+<ul>
+<li>Linux OS</li>
+<li>Ceph Configurations</li>
+<li>PG Number调整</li>
+<li>CRUSH Map</li>
+<li>其他因素</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>硬件优化</h2>
+
+<h3>1. 硬件规划</h3>
+
+<ul>
+<li>Processor</li>
+</ul>
+
+
+<p>ceph-osd进程在运行过程中会消耗CPU资源，所以一般会为每一个ceph-osd进程绑定一个CPU核上。当然如果你使用EC方式，可能需要更多的CPU资源。</p>
+
+<p>ceph-mon进程并不十分消耗CPU资源，所以不必为ceph-mon进程预留过多的CPU资源。</p>
+
+<p>ceph-msd也是非常消耗CPU资源的，所以需要提供更多的CPU资源。</p>
+
+<ul>
+<li>内存</li>
+</ul>
+
+
+<p>ceph-mon和ceph-mds需要2G内存，每个ceph-osd进程需要1G内存，当然2G更好。</p>
+
+<ul>
+<li>网络规划</li>
+</ul>
+
+
+<p>万兆网络现在基本上是跑Ceph必备的，网络规划上，也尽量考虑分离cilent和cluster网络。</p>
+
+<h3>2. SSD选择</h3>
+
+<p>硬件的选择也直接决定了Ceph集群的性能，从成本考虑，一般选择SATA SSD作为Journal，<a href="http://www.intel.com/content/www/us/en/solid-state-drives/solid-state-drives-dc-s3500-series.html">Intel® SSD DC S3500 Series</a>基本是目前看到的方案中的首选。400G的规格4K随机写可以达到11000 IOPS。如果在预算足够的情况下，推荐使用PCIE SSD，性能会得到进一步提升，但是由于Journal在向数据盘写入数据时Block后续请求，所以Journal的加入并未呈现出想象中的性能提升，但是的确会对Latency有很大的改善。</p>
+
+<p>如何确定你的SSD是否适合作为SSD Journal，可以参考SÉBASTIEN HAN的<a href="http://www.sebastien-han.fr/blog/2014/10/10/ceph-how-to-test-if-your-ssd-is-suitable-as-a-journal-device/">Ceph: How to Test if Your SSD Is Suitable as a Journal Device?</a>，这里面他也列出了常见的SSD的测试结果，从结果来看SATA SSD中，Intel S3500性能表现最好。</p>
+
+<h3>3. BIOS设置</h3>
+
+<ul>
+<li>Hyper-Threading(HT)</li>
+</ul>
+
+
+<p>基本做云平台的，VT和HT打开都是必须的，超线程技术(HT)就是利用特殊的硬件指令，把两个逻辑内核模拟成两个物理芯片，让单个处理器都能使用线程级并行计算，进而兼容多线程操作系统和软件，减少了CPU的闲置时间，提高的CPU的运行效率。</p>
+
+<ul>
+<li>关闭节能</li>
+</ul>
+
+
+<p>关闭节能后，对性能还是有所提升的，所以坚决调整成性能型(Performance)。当然也可以在操作系统级别进行调整，详细的调整过程请参考<a href="http://www.servernoobs.com/avoiding-cpu-speed-scaling-in-modern-linux-distributions-running-cpu-at-full-speed-tips/">链接</a>，但是不知道是不是由于BIOS已经调整的缘故，所以在CentOS 6.6上并没有发现相关的设置。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f $CPUFREQ ] || continue; echo -n performance &gt; $CPUFREQ; done</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-numa/">NUMA</a></li>
+</ul>
+
+
+<p>简单来说，NUMA思路就是将内存和CPU分割为多个区域，每个区域叫做NODE,然后将NODE高速互联。 node内cpu与内存访问速度快于访问其他node的内存，<a href="http://lists.ceph.com/pipermail/ceph-users-ceph.com/2013-December/036211.html">NUMA可能会在某些情况下影响ceph-osd</a>。解决的方案，一种是通过BIOS关闭NUMA，另外一种就是通过cgroup将ceph-osd进程与某一个CPU Core以及同一NODE下的内存进行绑定。但是第二种看起来更麻烦，所以一般部署的时候可以在系统层面关闭NUMA。CentOS系统下，通过修改/etc/grub.conf文件，添加numa=off来关闭NUMA。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kernel /vmlinuz-2.6.32-504.12.2.el6.x86_64 ro root=UUID=870d47f8-0357-4a32-909f-74173a9f0633 rd_NO_LUKS rd_NO_LVM LANG=en_US.UTF-8 rd_NO_MD SYSFONT=latarcyrheb-sun16 crashkernel=auto  KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM   biosdevname=0 numa=off</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>软件优化</h2>
+
+<h3>1. Linux OS</h3>
+
+<ul>
+<li>Kernel pid max</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo 4194303 &gt; /proc/sys/kernel/pid_max</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Jumbo frames, 交换机端需要支持该功能，系统网卡设置才有效果</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ifconfig eth0 mtu 9000</span></code></pre></td></tr></table></div></figure>
+
+
+<p>永久设置</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo "MTU=9000" | tee -a /etc/sysconfig/network-script/ifcfg-eth0
+</span><span class='line'>/etc/init.d/networking restart</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>read_ahead, 通过数据预读并且记载到随机访问内存方式提高磁盘读操作，查看默认值</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat /sys/block/sda/queue/read_ahead_kb</span></code></pre></td></tr></table></div></figure>
+
+
+<p>根据一些Ceph的公开分享，8192是比较理想的值</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo "8192" &gt; /sys/block/sda/queue/read_ahead_kb</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>swappiness, 主要控制系统对swap的使用，这个参数的调整最先见于UnitedStack公开的文档中，猜测调整的原因主要是使用swap会影响系统的性能。</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo "vm.swappiness = 0" | tee -a /etc/sysctl.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>I/O Scheduler，关于I/O Scheculder的调整网上已经有很多资料，这里不再赘述，简单说SSD要用noop，SATA/SAS使用deadline。</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo "deadline" &gt; /sys/block/sd[x]/queue/scheduler
+</span><span class='line'>echo "noop" &gt; /sys/block/sd[x]/queue/scheduler</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>cgroup</li>
+</ul>
+
+
+<p>这方面的文章好像比较少，昨天在和Ceph社区交流过程中，Jan Schermer说准备把生产环境中的一些脚本贡献出来，但是暂时还没有，他同时也列举了一些使用cgroup进行隔离的<a href="https://www.mail-archive.com/ceph-users@lists.ceph.com/msg21111.html">原因</a>。</p>
+
+<blockquote><ul>
+<li>不在process和thread在不同的core上移动(更好的缓存利用)</li>
+<li>减少NUMA的影响</li>
+<li>网络和存储控制器影响 - 较小</li>
+<li>通过限制cpuset来限制Linux调度域(不确定是不是重要但是是最佳实践)</li>
+<li>如果开启了HT，可能会造成OSD在thread1上，KVM在thread2上，并且是同一个core。Core的延迟和性能取决于其他一个线程做什么。</li>
+</ul>
+</blockquote>
+
+<p>这一点具体实现待补充！！！</p>
+
+<h3>2. Ceph Configurations</h3>
+
+<h4>[global]</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> public network </td>
+<td> 客户端访问网络 </td>
+<td> </td>
+<td> 192.168.100.0/24 </td>
+</tr>
+<tr>
+<td> cluster network </td>
+<td> 集群网络 </td>
+<td> </td>
+<td> 192.168.1.0/24 </td>
+</tr>
+<tr>
+<td> max open files </td>
+<td> 如果设置了该选项，Ceph会设置系统的max open fds </td>
+<td> 0 </td>
+<td> 131072 </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>查看系统最大文件打开数可以使用命令</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat /proc/sys/fs/file-max</span></code></pre></td></tr></table></div></figure>
+
+
+<hr />
+
+<h4>[osd] - filestore</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> filestore xattr use omap </td>
+<td> 为XATTRS使用object map，EXT4文件系统时使用，XFS或者btrfs也可以使用 </td>
+<td> false </td>
+<td> true </td>
+</tr>
+<tr>
+<td> filestore max sync interval </td>
+<td> 从日志到数据盘最大同步间隔(seconds) </td>
+<td> 5 </td>
+<td> 15 </td>
+</tr>
+<tr>
+<td> filestore min sync interval </td>
+<td> 从日志到数据盘最小同步间隔(seconds) </td>
+<td> 0.1 </td>
+<td> 10 </td>
+</tr>
+<tr>
+<td> filestore queue max ops </td>
+<td> 数据盘最大接受的操作数 </td>
+<td> 500 </td>
+<td> 25000 </td>
+</tr>
+<tr>
+<td> filestore queue max bytes </td>
+<td> 数据盘一次操作最大字节数(bytes) </td>
+<td> 100 &lt;&lt; 20 </td>
+<td> 10485760 </td>
+</tr>
+<tr>
+<td> filestore queue committing max ops </td>
+<td> 数据盘能够commit的操作数 </td>
+<td> 500 </td>
+<td> 5000 </td>
+</tr>
+<tr>
+<td> filestore queue committing max bytes </td>
+<td> 数据盘能够commit的最大字节数(bytes) </td>
+<td> 100 &lt;&lt; 20 </td>
+<td> 10485760000 </td>
+</tr>
+<tr>
+<td> filestore op threads </td>
+<td> 并发文件系统操作数 </td>
+<td> 2 </td>
+<td> 32 </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>调整omap的原因主要是EXT4文件系统默认仅有4K</li>
+<li>filestore queue相关的参数对于性能影响很小，参数调整不会对性能优化有本质上提升</li>
+</ul>
+
+
+<hr />
+
+<h4>[osd] - journal</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> osd journal size </td>
+<td> OSD日志大小(MB) </td>
+<td> 5120 </td>
+<td> 20000 </td>
+</tr>
+<tr>
+<td> journal max write bytes </td>
+<td> journal一次性写入的最大字节数(bytes) </td>
+<td> 10 &lt;&lt; 20 </td>
+<td> 1073714824 </td>
+</tr>
+<tr>
+<td> journal max write entries </td>
+<td> journal一次性写入的最大记录数 </td>
+<td> 100 </td>
+<td> 10000 </td>
+</tr>
+<tr>
+<td> journal queue max ops </td>
+<td> journal一次性最大在队列中的操作数 </td>
+<td> 500 </td>
+<td> 50000 </td>
+</tr>
+<tr>
+<td> journal queue max bytes </td>
+<td> journal一次性最大在队列中的字节数(bytes) </td>
+<td> 10 &lt;&lt; 20 </td>
+<td> 10485760000 </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>Ceph OSD Daemon stops writes and synchronizes the journal with the filesystem, allowing Ceph OSD Daemons to trim operations from the journal and reuse the space.</li>
+<li>上面这段话的意思就是，Ceph OSD进程在往数据盘上刷数据的过程中，是停止写操作的。</li>
+</ul>
+
+
+<hr />
+
+<h4>[osd] - osd config tuning</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> osd max write size </td>
+<td> OSD一次可写入的最大值(MB) </td>
+<td> 90 </td>
+<td> 512 </td>
+</tr>
+<tr>
+<td> osd client message size cap </td>
+<td> 客户端允许在内存中的最大数据(bytes) </td>
+<td> 524288000 </td>
+<td> 2147483648 </td>
+</tr>
+<tr>
+<td> osd deep scrub stride </td>
+<td> 在Deep Scrub时候允许读取的字节数(bytes) </td>
+<td> 524288 </td>
+<td> 131072 </td>
+</tr>
+<tr>
+<td> osd op threads </td>
+<td> OSD进程操作的线程数 </td>
+<td> 2 </td>
+<td> 8 </td>
+</tr>
+<tr>
+<td> osd disk threads </td>
+<td> OSD密集型操作例如恢复和Scrubbing时的线程 </td>
+<td> 1 </td>
+<td> 4 </td>
+</tr>
+<tr>
+<td> osd map cache size </td>
+<td> 保留OSD Map的缓存(MB) </td>
+<td> 500 </td>
+<td> 1024 </td>
+</tr>
+<tr>
+<td> osd map cache bl size </td>
+<td> OSD进程在内存中的OSD Map缓存(MB) </td>
+<td> 50 </td>
+<td> 128 </td>
+</tr>
+<tr>
+<td> osd mount options xfs </td>
+<td> Ceph OSD xfs Mount选项 </td>
+<td> rw,noatime,inode64 </td>
+<td> rw,noexec,nodev,noatime,nodiratime,nobarrier </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>增加osd op threads和disk threads会带来额外的CPU开销</li>
+</ul>
+
+
+<hr />
+
+<h4>[osd] - recovery tuning</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> osd recovery op priority </td>
+<td> 恢复操作优先级，取值1-63，值越高占用资源越高 </td>
+<td> 10 </td>
+<td> 4 </td>
+</tr>
+<tr>
+<td> osd recovery max active </td>
+<td> 同一时间内活跃的恢复请求数 </td>
+<td> 15 </td>
+<td> 10 </td>
+</tr>
+<tr>
+<td> osd max backfills </td>
+<td> 一个OSD允许的最大backfills数 </td>
+<td> 10 </td>
+<td> 4 </td>
+</tr>
+</tbody>
+</table>
+
+
+<h4>[osd] - client tuning</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> rbd cache </td>
+<td> RBD缓存 </td>
+<td> true </td>
+<td> true </td>
+</tr>
+<tr>
+<td> rbd cache size </td>
+<td> RBD缓存大小(bytes) </td>
+<td> 33554432 </td>
+<td> 268435456 </td>
+</tr>
+<tr>
+<td> rbd cache max dirty </td>
+<td> 缓存为write-back时允许的最大dirty字节数(bytes)，如果为0，使用write-through </td>
+<td> 25165824 </td>
+<td> 134217728 </td>
+</tr>
+<tr>
+<td> rbd cache max dirty age </td>
+<td> 在被刷新到存储盘前dirty数据存在缓存的时间(seconds) </td>
+<td> 1 </td>
+<td> 5 </td>
+</tr>
+</tbody>
+</table>
+
+
+<h4>关闭Debug</h4>
+
+<h3>3. PG Number</h3>
+
+<p>PG和PGP数量一定要根据OSD的数量进行调整，计算公式如下，但是最后算出的结果一定要接近或者等于一个2的指数。</p>
+
+<pre><code>Total PGs = (Total_number_of_OSD * 100) / max_replication_count
+</code></pre>
+
+<p>例如15个OSD，副本数为3的情况下，根据公式计算的结果应该为500，最接近512，所以需要设定该pool(volumes)的pg_num和pgp_num都为512.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ceph osd pool set volumes pg_num 512
+</span><span class='line'>ceph osd pool set volumes pgp_num 512</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>4. CRUSH Map</h3>
+
+<p>CRUSH是一个非常灵活的方式，CRUSH MAP的调整取决于部署的具体环境，这个可能需要根据具体情况进行分析，这里面就不再赘述了。</p>
+
+<h3>5. 其他因素的影响</h3>
+
+<p>在今年的(2015年)的Ceph Day上，海云捷迅在调优过程中分享过一个由于在集群中存在一个性能不好的磁盘，导致整个集群性能下降的case。通过osd perf可以提供磁盘latency的状况，同时在运维过程中也可以作为监控的一个重要指标，很明显在下面的例子中，OSD 8的磁盘延时较长，所以需要考虑将该OSD剔除出集群：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ceph osd perf</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>osd fs_commit_latency(ms) fs_apply_latency(ms)
+  0                    14                   17
+  1                    14                   16
+  2                    10                   11
+  3                     4                    5
+  4                    13                   15
+  5                    17                   20
+  6                    15                   18
+  7                    14                   16
+  8                   299                  329
+</code></pre>
+
+<h2>ceph.conf</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[global]
+</span><span class='line'>fsid = 059f27e8-a23f-4587-9033-3e3679d03b31
+</span><span class='line'>mon_host = 10.10.20.102, 10.10.20.101, 10.10.20.100
+</span><span class='line'>auth cluster required = cephx
+</span><span class='line'>auth service required = cephx
+</span><span class='line'>auth client required = cephx
+</span><span class='line'>osd pool default size = 3
+</span><span class='line'>osd pool default min size = 1
+</span><span class='line'>
+</span><span class='line'>public network = 10.10.20.0/24
+</span><span class='line'>cluster network = 10.10.20.0/24
+</span><span class='line'>
+</span><span class='line'>max open files = 131072
+</span><span class='line'>
+</span><span class='line'>[mon]
+</span><span class='line'>mon data = /var/lib/ceph/mon/ceph-$id
+</span><span class='line'>
+</span><span class='line'>[osd]
+</span><span class='line'>osd data = /var/lib/ceph/osd/ceph-$id
+</span><span class='line'>osd journal size = 20000
+</span><span class='line'>osd mkfs type = xfs
+</span><span class='line'>osd mkfs options xfs = -f
+</span><span class='line'>
+</span><span class='line'>filestore xattr use omap = true
+</span><span class='line'>filestore min sync interval = 10
+</span><span class='line'>filestore max sync interval = 15
+</span><span class='line'>filestore queue max ops = 25000
+</span><span class='line'>filestore queue max bytes = 10485760
+</span><span class='line'>filestore queue committing max ops = 5000
+</span><span class='line'>filestore queue committing max bytes = 10485760000
+</span><span class='line'>
+</span><span class='line'>journal max write bytes = 1073714824
+</span><span class='line'>journal max write entries = 10000
+</span><span class='line'>journal queue max ops = 50000
+</span><span class='line'>journal queue max bytes = 10485760000
+</span><span class='line'>
+</span><span class='line'>osd max write size = 512
+</span><span class='line'>osd client message size cap = 2147483648
+</span><span class='line'>osd deep scrub stride = 131072
+</span><span class='line'>osd op threads = 8
+</span><span class='line'>osd disk threads = 4
+</span><span class='line'>osd map cache size = 1024
+</span><span class='line'>osd map cache bl size = 128
+</span><span class='line'>osd mount options xfs = "rw,noexec,nodev,noatime,nodiratime,nobarrier"
+</span><span class='line'>osd recovery op priority = 4
+</span><span class='line'>osd recovery max active = 10
+</span><span class='line'>osd max backfills = 4
+</span><span class='line'>
+</span><span class='line'>[client]
+</span><span class='line'>rbd cache = true
+</span><span class='line'>rbd cache size = 268435456
+</span><span class='line'>rbd cache max dirty = 134217728
+</span><span class='line'>rbd cache max dirty age = 5</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>总结</h2>
+
+<p>优化是一个长期迭代的过程，所有的方法都是别人的，只有在实践过程中才能发现自己的，本篇文章仅仅是一个开始，欢迎各位积极补充，共同完成一篇具有指导性的文章。</p>
+</div>
+
+
+      <footer>
+        <p class="meta text-muted">
+          
+  
+
+<span class="glyphicon glyphicon-user"></span> <span class="byline author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person">Posted by <span class="fn" itemprop="name">Ray Sun <xiaoquqi@gmail.com></span></span>
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-28T14:30:22+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-06-28 14:30</time>
+          
+
+<span class="glyphicon glyphicon-tags"></span>&nbsp;
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ceph/'>ceph</a>, <a class='category' href='/blog/categories/openstack/'>openstack</a>
+  
+</span>
+
+
+        </p>
+        
+          <div class="sharing">
+  
+  
+  
+</div>
+
+        
+        
+          <ul class="meta text-muted pager">
+            
+            <li class="previous"><a href="/blog/2015/05/12/ceph-osd-is-full/" title="Previous Post: Ceph集群磁盘没有剩余空间的解决方法">&laquo; Ceph集群磁盘没有剩余空间的解决方法</a></li>
+            
+            
+          </ul>
+        
+      </footer>
+    </article>
+    
+    
+      <section>
+        <h2>Comments</h2>
+        <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread" data-title="Ceph性能优化总结(v0.94)"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"xiaoquqi"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = 'http://static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div>
+      </section>
+    
+  </div>
+
+  
+  <aside class="sidebar col-md-3">
+    
+      <section class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Recent Posts</h3>
+  </div>
+  
+  <div id="recent_posts" class="list-group">
+    
+    <a class="list-group-item active" href="/blog/2015/06/28/ceph-performance-optimization-summary/">Ceph性能优化总结(v0.94)</a>
+    
+    <a class="list-group-item " href="/blog/2015/05/12/ceph-osd-is-full/">Ceph集群磁盘没有剩余空间的解决方法</a>
+    
+    <a class="list-group-item " href="/blog/2015/05/11/best-localrc-for-devstack-kilo/">(Kilo)Devstack Kilo版本localrc推荐</a>
+    
+    <a class="list-group-item " href="/blog/2015/05/04/what-is-new-in-kilo/">OpenStack Kilo版本新功能分析</a>
+    
+    <a class="list-group-item " href="/blog/2015/03/05/build-openstack-source-code-to-deb-package/">(Havana)将OpenStack Havana源代码编译为DEB包</a>
+    
+  </div>
+</section>
+
+<section class="panel panel-default clearfix">
+  <div class="panel-heading">
+      <h3 class="panel-title">GitHub Repos</h3>
+  </div>
+  <div class="list-group" id="gh_repos">
+    <p class="loading">Status updating&#8230;</p>
+  </div>
+  
+    <div class="gh-profile-link pull-right text-muted">
+      <a href="https://github.com/xiaoquqi">@xiaoquqi</a> on GitHub
+    </div>
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'xiaoquqi',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+
+    
+  </aside>
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer role="contentinfo"><div class="container">
+    <p class="text-muted credits">
+  Copyright &copy; 2015 - Ray Sun <xiaoquqi@gmail.com><br>
+  <small>
+      <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
+      <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
+  </small>
+</p>
+
+</div>
+</footer>
+    
+
+
+
+
+
+
+
+
+<script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/javascripts/modernizr.js"></script>
+
+
+  </body>
+</html>

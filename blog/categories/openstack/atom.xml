@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-05-12T14:10:55+08:00</updated>
+  <updated>2015-06-30T22:57:41+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,604 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ceph性能优化总结(v0.94)]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/06/28/ceph-performance-optimization-summary/"/>
+    <updated>2015-06-28T14:30:22+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/06/28/ceph-performance-optimization-summary</id>
+    <content type="html"><![CDATA[<p>最近一直在忙着搞Ceph存储的优化和测试，看了各种资料，但是好像没有一篇文章把其中的方法论交代清楚，所以呢想在这里进行一下总结，很多内容并不是我原创，只是做一个总结。如果其中有任何的问题，欢迎各位喷我，以便我提高。</p>
+
+<h2>优化方法论</h2>
+
+<p>做任何事情还是要有个方法论的，“授人以鱼不如授人以渔”的道理吧，方法通了，所有的问题就有了解决的途径。通过对公开资料的分析进行总结，对分布式存储系统的优化离不开以下几点：</p>
+
+<h3>1. 硬件层面</h3>
+
+<ul>
+<li>硬件规划</li>
+<li>SSD选择</li>
+<li>BIOS设置</li>
+</ul>
+
+
+<h3>2. 软件层面</h3>
+
+<ul>
+<li>Linux OS</li>
+<li>Ceph Configurations</li>
+<li>PG Number调整</li>
+<li>CRUSH Map</li>
+<li>其他因素</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>硬件优化</h2>
+
+<h3>1. 硬件规划</h3>
+
+<ul>
+<li>Processor</li>
+</ul>
+
+
+<p>ceph-osd进程在运行过程中会消耗CPU资源，所以一般会为每一个ceph-osd进程绑定一个CPU核上。当然如果你使用EC方式，可能需要更多的CPU资源。</p>
+
+<p>ceph-mon进程并不十分消耗CPU资源，所以不必为ceph-mon进程预留过多的CPU资源。</p>
+
+<p>ceph-msd也是非常消耗CPU资源的，所以需要提供更多的CPU资源。</p>
+
+<ul>
+<li>内存</li>
+</ul>
+
+
+<p>ceph-mon和ceph-mds需要2G内存，每个ceph-osd进程需要1G内存，当然2G更好。</p>
+
+<ul>
+<li>网络规划</li>
+</ul>
+
+
+<p>万兆网络现在基本上是跑Ceph必备的，网络规划上，也尽量考虑分离cilent和cluster网络。</p>
+
+<h3>2. SSD选择</h3>
+
+<p>硬件的选择也直接决定了Ceph集群的性能，从成本考虑，一般选择SATA SSD作为Journal，<a href="http://www.intel.com/content/www/us/en/solid-state-drives/solid-state-drives-dc-s3500-series.html">Intel® SSD DC S3500 Series</a>基本是目前看到的方案中的首选。400G的规格4K随机写可以达到11000 IOPS。如果在预算足够的情况下，推荐使用PCIE SSD，性能会得到进一步提升，但是由于Journal在向数据盘写入数据时Block后续请求，所以Journal的加入并未呈现出想象中的性能提升，但是的确会对Latency有很大的改善。</p>
+
+<p>如何确定你的SSD是否适合作为SSD Journal，可以参考SÉBASTIEN HAN的<a href="http://www.sebastien-han.fr/blog/2014/10/10/ceph-how-to-test-if-your-ssd-is-suitable-as-a-journal-device/">Ceph: How to Test if Your SSD Is Suitable as a Journal Device?</a>，这里面他也列出了常见的SSD的测试结果，从结果来看SATA SSD中，Intel S3500性能表现最好。</p>
+
+<h3>3. BIOS设置</h3>
+
+<ul>
+<li>Hyper-Threading(HT)</li>
+</ul>
+
+
+<p>基本做云平台的，VT和HT打开都是必须的，超线程技术(HT)就是利用特殊的硬件指令，把两个逻辑内核模拟成两个物理芯片，让单个处理器都能使用线程级并行计算，进而兼容多线程操作系统和软件，减少了CPU的闲置时间，提高的CPU的运行效率。</p>
+
+<ul>
+<li>关闭节能</li>
+</ul>
+
+
+<p>关闭节能后，对性能还是有所提升的，所以坚决调整成性能型(Performance)。当然也可以在操作系统级别进行调整，详细的调整过程请参考<a href="http://www.servernoobs.com/avoiding-cpu-speed-scaling-in-modern-linux-distributions-running-cpu-at-full-speed-tips/">链接</a>，但是不知道是不是由于BIOS已经调整的缘故，所以在CentOS 6.6上并没有发现相关的设置。</p>
+
+<pre><code>for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f $CPUFREQ ] || continue; echo -n performance &gt; $CPUFREQ; done
+</code></pre>
+
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/linux/l-numa/">NUMA</a></li>
+</ul>
+
+
+<p>简单来说，NUMA思路就是将内存和CPU分割为多个区域，每个区域叫做NODE,然后将NODE高速互联。 node内cpu与内存访问速度快于访问其他node的内存，<a href="http://lists.ceph.com/pipermail/ceph-users-ceph.com/2013-December/036211.html">NUMA可能会在某些情况下影响ceph-osd</a>。解决的方案，一种是通过BIOS关闭NUMA，另外一种就是通过cgroup将ceph-osd进程与某一个CPU Core以及同一NODE下的内存进行绑定。但是第二种看起来更麻烦，所以一般部署的时候可以在系统层面关闭NUMA。CentOS系统下，通过修改/etc/grub.conf文件，添加numa=off来关闭NUMA。</p>
+
+<pre><code>kernel /vmlinuz-2.6.32-504.12.2.el6.x86_64 ro root=UUID=870d47f8-0357-4a32-909f-74173a9f0633 rd_NO_LUKS rd_NO_LVM LANG=en_US.UTF-8 rd_NO_MD SYSFONT=latarcyrheb-sun16 crashkernel=auto  KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM   biosdevname=0 numa=off
+</code></pre>
+
+<h2>软件优化</h2>
+
+<h3>1. Linux OS</h3>
+
+<ul>
+<li>Kernel pid max</li>
+</ul>
+
+
+<pre><code>echo 4194303 &gt; /proc/sys/kernel/pid_max
+</code></pre>
+
+<ul>
+<li>Jumbo frames, 交换机端需要支持该功能，系统网卡设置才有效果</li>
+</ul>
+
+
+<pre><code>ifconfig eth0 mtu 9000
+</code></pre>
+
+<p>永久设置</p>
+
+<pre><code>echo "MTU=9000" | tee -a /etc/sysconfig/network-script/ifcfg-eth0
+/etc/init.d/networking restart
+</code></pre>
+
+<ul>
+<li>read_ahead, 通过数据预读并且记载到随机访问内存方式提高磁盘读操作，查看默认值</li>
+</ul>
+
+
+<pre><code>cat /sys/block/sda/queue/read_ahead_kb
+</code></pre>
+
+<p>根据一些Ceph的公开分享，8192是比较理想的值</p>
+
+<pre><code>echo "8192" &gt; /sys/block/sda/queue/read_ahead_kb
+</code></pre>
+
+<ul>
+<li>swappiness, 主要控制系统对swap的使用，这个参数的调整最先见于UnitedStack公开的文档中，猜测调整的原因主要是使用swap会影响系统的性能。</li>
+</ul>
+
+
+<pre><code>echo "vm.swappiness = 0" | tee -a /etc/sysctl.conf
+</code></pre>
+
+<ul>
+<li>I/O Scheduler，关于I/O Scheculder的调整网上已经有很多资料，这里不再赘述，简单说SSD要用noop，SATA/SAS使用deadline。</li>
+</ul>
+
+
+<pre><code>echo "deadline" &gt; /sys/block/sd[x]/queue/scheduler
+echo "noop" &gt; /sys/block/sd[x]/queue/scheduler
+</code></pre>
+
+<ul>
+<li>cgroup</li>
+</ul>
+
+
+<p>这方面的文章好像比较少，昨天在和Ceph社区交流过程中，Jan Schermer说准备把生产环境中的一些脚本贡献出来，但是暂时还没有，他同时也列举了一些使用cgroup进行隔离的<a href="https://www.mail-archive.com/ceph-users@lists.ceph.com/msg21111.html">原因</a>。</p>
+
+<blockquote><ul>
+<li>不在process和thread在不同的core上移动(更好的缓存利用)</li>
+<li>减少NUMA的影响</li>
+<li>网络和存储控制器影响 - 较小</li>
+<li>通过限制cpuset来限制Linux调度域(不确定是不是重要但是是最佳实践)</li>
+<li>如果开启了HT，可能会造成OSD在thread1上，KVM在thread2上，并且是同一个core。Core的延迟和性能取决于其他一个线程做什么。</li>
+</ul>
+</blockquote>
+
+<p>这一点具体实现待补充！！！</p>
+
+<h3>2. Ceph Configurations</h3>
+
+<h4>[global]</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> public network </td>
+<td> 客户端访问网络 </td>
+<td> </td>
+<td> 192.168.100.0/24 </td>
+</tr>
+<tr>
+<td> cluster network </td>
+<td> 集群网络 </td>
+<td> </td>
+<td> 192.168.1.0/24 </td>
+</tr>
+<tr>
+<td> max open files </td>
+<td> 如果设置了该选项，Ceph会设置系统的max open fds </td>
+<td> 0 </td>
+<td> 131072 </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>查看系统最大文件打开数可以使用命令</li>
+</ul>
+
+
+<pre><code>    cat /proc/sys/fs/file-max
+</code></pre>
+
+<hr />
+
+<h4>[osd] - filestore</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> filestore xattr use omap </td>
+<td> 为XATTRS使用object map，EXT4文件系统时使用，XFS或者btrfs也可以使用 </td>
+<td> false </td>
+<td> true </td>
+</tr>
+<tr>
+<td> filestore max sync interval </td>
+<td> 从日志到数据盘最大同步间隔(seconds) </td>
+<td> 5 </td>
+<td> 15 </td>
+</tr>
+<tr>
+<td> filestore min sync interval </td>
+<td> 从日志到数据盘最小同步间隔(seconds) </td>
+<td> 0.1 </td>
+<td> 10 </td>
+</tr>
+<tr>
+<td> filestore queue max ops </td>
+<td> 数据盘最大接受的操作数 </td>
+<td> 500 </td>
+<td> 25000 </td>
+</tr>
+<tr>
+<td> filestore queue max bytes </td>
+<td> 数据盘一次操作最大字节数(bytes) </td>
+<td> 100 &lt;&lt; 20 </td>
+<td> 10485760 </td>
+</tr>
+<tr>
+<td> filestore queue committing max ops </td>
+<td> 数据盘能够commit的操作数 </td>
+<td> 500 </td>
+<td> 5000 </td>
+</tr>
+<tr>
+<td> filestore queue committing max bytes </td>
+<td> 数据盘能够commit的最大字节数(bytes) </td>
+<td> 100 &lt;&lt; 20 </td>
+<td> 10485760000 </td>
+</tr>
+<tr>
+<td> filestore op threads </td>
+<td> 并发文件系统操作数 </td>
+<td> 2 </td>
+<td> 32 </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>调整omap的原因主要是EXT4文件系统默认仅有4K</li>
+<li>filestore queue相关的参数对于性能影响很小，参数调整不会对性能优化有本质上提升</li>
+</ul>
+
+
+<hr />
+
+<h4>[osd] - journal</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> osd journal size </td>
+<td> OSD日志大小(MB) </td>
+<td> 5120 </td>
+<td> 20000 </td>
+</tr>
+<tr>
+<td> journal max write bytes </td>
+<td> journal一次性写入的最大字节数(bytes) </td>
+<td> 10 &lt;&lt; 20 </td>
+<td> 1073714824 </td>
+</tr>
+<tr>
+<td> journal max write entries </td>
+<td> journal一次性写入的最大记录数 </td>
+<td> 100 </td>
+<td> 10000 </td>
+</tr>
+<tr>
+<td> journal queue max ops </td>
+<td> journal一次性最大在队列中的操作数 </td>
+<td> 500 </td>
+<td> 50000 </td>
+</tr>
+<tr>
+<td> journal queue max bytes </td>
+<td> journal一次性最大在队列中的字节数(bytes) </td>
+<td> 10 &lt;&lt; 20 </td>
+<td> 10485760000 </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>Ceph OSD Daemon stops writes and synchronizes the journal with the filesystem, allowing Ceph OSD Daemons to trim operations from the journal and reuse the space.</li>
+<li>上面这段话的意思就是，Ceph OSD进程在往数据盘上刷数据的过程中，是停止写操作的。</li>
+</ul>
+
+
+<hr />
+
+<h4>[osd] - osd config tuning</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> osd max write size </td>
+<td> OSD一次可写入的最大值(MB) </td>
+<td> 90 </td>
+<td> 512 </td>
+</tr>
+<tr>
+<td> osd client message size cap </td>
+<td> 客户端允许在内存中的最大数据(bytes) </td>
+<td> 524288000 </td>
+<td> 2147483648 </td>
+</tr>
+<tr>
+<td> osd deep scrub stride </td>
+<td> 在Deep Scrub时候允许读取的字节数(bytes) </td>
+<td> 524288 </td>
+<td> 131072 </td>
+</tr>
+<tr>
+<td> osd op threads </td>
+<td> OSD进程操作的线程数 </td>
+<td> 2 </td>
+<td> 8 </td>
+</tr>
+<tr>
+<td> osd disk threads </td>
+<td> OSD密集型操作例如恢复和Scrubbing时的线程 </td>
+<td> 1 </td>
+<td> 4 </td>
+</tr>
+<tr>
+<td> osd map cache size </td>
+<td> 保留OSD Map的缓存(MB) </td>
+<td> 500 </td>
+<td> 1024 </td>
+</tr>
+<tr>
+<td> osd map cache bl size </td>
+<td> OSD进程在内存中的OSD Map缓存(MB) </td>
+<td> 50 </td>
+<td> 128 </td>
+</tr>
+<tr>
+<td> osd mount options xfs </td>
+<td> Ceph OSD xfs Mount选项 </td>
+<td> rw,noatime,inode64 </td>
+<td> rw,noexec,nodev,noatime,nodiratime,nobarrier </td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<ul>
+<li>增加osd op threads和disk threads会带来额外的CPU开销</li>
+</ul>
+
+
+<hr />
+
+<h4>[osd] - recovery tuning</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> osd recovery op priority </td>
+<td> 恢复操作优先级，取值1-63，值越高占用资源越高 </td>
+<td> 10 </td>
+<td> 4 </td>
+</tr>
+<tr>
+<td> osd recovery max active </td>
+<td> 同一时间内活跃的恢复请求数 </td>
+<td> 15 </td>
+<td> 10 </td>
+</tr>
+<tr>
+<td> osd max backfills </td>
+<td> 一个OSD允许的最大backfills数 </td>
+<td> 10 </td>
+<td> 4 </td>
+</tr>
+</tbody>
+</table>
+
+
+<h4>[osd] - client tuning</h4>
+
+<table>
+<thead>
+<tr>
+<th> 参数名 </th>
+<th> 描述 </th>
+<th> 默认值 </th>
+<th> 建议值 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> rbd cache </td>
+<td> RBD缓存 </td>
+<td> true </td>
+<td> true </td>
+</tr>
+<tr>
+<td> rbd cache size </td>
+<td> RBD缓存大小(bytes) </td>
+<td> 33554432 </td>
+<td> 268435456 </td>
+</tr>
+<tr>
+<td> rbd cache max dirty </td>
+<td> 缓存为write-back时允许的最大dirty字节数(bytes)，如果为0，使用write-through </td>
+<td> 25165824 </td>
+<td> 134217728 </td>
+</tr>
+<tr>
+<td> rbd cache max dirty age </td>
+<td> 在被刷新到存储盘前dirty数据存在缓存的时间(seconds) </td>
+<td> 1 </td>
+<td> 5 </td>
+</tr>
+</tbody>
+</table>
+
+
+<h4>关闭Debug</h4>
+
+<h3>3. PG Number</h3>
+
+<p>PG和PGP数量一定要根据OSD的数量进行调整，计算公式如下，但是最后算出的结果一定要接近或者等于一个2的指数。</p>
+
+<pre><code>Total PGs = (Total_number_of_OSD * 100) / max_replication_count
+</code></pre>
+
+<p>例如15个OSD，副本数为3的情况下，根据公式计算的结果应该为500，最接近512，所以需要设定该pool(volumes)的pg_num和pgp_num都为512.</p>
+
+<pre><code>ceph osd pool set volumes pg_num 512
+ceph osd pool set volumes pgp_num 512
+</code></pre>
+
+<h3>4. CRUSH Map</h3>
+
+<p>CRUSH是一个非常灵活的方式，CRUSH MAP的调整取决于部署的具体环境，这个可能需要根据具体情况进行分析，这里面就不再赘述了。</p>
+
+<h3>5. 其他因素的影响</h3>
+
+<p>在今年的(2015年)的Ceph Day上，海云捷迅在调优过程中分享过一个由于在集群中存在一个性能不好的磁盘，导致整个集群性能下降的case。通过osd perf可以提供磁盘latency的状况，同时在运维过程中也可以作为监控的一个重要指标，很明显在下面的例子中，OSD 8的磁盘延时较长，所以需要考虑将该OSD剔除出集群：</p>
+
+<pre><code>ceph osd perf
+</code></pre>
+
+<pre><code>osd fs_commit_latency(ms) fs_apply_latency(ms)
+  0                    14                   17
+  1                    14                   16
+  2                    10                   11
+  3                     4                    5
+  4                    13                   15
+  5                    17                   20
+  6                    15                   18
+  7                    14                   16
+  8                   299                  329
+</code></pre>
+
+<h2>ceph.conf</h2>
+
+<pre><code>[global]
+fsid = 059f27e8-a23f-4587-9033-3e3679d03b31
+mon_host = 10.10.20.102, 10.10.20.101, 10.10.20.100
+auth cluster required = cephx
+auth service required = cephx
+auth client required = cephx
+osd pool default size = 3
+osd pool default min size = 1
+
+public network = 10.10.20.0/24
+cluster network = 10.10.20.0/24
+
+max open files = 131072
+
+[mon]
+mon data = /var/lib/ceph/mon/ceph-$id
+
+[osd]
+osd data = /var/lib/ceph/osd/ceph-$id
+osd journal size = 20000
+osd mkfs type = xfs
+osd mkfs options xfs = -f
+
+filestore xattr use omap = true
+filestore min sync interval = 10
+filestore max sync interval = 15
+filestore queue max ops = 25000
+filestore queue max bytes = 10485760
+filestore queue committing max ops = 5000
+filestore queue committing max bytes = 10485760000
+
+journal max write bytes = 1073714824
+journal max write entries = 10000
+journal queue max ops = 50000
+journal queue max bytes = 10485760000
+
+osd max write size = 512
+osd client message size cap = 2147483648
+osd deep scrub stride = 131072
+osd op threads = 8
+osd disk threads = 4
+osd map cache size = 1024
+osd map cache bl size = 128
+osd mount options xfs = "rw,noexec,nodev,noatime,nodiratime,nobarrier"
+osd recovery op priority = 4
+osd recovery max active = 10
+osd max backfills = 4
+
+[client]
+rbd cache = true
+rbd cache size = 268435456
+rbd cache max dirty = 134217728
+rbd cache max dirty age = 5
+</code></pre>
+
+<h2>总结</h2>
+
+<p>优化是一个长期迭代的过程，所有的方法都是别人的，只有在实践过程中才能发现自己的，本篇文章仅仅是一个开始，欢迎各位积极补充，共同完成一篇具有指导性的文章。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ceph集群磁盘没有剩余空间的解决方法]]></title>
@@ -809,237 +1407,8 @@ bzr builddeb -- -sa -us -uc
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#58;&#x78;&#105;&#x61;&#111;&#x71;&#117;&#x71;&#105;&#x40;&#x67;&#109;&#97;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;">&#x78;&#105;&#x61;&#x6f;&#x71;&#x75;&#x71;&#x69;&#x40;&#x67;&#109;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#x6d;</a></li>
+<li>邮箱：<a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#58;&#120;&#105;&#x61;&#x6f;&#113;&#x75;&#x71;&#105;&#x40;&#x67;&#x6d;&#x61;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#109;">&#x78;&#x69;&#97;&#x6f;&#x71;&#x75;&#113;&#105;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[(Juno)OpenStack Neutron L3高可靠]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/03/05/openstack-neutron-l3-high-availability/"/>
-    <updated>2015-03-05T20:53:57+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/03/05/openstack-neutron-l3-high-availability</id>
-    <content type="html"><![CDATA[<h2>L3层Agent的低可靠解决方案</h2>
-
-<p>当前，你可以通过多网络节点的方式解决负载分担，但是这并非高可靠和冗余的解决方案。假设你有三个网络节点，当你创建新的路由时，会自动的将新路由规划和分布在这三个网络节点中的一个上。但是，如果一个节点坏掉，上面运行的所有路由将无法提供服务，路由转发也无法正常进行。在Neutron的IceHouse版本中，没有提供任何内置的解决方案。</p>
-
-<!-- more -->
-
-
-<h2>DHCP Agent的高可靠的变通之道</h2>
-
-<p>DHCP的Agent是一个另类——DHCP协议本身就支持在同一个资源池内同时使用多个DHCP提供服务。</p>
-
-<p>在neutron.conf中仅仅需要改变：</p>
-
-<pre><code>dhcp_agents_per_network = X
-</code></pre>
-
-<p>这样DHCP的调度程序会为同一网络启动X个DHCP Agents。所以，对于三个网络节点，并设置dhcp_agents_per_network = 2，每个Neutron网络会在三个节点中启动两个DHCP Agents。这个是如何工作的呢？</p>
-
-<p><img class="right" src="/images/blogs/neutron-l3-ha-dhcp-ha.png" width="200" height="300"></p>
-
-<p>首先，让我们来看一下物理层面的实现。当一台主机连接到子网10.0.0.0/24，会发出DHCP Discover广播包。两个DHCP服务进程dnsmasq1和dnsmasq2(或者其他的DHCP服务)收到广播包，并回复10.0.0.2。假设第一个DHCP服务响应了服务器请求，并将10.0.0.2的请求广播出去，并且指明提供IP的是dnsmasq1-10.0.0.253。所有服务都会接收到广播，但是只有dnsmasq1会回复ACK。由于所有DHCP通讯都是基于广播，第二个DHCP服务也会收到ACK，于是将10.0.0.2标记已经被AA:BB:CC:11:22:33获取，而不会提供给其他的主机。总结一下，所有客户端与服务端的通讯都是基于广播，因此状态(IP地址什么时候被分配，被分配给谁)可以被所有分布的节点正确获知。</p>
-
-<p>在Neutron中，分配MAC地址与IP地址的关系，是在每个dnsmasq服务之前完成的，也就是当Neutron创建Port时。因此，在DHCP请求广播之前，所有两个dnsmasq服务已经在leases文件中获知了，AA:BB:CC:11:22:33应该分配10.0.0.2的映射关系。</p>
-
-<h2>回到L3 Agent的低可用</h2>
-
-<p>L3 Agent，没有(至少现在没有)提供任何DHCP所能提供的高可靠解决方案，但是用户的确很需要高可靠。怎么办呢？</p>
-
-<p>Pacemaker/Corosync - 使用外部的集群管理技术，为Active节点指定一个Standby的网络节点。Standby节点在正常情况下等呀、等呀等，一旦Active节点发生故障，L3 Agent立即在Standby节点启动。这两个节点配置相同的主机名，当Standby的Agent出台并和服务之前开始同步后，它自己的ID不会改变，因此就像管理同一个router一样。</p>
-
-<p>另外一个方案是采用定时同步的方式(cron job)。用Python SDK开发一段脚本，使用API获取所有已经故去的Agent们，之后获取所有上面承载的路由，并且把他们重新分配给其他的Agent。</p>
-
-<p>在Juno开发过程中，查看Kevin Benton的这个Patch，让Neutron自己具备重新分配路由的功能: <a href="https://review.openstack.org/#/c/110893/">https://review.openstack.org/#/c/110893/</a></p>
-
-<h2>重新分配路由——路漫漫兮</h2>
-
-<p>以上列出的解决方案，实质上都有从失败到恢复的时间，如果在简单的应用场景下，恢复一定数量的路由到新节点并不算慢。但是想象一下，如果有上千个路由就需要话费数个小时完成，重新分配和配置的过程。人们非常需要快速的故障恢复！</p>
-
-<h2>分布式虚拟路由(Distributed Virtual Router)</h2>
-
-<p>这里有一些文档描述DVR是如何工作的：</p>
-
-<ul>
-<li><a href="http://specs.openstack.org/openstack/neutron-specs/specs/juno/neutron-ovs-dvr.html">http://specs.openstack.org/openstack/neutron-specs/specs/juno/neutron-ovs-dvr.html</a></li>
-<li><a href="https://docs.google.com/document/d/1jCmraZGirmXq5V1MtRqhjdZCbUfiwBhRkUjDXGt5QUQ/">https://docs.google.com/document/d/1jCmraZGirmXq5V1MtRqhjdZCbUfiwBhRkUjDXGt5QUQ/</a></li>
-<li><a href="https://docs.google.com/document/d/1depasJSnGZPOnRLxEC_PYsVLcGVFXZLqP52RFTe21BE/">https://docs.google.com/document/d/1depasJSnGZPOnRLxEC_PYsVLcGVFXZLqP52RFTe21BE/</a></li>
-</ul>
-
-
-<p>这里的要点是将路由放到计算节点(compute nodes)，这让网络节点的L3 Agent变得没用了。是不是这样呢？</p>
-
-<ul>
-<li>DVR主要处理Floating IPs，把SNAT留给网络节点的L3 Agent</li>
-<li>不和VLANs一起工作，仅仅支持tunnes和L2pop开启</li>
-<li>每个计算节点需要连接外网</li>
-<li>L3 HA是对部署的一种简化，这个基于Havana和Icehouse版本部署的云平台所不具备的</li>
-</ul>
-
-
-<p>理想情况下，你想把DVR和L3 HA一起使用。Floating IP的流量会从你的计算节点直接路由出去，而SNAT的流量还是会从你的计算节点HA集群的L3 Agent进行转发。</p>
-
-<h2>3层高可靠</h2>
-
-<p>Juno版本的L3的HA解决方案应用了Linux上流行的keepalived工具，在内部使用了VRRP。首先，我们先来讨论一下VRRP。</p>
-
-<h2>什么是VRRP，如何在真实世界里工作</h2>
-
-<p>虚拟路由冗余协议(Virtual Router Redundancy Protocol)是一个第一条冗余协议——目的是为了提供一个网络默认网关的高可靠，或者是路由的下一跳的高可靠。那它解决了什么问题呢？在一个网络拓扑中，有两个路由提供网络连接，你可以将网络的默认路由配置为第一个路由地址，另外一个配置成第二个。</p>
-
-<p><img class="left" src="/images/blogs/neutron-l3-ha-router_ha-topology-before-vrrp.png" width="200" height="300"></p>
-
-<p><img class="left" src="/images/blogs/neutron-l3-ha-switch-moves-mac.png" width="200" height="300"></p>
-
-<p>这样将提供负载分担，但是如果其中一个路由失去了连接，会发生什么呢？这里一个想法就是虚拟IP地址，或者一个浮动的地址，配置为网络默认的网管地址。当发生错误时，Standby的路由并不会收到从Master节点发出的VRRP Hello信息，并且这将触发选举程序，获胜的成为Active网管，另外一个仍然作为Standby。Active路由配置虚拟IP地址(简写VIP)，内部的局域网接口，回复ARP请求时会附加虚拟的MAC地址。由于在该网络内的计算机已经拥有了ARP缓存(VIP+虚拟机MAC地址)，也就没有必要重新发送ARP请求了。依据选举机制，有效的Standby路由变为Active，并且发送一个非必要的ARP请求——来向网络中声明当前的VIP+MAC对已经属于它了。这个切换，包含了网络中将虚拟机MAC地址从旧的迁移到新的。</p>
-
-<p>为了实现这一点，指向默认网关的流量会从当前的(新的)Active路由经过。注意这个解决方案中并没有实现负载分担，这种情况下，所有的流量都是从Active路由转发的。(注意：在Neutron的用户使用场景中，负载分担并没有在单独的路由级别完成，而是在节点(Node)级别，也就是要有一定数量的路由)。那么如何在路由层面实现负载分担呢？VRRP组：VRRP的投中包含虚拟机路由识别码(Virtual Router Identifier)，也就是VRID。网络中一半的主机配置为第一个VIP，另外一个使用第二个。在失败的场景下，VIP会从失败的路由转移到另外一个。</p>
-
-<p><img class="left" src="/images/blogs/neutron-l3-ha-router-ha-two-vrrp-groups.png" width="200" height="300"></p>
-
-<p><img class="left" src="/images/blogs/neutron-l3-ha-router-ha-external-trap.png" width="200" height="300"></p>
-
-<p>善于观察的读者已经发现了一个明显的问题——如果一个Active路由失去了与Internet的连接怎么办？那它还会作为Active路由，但是不能转发？VRRP增加了监控外部连接的能力，并且当发生失败后交出Active路由的地位。</p>
-
-<p>注意：一旦地址发生改变，可能会出发两种模式：</p>
-
-<ul>
-<li>每一个路由得到一个新的IP地址，不管VRRP的状态。Master路由将VIP配置为附加的或第二地址。</li>
-<li>仅仅VIP配置了。例如：Master路由配置了VIP，同时Slave上没有IP配置。</li>
-</ul>
-
-
-<h2>VRRP —— 一些事实</h2>
-
-<ul>
-<li>直接在IP协议中封装</li>
-<li>Active实例使用多播地址224.0.0.18, MAC 01-00-5E-00-00-12来给Standby路由发送hello消息</li>
-<li>虚拟MAC地址格式：00-00-5E-00-01-{VRID}，因此只有256个不同的VRIDs(0到255)在一个广播域中</li>
-<li>选举机制使用用户配置优先级，从1到255，越高优先级越高</li>
-<li>优先选举策略(Preemptive elections)，和其他网络协议一样，意味着一个Standby被配置为较高优先级，或者从连接中断回复后(之前是Active实例)，它始终会恢复为Active路由</li>
-<li>非优先选举策略(Non-preemptive elections)意外着当Active路由回复后，仍然作为Standby角色</li>
-<li>发送Hello间隔是可以设置的(假定为每T秒)，如果Standby路由在3T秒后仍然没有收到master的hello消息，就会触发选举机制</li>
-</ul>
-
-
-<h2>回到Neutron的领地</h2>
-
-<p>L3 HA在每一个路由空间上启动一个keepalived实例。不同路由实例间的通讯，通过制定的HA网络，每一个tenant一个。这个网络是由一个空白的(blank) tenant下创建的，并且无法通过CLI或者GUI操作。这个HA网络也是一个Neutron tenant网络，和所有其他的一样，也是用了默认的分区技术。keepalived流量被转发到HA设备(在keepalived.conf中指定，在路由的命名空间中keepalived实例会使用)。这是路由中命名空间&#8217;ip address&#8217;的输出：</p>
-
-<pre><code>[stack@vpn-6-88 ~]$ sudo ip netns exec qrouter-b30064f9-414e-4c98-ab42-646197c74020 ip address
-1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default
-    ...
-2794: &lt;/span&gt;&lt;span style="color:#ff0000;"&gt;&lt;strong&gt;ha-45249562-ec&lt;/strong&gt;&lt;/span&gt;&lt;span style="color:#333333;"&gt;: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default
-    link/ether 12:34:56:78:2b:5d brd ff:ff:ff:ff:ff:ff
-    inet 169.254.0.2/24 brd 169.254.0.255 scope global ha-54b92d86-4f
-      valid_lft forever preferred_lft forever
-    inet6 fe80::1034:56ff:fe78:2b5d/64 scope link
-      valid_lft forever preferred_lft forever
-2795: qr-dc9d93c6-e2: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default
-    link/ether ca:fe:de:ad:be:ef brd ff:ff:ff:ff:ff:ff
-    inet 10.0.0.1/24 scope global qr-0d51eced-0f
-      valid_lft forever preferred_lft forever
-    inet6 fe80::c8fe:deff:fead:beef/64 scope link
-      valid_lft forever preferred_lft forever
-2796: qg-843de7e6-8f: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default
-    link/ether ca:fe:de:ad:be:ef brd ff:ff:ff:ff:ff:ff
-    inet 19.4.4.4/24 scope global qg-75688938-8d
-      valid_lft forever preferred_lft forever
-    inet6 fe80::c8fe:deff:fead:beef/64 scope link
-      valid_lft forever preferred_lft forever&lt;/span&gt;
-</code></pre>
-
-<p>这是在master实例中的输出。在另外一个节点的同一个路由上，在ha, hr或者qg设备上没有IP地址。也没有Floating Ip或者是路由记录。这些是被配置在keepalived.conf中的，当keepalived检测到Master实例的失败后，这些地址(或者:VIPs)会被keepalived在适当的设备中重新配置。这是对于同一个路由的keepalived.conf的实例：</p>
-
-<pre><code>vrrp_sync_group VG_1 {
-    group {
-        VR_1
-    }
-    notify_backup "/path/to/notify_backup.sh"
-    notify_master "/path/to/notify_master.sh"
-    notify_fault "/path/to/notify_fault.sh"
-}
-vrrp_instance VR_1 {
-    state BACKUP
-    interface ha-45249562-ec
-    virtual_router_id 1
-    priority 50
-    nopreempt
-    advert_int 2
-    track_interface {
-        ha-45249562-ec
-    }
-    virtual_ipaddress {
-        19.4.4.4/24 dev qg-843de7e6-8f
-    }
-    virtual_ipaddress_excluded {
-        10.0.0.1/24 dev qr-dc9d93c6-e2
-    }
-    virtual_routes {
-        0.0.0.0/0 via 19.4.4.1 dev qg-843de7e6-8f
-    }
-}
-</code></pre>
-
-<p>这些notify脚本是干虾米用的呢？这些脚本是被keepalived执行，转换为Master，备份或者失败。这些Master脚本内容：</p>
-
-<pre><code class="bash">#!/usr/bin/env bash
-neutron-ns-metadata-proxy --pid_file=/tmp/tmpp_6Lcx/tmpllLzNs/external/pids/b30064f9-414e-4c98-ab42-646197c74020/pid --metadata_proxy_socket=/tmp/tmpp_6Lcx/tmpllLzNs/metadata_proxy --router_id=b30064f9-414e-4c98-ab42-646197c74020 --state_path=/opt/openstack/neutron --metadata_port=9697 --debug --verbose
-echo -n master &gt; /tmp/tmpp_6Lcx/tmpllLzNs/ha_confs/b30064f9-414e-4c98-ab42-646197c74020/state
-</code></pre>
-
-<p>这个Master脚本简单的打开了metadata代理，将状态写入文件，状态文件之后会被L3 Agent读取。备份和出错脚本杀死代理服务并且将状态写入刚才的提到的状态文件。这就意味着metadata服务职能在master路由节点存在。</p>
-
-<h2>我们是不是忘了Metadata Agent呢？</h2>
-
-<p>在每个网络节点启动metadata agent就好啦。</p>
-
-<h2>未来的工作和局限性</h2>
-
-<ul>
-<li>TCP连接跟踪——在当前的实现中，TCP连接的session在失败恢复后中断。一种解决方案是使用conntrackd复制HA路由间的session状态，这样当故障恢复后，TCP的session会恢复到失败前的状态。</li>
-<li>Master节点在哪？当前，还没有办法让管理员知道哪个网络节点是HA路由的Master实例。计划由Agent提供这些信息，并可以通过API进行查询。</li>
-<li>Agent大逃亡——理想状态下，将一个节点变为维护模式后，应该触发所有HA路由所在节点回收他们的Master状态，加速恢复速度。</li>
-<li>通知L2pop VIP的改变——考虑在一个tenant网络中路由IP/MAC，只有Master配置真正的有IP地址，但是同一个Neutron Port和同样的MAC会在相关的网络出现。这可能对配置了L2pop驱动产生不利，因为它只希望在一个网络中MAC地址只存在一处。解决的计划是一旦检测到VRRP状态改变，从Agent发送一个RPC消息，这样当路由变为Master，控制节点被通知到了，这样就能改变L2pop的状态了。</li>
-<li>内置的防火墙、VPN和负载均衡即服务。在DVR和L3 HA与这些服务整合时还有问题，可能会在kilo中解决。</li>
-<li>每一个Tenant一个HA网络。这就意味着每个Tenant只能有255个HA路由，因为每个路由需要一个VRID，根据VRRP协议每个广播域只允许255个不同的VRID值。</li>
-</ul>
-
-
-<h2>使用和配置</h2>
-
-<p>neutron.conf</p>
-
-<pre><code>l3_ha = True
-max_l3_agents_per_router = 2
-min_l3_agents_per_router = 2
-</code></pre>
-
-<ul>
-<li>l3_ha 表示所有的路由默认使用HA模式(与之前不同)。默认是关闭的。</li>
-<li>你可以根据网络节点的数量设置最大最小值。如果你部署了4个网络节点，但是设置最大值为2，只有两个L3 Agent会被用于HA路由(一个是Master，一个是Slave)。</li>
-<li>min被用来稳健性(sanity)的检查：如果你有两个网络节点，其中一个坏掉了，任何新建的路由在这段时间都会失败，因为你至少需要min个L3 Agent启动来建立HA路由。</li>
-</ul>
-
-
-<p>l3_ha控制默认的开关，当管理员(仅管理员)通过CLI方式可以覆盖这个选项，为每个路由创建单独的配置：</p>
-
-<pre><code>neutron router-create --ha=&lt;True | False&gt; router1
-</code></pre>
-
-<h2>参考文档</h2>
-
-<ul>
-<li><a href="https://blueprints.launchpad.net/neutron/+spec/l3-high-availability">Blueprint</a></li>
-<li><a href="http://specs.openstack.org/openstack/neutron-specs/specs/juno/l3-high-availability.html">Spec</a></li>
-<li><a href="https://docs.google.com/document/d/1P2OnlKAGMeSZTbGENNAKOse6B2TRXJ8keUMVvtUCUSM/">How to test</a></li>
-<li><a href="https://review.openstack.org/#/q/topic:bp/l3-high-availability,n,z">Code</a></li>
-<li><a href="https://wiki.openstack.org/wiki/Neutron/L3_High_Availability_VRRP">Dedicated wiki page</a></li>
-<li><a href="https://wiki.openstack.org/wiki/Meetings/Neutron-L3-Subteam#Blueprint:_l3-high-availability_.28safchain.2C_amuller.29">Section in Neutron L3 sub team wiki (Including overview of patch dependencies and future work)</a></li>
-<li><a href="http://assafmuller.com/2014/08/16/layer-3-high-availability/">http://assafmuller.com/2014/08/16/layer-3-high-availability/</a></li>
 </ul>
 
 ]]></content>
