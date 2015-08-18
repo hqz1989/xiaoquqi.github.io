@@ -4,7 +4,7 @@
   <title><![CDATA[RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-07-24T07:11:00+08:00</updated>
+  <updated>2015-08-18T20:41:50+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,21 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[为什么叫Monkey Patch？]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/08/18/about-monkey-patch/"/>
+    <updated>2015-08-18T18:51:21+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/08/18/about-monkey-patch</id>
+    <content type="html"><![CDATA[<p>在程序运行时给代码加补丁的方法被称为Monkey Patch，这种方式多见于脚本类语言中(Dynamic Programming Languages)，例如: Ruby/Python等。国内很多人翻译为猴子补丁，但是为什么叫猴子补丁而不叫老虎补丁、狮子补丁呢？</p>
+
+<p>估计刚刚看到这个表述的开发人员可能很难理解到底这是什么意思，其实Monkey Patch本与猴子无关，这个词原来为Guerrilla Patch，这样看着好像能明白一些了，游击队嘛，神出鬼没的，好像和运行状态打补丁这个功能贴近点了，但是为什么又变成猴子了。原来老外们都是很顽皮的，他们喜欢一些玩笑式的表述，就像很多技术的文档中一样。在英文里，Guerrilla和Gorilla读音是几乎一样的，Gorilla当什么讲呢？大猩猩。但是大猩猩有点吓人，所以干脆换成了大猩猩的近亲——猴子。就这样Monkey Patch形成了。</p>
+
+<p>当然这并不是这个词的唯一解释，还有一种解释是说由于这种方式将原来的代码弄乱了(messing with it)，在英文里叫monkeying about(顽皮的)，所以叫做Monkey Patch。这种描述应该是和Monkey Test有异曲同工之妙。但是无论这个词从哪里来，我们只要正确理解Monkey Patch的含义就好了。</p>
+
+<p>相同的表述还有Duck Typing，描述的是动态类型的一种风格。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ceph性能优化总结(v0.94)]]></title>
@@ -1752,7 +1767,7 @@ deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#x6d;&#97;&#x69;&#108;&#x74;&#x6f;&#58;&#120;&#x69;&#97;&#x6f;&#x71;&#117;&#x71;&#x69;&#64;&#x67;&#109;&#x61;&#105;&#108;&#46;&#x63;&#111;&#x6d;">&#x78;&#x69;&#97;&#111;&#113;&#117;&#113;&#105;&#x40;&#103;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#x6f;&#109;</a></li>
+<li>邮箱：<a href="&#109;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#120;&#105;&#97;&#x6f;&#113;&#x75;&#113;&#105;&#x40;&#103;&#x6d;&#97;&#x69;&#x6c;&#x2e;&#99;&#111;&#109;">&#120;&#105;&#97;&#111;&#x71;&#x75;&#113;&#105;&#x40;&#103;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#111;&#109;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
