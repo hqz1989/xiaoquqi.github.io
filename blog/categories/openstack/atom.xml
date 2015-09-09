@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-09-03T18:44:24+08:00</updated>
+  <updated>2015-09-09T14:09:12+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,428 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ubuntu 14.04 Server开发者安装指南]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/09/09/ubuntu-14-dot-04-installation-guide-for-developer/"/>
+    <updated>2015-09-09T13:50:24+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/09/09/ubuntu-14-dot-04-installation-guide-for-developer</id>
+    <content type="html"><![CDATA[<h2>为什么会写这篇Blog</h2>
+
+<p>近期，接触了一些OpenStack的入门者，很多人对Linux系统并不是很熟悉，导致安装出来的系统五花八门，间接地影响了后面的开发与调试，所以这里给出我的安装流程，供初学者们参考。我使用的是Ubuntu 14.04 64bit Server版本的ISO进行安装，其他版本方法类似。</p>
+
+<!-- more -->
+
+
+<h2>注意</h2>
+
+<p>这篇Blog没有提及的地方：
+* 网络，需要根据实际情况进行配置，我这里面使用的是DHCP自动获取，所以没有相关步骤
+* 分区，这里面使用的是默认配置，但是生产环境的配置一般需要手动划分</p>
+
+<h2>安装步骤</h2>
+
+<ul>
+<li>一定要选择English，否则处理中文的时候太麻烦
+<img class="center" src="/images/blogs/install-ubuntu/1.png"></li>
+<li>正式开始进入安装
+<img class="center" src="/images/blogs/install-ubuntu/2.png"></li>
+<li>与上面的原则一致，一定要选择English
+<img class="center" src="/images/blogs/install-ubuntu/3.png"></li>
+<li>Location一定要选择中国，否则默认不会使用中文的Ubuntu源，影响安装速度，这一步很多初学者不会在意
+<img class="center" src="/images/blogs/install-ubuntu/4.png">
+<img class="center" src="/images/blogs/install-ubuntu/5.png">
+<img class="center" src="/images/blogs/install-ubuntu/6.png"></li>
+<li>这里面主要是字符集的问题，选择United States
+<img class="center" src="/images/blogs/install-ubuntu/7.png"></li>
+<li>不需要检查键盘布局
+<img class="center" src="/images/blogs/install-ubuntu/8.png"></li>
+<li>默认使用English布局就好了
+<img class="center" src="/images/blogs/install-ubuntu/9.png"></li>
+<li>主机名设置，就是hostname
+<img class="center" src="/images/blogs/install-ubuntu/10.png"></li>
+<li>用户设置，建议建立一个普通用户
+<img class="center" src="/images/blogs/install-ubuntu/11.png">
+<img class="center" src="/images/blogs/install-ubuntu/12.png">
+<img class="center" src="/images/blogs/install-ubuntu/13.png">
+<img class="center" src="/images/blogs/install-ubuntu/15.png">
+<img class="center" src="/images/blogs/install-ubuntu/16.png"></li>
+<li>不加密Home目录
+<img class="center" src="/images/blogs/install-ubuntu/17.png"></li>
+<li>设置时区，这一步也很重要，默认情况下会自动检测到，但是如果不对，一定要修改一下，否则你的系统时间与你实际不一致，你程序里的时间跟着不对，跟调试增加难度
+<img class="center" src="/images/blogs/install-ubuntu/18.png"></li>
+<li>这里面分区用默认的就好啦，当然如果你知道该如何分区，可以采用Manual方式
+<img class="center" src="/images/blogs/install-ubuntu/19.png">
+<img class="center" src="/images/blogs/install-ubuntu/20.png">
+<img class="center" src="/images/blogs/install-ubuntu/21.png">
+<img class="center" src="/images/blogs/install-ubuntu/22.png">
+<img class="center" src="/images/blogs/install-ubuntu/23.png"></li>
+<li>如果访问网络需要使用代理，可以设置一下
+<img class="center" src="/images/blogs/install-ubuntu/24.png"></li>
+<li>不选择自动更新
+<img class="center" src="/images/blogs/install-ubuntu/25.png"></li>
+<li>默认只需要选择SSH服务，保证我们在安装后能够SSH登陆服务器即可
+<img class="center" src="/images/blogs/install-ubuntu/26.png"></li>
+<li>安装grub
+<img class="center" src="/images/blogs/install-ubuntu/27.png"></li>
+<li>重启完成安装
+<img class="center" src="/images/blogs/install-ubuntu/28.png"></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[(Kilo)Devstack完全用户手册]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/09/03/devstack-guide/"/>
+    <updated>2015-09-03T18:34:20+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/09/03/devstack-guide</id>
+    <content type="html"><![CDATA[<p>Devstack作为开发OpenStack必不可少的辅助环境搭建工具，其重要性不言而喻，但是由于网络上的原因，在使用中总是出现各种各样的问题，而且也不是所有人对使用上的细节非常清晰，所以想用这篇Blog总结一下在三年多的使用过程中的心得，来帮助将要走进OpenStack开发的志愿者们。下一篇博客我将为大家介绍Devstack的源代码，以及扩展插件的开发方法。</p>
+
+<p>本篇Blog主要介绍以下几个实用场景：</p>
+
+<ul>
+<li>提供Devstack安装成功率的方法</li>
+<li>Devstack的实用技巧</li>
+<li>各种场景下的配置和注意事项</li>
+<li>超级localrc</li>
+</ul>
+
+
+<p>本篇博客提到的所有方法均在2015年9月4日使用stable/kilo branch得到验证，后续版本请持续关注本博客。</p>
+
+<!-- more -->
+
+
+<h2>运行环境的选择</h2>
+
+<p>对于初步接触OpenStack的开发者而言，未必有那么多闲置的资源供你调配，所以比较容易的上手方式就是使用虚拟机，对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
+* VMWare Workstation是收费软件，Virtualbox是免费软件
+* VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中
+* VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试</p>
+
+<h2>Devstack快速开始</h2>
+
+<p>其实，Devstack本身并不需要很复杂的配置就可以成功运行，但是仍然有几个需要注意的地方：</p>
+
+<ul>
+<li>Ubuntu 14.04 64bit(LTS), 12.04已经逐渐退出历史舞台，所以这里推荐14.04</li>
+<li>不能使用root用户，即使你使用root用户执行Devstack，默认也会为你建立一个stack用户，所以不如老老实实的直接使用普通用户运行Devstack，或者提前建立好stack用户，切换后再执行</li>
+<li>默认获取Devstack进行安装，安装的是master分支的代码，但是在实际开发中(比如我们做产品的时候)，都是基于某个stable分支进行，所以一般情况在clone devstack的时候需要指定stable分支</li>
+</ul>
+
+
+<p>下面给出一个最简安装步骤：</p>
+
+<pre><code class="plain"># adduser stack
+# apt-get install sudo -y
+# echo "stack ALL=(ALL) NOPASSWD: ALL" &gt;&gt; /etc/sudoers
+# sudo su - stack
+
+(stack)$ git clone https://git.openstack.org/openstack-dev/devstack --branch=stable/kilo
+(stack)$ cd devstack &amp;&amp; ./stack.sh
+</code></pre>
+
+<h2>提高Devstack安装成功率</h2>
+
+<p>估计在国内使用Devstack的人基本都遇到过安装失败的状况，为了节约大家的时间，先分析一下Devstack为什么会失败，我们先从这张时序图看一下Devstack执行的过程：</p>
+
+<p><img class="center" src="/images/blogs/devstack-guide-flow.png"></p>
+
+<p>从上述流程图中可以很清楚的看到Devstack有以下几个地方需要访问网络：</p>
+
+<ul>
+<li>安装依赖时，需要访问Ubuntu的源</li>
+<li>执行get_pip.sh时，地址是彻底被墙的，需要访问<a href="https://bootstrap.pypa.io/get-pip.py">https://bootstrap.pypa.io/get-pip.py</a></li>
+<li>从github clone源代码，github在国内访问速度并不很快而且间歇性被墙</li>
+<li>安装过程中执行pip install requirements，需要访问pip repo</li>
+<li>下载镜像，这一步骤取决于你需要安装的模块，如果默认安装只会下载cirros镜像，但是如果是安装类似Trove的模块，可能需要下载的更多</li>
+</ul>
+
+
+<hr />
+
+<p>所以综上所述，为了提高devstack的安装成功率，需要从这几个方面着手优化：</p>
+
+<ul>
+<li>使用国内源</li>
+</ul>
+
+
+<pre><code class="plain /etc/apt/sources.list">deb http://mirrors.163.com/ubuntu/ trusty main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-security main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-backports main restricted universe multiverse
+</code></pre>
+
+<ul>
+<li>从国内源获取get-pip.py，从源代码可以分析出，检测get-pip.py的方式，这里面有两种方式一种是手动下载get-pip.py之后，注释代码，还有一种就是修改PIP_GET_PIP_URL的地址，但是这里只能通过修改install_pip.sh的方式，暂时无法从环境变量里获取</li>
+</ul>
+
+
+<pre><code class="bash devstack/tools/install_pip.sh">FILES=$TOP_DIR/files
+
+PIP_GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
+LOCAL_PIP="$FILES/$(basename $PIP_GET_PIP_URL)"
+
+function install_get_pip {
+    # The OpenStack gate and others put a cached version of get-pip.py
+    # for this to find, explicitly to avoid download issues.
+    #
+    # However, if DevStack *did* download the file, we want to check
+    # for updates; people can leave their stacks around for a long
+    # time and in the mean-time pip might get upgraded.
+    #
+    # Thus we use curl's "-z" feature to always check the modified
+    # since and only download if a new version is out -- but only if
+    # it seems we downloaded the file originally.
+    if [[ ! -r $LOCAL_PIP || -r $LOCAL_PIP.downloaded ]]; then
+        curl --retry 6 --retry-delay 5 \
+            -z $LOCAL_PIP -o $LOCAL_PIP $PIP_GET_PIP_URL || \
+            die $LINENO "Download of get-pip.py failed"
+        touch $LOCAL_PIP.downloaded
+    fi
+    sudo -H -E python $LOCAL_PIP
+}
+</code></pre>
+
+<p>修改为我在coding.net上缓存的get-pip脚本</p>
+
+<pre><code class="bash devstack/tools/install_pip.sh">PIP_GET_PIP_URL=https://coding.net/u/xiaoquqi/p/pip/git/raw/master/contrib/get-pip.py
+</code></pre>
+
+<ul>
+<li>国内的代码托管服务器有从github上定期同步源代码的，但是经过实际测试都不是很理想，所以可能这是最不稳定的一部分，但是可以提前使用脚本，人工的下载所有代码，之后我会尝试在我自己的源中定时同步OpenStack源代码，敬请关注</li>
+<li>现在pip的安装速度明显提升，原来还需要使用国内源，例如豆瓣，现在即使不修改也能很快的进行安装</li>
+<li>镜像下载建议使用一些下载工具，然后放到指定的目录中，这样最有效</li>
+</ul>
+
+
+<h2>无网络状况下安装Devstack</h2>
+
+<p>因为我们是做OpenStack的产品的公司，所以就要求我们的Devstack要能够满足无网络状况下的安装，之前也写过一篇详细介绍无网络安装Devstack博客,由于时间关系，可能一些内容已经过时了，这里面再进行一下更新，思路还是上面的思路，这里给出一些使用的工具，如果不清楚如何使用的话，可以参考我之前的博客。</p>
+
+<ul>
+<li>本地源的缓存使用apt-mirror，这是一个需要时间的工作，第一次同步的时间会非常长，准备好大约100G左右的空间吧</li>
+<li>缓存get-pip.py，这个比较容易，搭建一个Apache服务器，但是需要把端口修改为10000，否则在安装好OpenStack后，会占用80端口，重新执行Devstack时候会出现错误</li>
+<li>建立本地的Gerrit，并且上传所有代码</li>
+<li>从requirements项目中，下载所有的pip，建立本地的pip缓存源，如果是搭建研发环境，可能还需要下载test-requirements的内容和tox</li>
+<li>将镜像下载到刚刚创建的Apache服务器</li>
+</ul>
+
+
+<p>完成以上步骤，你可以尽情断掉外网，愉快的进行Devstack的安装了，稍后我会将以上步骤进行进一步完善。</p>
+
+<h2>OFFLINE模式下安装Devstack</h2>
+
+<p>在Devstack中提供了一种OFFLINE的方式，这种方式的含义就是，当你第一次完成安装后，所有需要的内容已经下载到本地，再次运行就没有必要访问网络了(前提是你不想升级)，所以可以将安装模式设置为OFFLINE，避免网络的访问，方法为：</p>
+
+<pre><code class="bash devstack/localrc">OFFLINE=True
+</code></pre>
+
+<h2>虚拟机重启后，如何利用rejoin-stack.sh，免重新安装</h2>
+
+<p>其实使用OFFLINE模式，可以在离线状态下无数次重新运行devstack，但是如果不是为了重新配置，我们并没有需要每次重新运行stack.sh。在Devstack中提供了另外一个脚本叫做rejoin-stack.sh，原理很简单就是把所有的进程重新组合进screen，所以我们借助这个脚本完全可以不重新执行stack.sh，快速恢复环境。但是当虚拟机重启后，cinder使用的卷组并不会自动重建，所以在运行rejoin之前，需要将恢复卷组的工作，放入开机启动的脚本中。</p>
+
+<pre><code class="bash /etc/init.d/cinder-setup-backing-file">losetup /dev/loop1 /opt/stack/data/stack-volumes-default-backing-file
+losetup /dev/loop2 /opt/stack/data/stack-volumes-lvmdriver-1-backing-file
+exit 0
+</code></pre>
+
+<pre><code class="bash Run as root">chmod 755 /etc/init.d/cinder-setup-backing-file
+ln -s /etc/init.d/cinder-setup-backing-file /etc/rc2.d/S10cinder-setup-backing-file
+</code></pre>
+
+<pre><code class="bash Run as normal user">cd $HOME/devstack
+./rejoin-stack.sh
+</code></pre>
+
+<h2>Scenario 0: 公共部分</h2>
+
+<pre><code class="bash devstack/localrc"># Misc
+ADMIN_PASSWORD=sysadmin
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+SERVICE_TOKEN=$ADMIN_PASSWORD
+
+# Target Path
+DEST=/opt/stack.kilo
+
+# Enable Logging
+LOGFILE=$DEST/logs/stack.sh.log
+VERBOSE=True
+LOG_COLOR=True
+SCREEN_LOGDIR=$DEST/logs
+</code></pre>
+
+<h2>Scenario 1: 单节点Nova-Network的安装</h2>
+
+<p>这应该就是Devstack默认的模式，有以下几点需要注意：</p>
+
+<ul>
+<li>如果对虚拟机访问外部网络没有要求，需要设置两块网卡</li>
+</ul>
+
+
+<blockquote><p>第一块网卡为NAT方式，用于访问外部网络</p>
+
+<p>第二块为Host-only Adaptor，用于访问云平台</p>
+
+<p>FLAT_INTERFACE=eth1</p></blockquote>
+
+<ul>
+<li>如果需要虚拟机访问外部网络</li>
+</ul>
+
+
+<blockquote><p>FLAT_INTERFACE=eth0</p>
+
+<p>需要注意的是：这里会引发出DHCP冲突的问题，Virtualbox提供 DHCP的服务，速度上要快于dnsmasq，所以每次获取的时候都是获取的NAT网卡的地址，导致虚拟机无法访问外部网络，解决方案只能手动的修改IP，比如设定为静态地址的方式。曾将也尝试过Virtualbox的NAT Network模式，并且关闭DHCP Server，但是发现虚拟机仍然无法正常访问网络，所以该方案也无法达到我们的目的，所以在这个问题上，暂时没有找到完美的解决方案</p></blockquote>
+
+<ul>
+<li>虚拟机FLOATING IP需要被外界访问</li>
+</ul>
+
+
+<blockquote><p>需要将第一块网卡设置为Bridge模式，直接获取物理网络的IP地址，在配置文件中配置分配的物理网络的FLOATING_RANGE，同样需要注意的是物理网络中的DHCP同样会造成和上述第二点同样的干扰</p></blockquote>
+
+<ul>
+<li>打开novnc和consoleauth，否则无法访问VNC</li>
+</ul>
+
+
+<p>这里给出的配置方案是第一种网络配置，即虚拟机无法网络外部网络的情况</p>
+
+<pre><code class="bash devstack/localrc"># Nova
+enable_service n-novnc n-cauth
+
+FLAT_INTERFACE=eth1
+# eth1 address
+HOST_IP=192.168.56.101
+FIXED_RANGE=172.24.17.0/24
+FIXED_NETWORK_SIZE=254
+FLOATING_RANGE=192.168.1.128/25
+</code></pre>
+
+<h2>Scenario 2: 双节点Nova-Network的安装</h2>
+
+<ul>
+<li>控制节点</li>
+</ul>
+
+
+<pre><code class="bash devstack/localrc"># Nova
+enable_service n-novnc n-cauth
+disable_service n-cpu n-net n-api-meta c-vol
+
+# current host ip
+HOST_IP=192.168.56.101
+FLAT_INTERFACE=eth1
+MULTI_HOST=1
+</code></pre>
+
+<ul>
+<li>计算节点</li>
+</ul>
+
+
+<pre><code class="bash devstack/localrc"># Nova
+enable_service n-novnc n-cauth
+ENABLED_SERVICES=n-cpu,n-net,n-api-meta,c-vol
+
+# current host ip
+HOST_IP=192.168.56.102
+FLAT_INTERFACE=eth1
+# needed by cinder-volume service
+DATABASE_TYPE=mysql
+
+# controller ip
+SERVICE_HOST=192.168.56.101
+MYSQL_HOST=$SERVICE_HOST
+RABBIT_HOST=$SERVICE_HOST
+GLANCE_HOSTPORT=$SERVICE_HOST:9292
+NOVA_VNC_ENABLED=True
+NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
+VNCSERVER_LISTEN=$HOST_IP
+VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
+</code></pre>
+
+<h2>Scenario 3: 单节点Neutron的安装</h2>
+
+<pre><code class="bash devstack/localrc"># Nova
+enable_service n-novnc n-cauth
+
+# Neutron
+disable_service n-net
+ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
+ENABLED_SERVICES+=,q-lbaas,q-vpn,q-fwaas
+
+HOST_IP=10.0.2.15
+FIXED_RANGE=172.16.0.0/24
+NETWORK_GATEWAY=172.16.0.1
+FLOATING_RANGE=10.0.2.0/24
+PUBLIC_NETWORK_GATEWAY=10.0.2.1
+Q_FLOATING_ALLOCATION_POOL=start=10.0.2.100,10.0.2.200
+</code></pre>
+
+<h2>Scenario 4: 三节点Neutron的安装</h2>
+
+<h2>Scenario 5: 从源代码安装客户端</h2>
+
+<h2>Scenario 6: 安装Ceilometer/Heat/Trove/Sahara/Swift</h2>
+
+<pre><code class="bash devstack/localrc"># Ceilometer
+enable_service ceilometer-acompute ceilometer-acentral ceilometer-anotification ceilometer-collector ceilometer-api
+enable_service ceilometer-alarm-notifier ceilometer-alarm-evaluator
+
+# Heat
+enable_service heat h-api h-api-cfn h-api-cw h-eng
+
+# Trove
+enable_service trove tr-api tr-tmgr tr-cond
+
+# Sahara
+enable_service sahara
+
+# Swift
+enable_service s-proxy s-object s-container s-account
+SWIFT_REPLICAS=1
+SWIFT_HASH=011688b44136573e209e
+</code></pre>
+
+<h2>Scenario 7: 安装Ceph</h2>
+
+<pre><code class="bash devstack/localrc"># Ceph
+ENABLED_SERVICES+=,ceph
+CEPH_LOOPBACK_DISK_SIZE=200G
+CEPH_CONF=/etc/ceph/ceph.conf
+CEPH_REPLICAS=1
+
+# Glance - Image Service
+GLANCE_CEPH_USER=glancy
+GLANCE_CEPH_POOL=imajeez
+
+# Cinder - Block Device Service
+CINDER_DRIVER=ceph
+CINDER_CEPH_USER=cindy
+CINDER_CEPH_POOL=volumeuh
+CINDER_CEPH_UUID=6d52eb95-12f3-47e3-9eb9-0c1fe4142426
+CINDER_BAK_CEPH_POOL=backeups
+CINDER_BAK_CEPH_USER=cind-backeups
+CINDER_ENABLED_BACKENDS=ceph,lvm
+CINDER_ENABLED_BACKENDS=ceph
+
+# Nova - Compute Service
+NOVA_CEPH_POOL=vmz
+</code></pre>
+
+<h2>Scenario 8: 安装Murano</h2>
+
+<h2>Scenario 9: 超级localrc</h2>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ceph性能优化总结(v0.94)]]></title>
@@ -865,552 +1287,6 @@ sudo ovs-vsctl add-port br-ex eth1
         Interface "eth1"
 ovs_version: "2.0.2"
 </code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[OpenStack Kilo版本新功能分析]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/05/04/what-is-new-in-kilo/"/>
-    <updated>2015-05-04T10:37:22+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/05/04/what-is-new-in-kilo</id>
-    <content type="html"><![CDATA[<p>OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第11个版本，距离OpenStack项目推出已经整整过去了5年多的时间。在这个阶段OpenStack得到不断的增强，同时OpenStack社区也成为即Linux之后的第二大开源社区，参与的人数、厂商众多，也成就了OpenStack今天盛世的局面。虽然OpenStack在今年经历了Nebula的倒闭，但是随着国内的传统行业用户对OpenStack越来越重视，我们坚信OpenStack明天会更好。</p>
-
-<p>OpenStack Kilo版本的完整翻译版本可见：<a href="https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans">https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans</a></p>
-
-<p>OpenStack Kilo版本的翻译工作由我和我的同事裴莹莹(Wendy)共同完成，翻译校对工作由裴莹莹完成。如果翻译有任何问题，请各位多多指正。</p>
-
-<!-- more -->
-
-
-<h2>社区贡献分析</h2>
-
-<p>我们先来看一下OpenStack在最近的4个稳定版本发布中，每一个项目的贡献情况：</p>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-contribution-by-modules.jpg"></p>
-
-<p>我们能够很明显的发现，OpenStack最早的几大核心模块(Nova, Cinder, Glance, Keystone, Horizon, Swift)的代码贡献所占比例呈明显下降趋势，这里强调一下，是比例而不是数量，从数量上来看，版本之间相差并不大，以Nova为例，从Havana版本的24%下降到如今的10%。这从一个侧面反映了OpenStack的核心模块日趋稳定，更多的关注集中到更高层次或者功能优化上。</p>
-
-<p>Neutron模块则一直处于稳中有升的状态,从Havana版本的7%上升到10%，说明Neutron仍然处于需要进一步完善的状态。</p>
-
-<p>对于Ceilometer，Heat，Sahara，Ironic, Trove等新晋的核心模块，都处于稳步增长的阶段。贡献的比例在四个版本中基本保持持平的态势。在Kilo版本中，Sahara和Heat进入了前十名。</p>
-
-<p>从Kilo版本的比例来看，Others的比例过半，Others主要包括了OpenStack测试相关项目，例如Rally；开发相关项目，例如Devstack;以及一些新的模块，例如：Manila，Magnum等众多进入孵化器的项目;还包括所有的Client以及Spec等。可以预见，OpenStack的开发重心逐步从底层的核心模块，逐步向更高层次、提供更丰富功能的方向发展。</p>
-
-<h2>国内社区贡献分析</h2>
-
-<p><img class="center" src="/images/blogs/what-is-new-in-kilo-contributor.png"></p>
-
-<p>从企业贡献排名来看，几大巨头企业牢牢占据贡献榜的前几名，OpenStack最成功的公司-Mirantis排名紧追Redhat成为第二贡献大户。排名前几位的公司还包括：IBM, Rackspace, Cisco, Suse, VMware, Intel等。</p>
-
-<p>国内方面，华为继续稳定在第13名，但Review的数量从Juno版本的1353提升到2548个，贡献的项目几乎涵盖所有的项目，主要贡献来自Heat，Ceilometer, Horizon，Neutron, Nova等项目。</p>
-
-<p>国内排名第2的贡献企业是九州云，排名达到了21位，看来龚永生的到来为九州云添加了无限活力。九州云的贡献主要来自Horizon和Neutron两个项目，龚永生不愧为Neutron的Core，在网络方面的贡献，九州云的确很给力。</p>
-
-<p>排名第3的企业是海云捷迅，排名为44位，海云是国内比较早的一批OpenStack创业企业，贡献方面以Sahara，Neutron，Nova，oslo.messaging以及Cinder为主，从之前了解的情况来看，海云的项目不少，可能提交的修改是与在实际项目中遇到的问题有关。</p>
-
-<p>排名之后的企业还有Kylin Cloud，UnitedStack，EasyStack等。由于是手工统计，在统计过程中如有遗漏，希望大家多多指正。</p>
-
-<h2>Horizon新功能</h2>
-
-<p>Horizon在K版本除了增强了对新增模块的支持，从UE的角度也为我们带来了很多新功能</p>
-
-<ul>
-<li>支持向导式的创建虚拟机，现在还处于beta版本，如果想在Horizon里激活，可以通过设置local_setting.py的配置实现：</li>
-</ul>
-
-
-<pre><code class="plain local_setting.py">LAUNCH_INSTANCE_NG_ENABLED = True
-</code></pre>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-instance-guide1.png"></p>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-instance-guide2.png"></p>
-
-<ul>
-<li>支持简单的主题，主要通过修改<em>variables.scss和</em>style.scss完成对主题颜色和简单样式的修改，但是格局不能改变，修改local_settings.py</li>
-</ul>
-
-
-<pre><code class="plain local_setting.py">CUSTOM_THEME_PATH = 'static/themes/blue'
-</code></pre>
-
-<pre><code class="plain static/themes/blue/_variables.scss">$gray:                   #2751DB !default;
-$gray-darker:            #94A5F2 !default;
-$gray-dark:              #0C0CED !default;
-$gray-light:             #C7CFF2 !default;
-$gray-lighter:           #DCE1F5 !default;
-
-$brand-primary:         #375A7F !default;
-$brand-success:         #00bc8c !default;
-$brand-info:            #34DB98 !default;
-$brand-warning:         #F39C12 !default;
-$brand-danger:          #E74C3C !default;
-</code></pre>
-
-<pre><code class="plain static/themes/blue/_style.scss">// Blue
-// ----
-
-@mixin btn-shadow($color) {
-  @include gradient-vertical-three-colors(lighten($color, 3%), $color, 6%, darken($color, 3%));
-  filter: none;
-  border: 1px solid darken($color, 10%);
-}
-
-// Buttons ====================================================================
-
-.btn-default,
-.btn-default:hover {
-  @include btn-shadow($btn-default-bg);
-}
-
-.btn-primary,
-.btn-primary:hover {
-  @include btn-shadow($btn-primary-bg);
-}
-</code></pre>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-horizon-theme1.png"></p>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-horizon-theme2.png"></p>
-
-<h2>Nova新功能</h2>
-
-<h3>Nova Scheduler</h3>
-
-<ul>
-<li>标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备，对于部分直接访问nova数据库的filters进行了优化，不再允许直接访问，参考链接：<a href="https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst">https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst</a></li>
-<li>对Scheduler做了一些优化，例如：Scheduler对于每一个请求都会重新进行Filters/Weighers，为了优化这个问题，将filter/weighter的初始化从handler移到scheduler，这样每次请求的时候都可以重新使用了。</li>
-</ul>
-
-
-<h3>Libvirt NFV相关功能</h3>
-
-<ul>
-<li>NUMA(Non Uniform Memory Architecture)，在这个架构下，每个处理器都会访问“本地”的内存池，从而在CPU和存储之间有更小的延迟和更大的带宽。</li>
-<li>在Kilo版本中针对此功能的实现包括：基于NUMA的调度的实现；可以将vCPU绑定在物理CPU上；超大页的支持。以上提到的三点都是通过Flavor的Extra Spces完成定义的。</li>
-</ul>
-
-
-<h3>EC2 API</h3>
-
-<ul>
-<li>EC2 API被从Nova中踢出去了</li>
-<li>取而代之的是在stackforge的EC2 API转换服务</li>
-</ul>
-
-
-<h3>API Microversioning</h3>
-
-<p>先来解释一下为什么需要API的微版本：主要原因在于现在这种API扩展方式，对于API实现的代码的增加或减少管理非常不方便，容易导致不一致性。引入微版本主要目的就是让开发人员在修改API代码时能够向前兼容，而不是加入一个新的API扩展；用户通过指定API的版本，在请求时也能决定是使用的具体的动作。</p>
-
-<p>包含版本的返回:
-<code>plain Result
-GET /
-{
-     "versions": [
-        {
-            "id": "v2.1",
-            "links": [
-                  {
-                    "href": "http://localhost:8774/v2/",
-                    "rel": "self"
-                }
-            ],
-            "status": "CURRENT",
-            "version": "5.2"
-            "min_version": "2.1"
-        },
-   ]
-}
-</code></p>
-
-<p>客户端的Header信息：
-<code>plain Header
-X-OpenStack-Nova-API-Version: 2.114
-</code></p>
-
-<h3>一个已知的问题：Evacuate</h3>
-
-<p>这个问题的产生主要是因为Evacuate的清理机制，主机名的变化会导致nova-compute重启过程中误删所有虚拟机，所以一个变通的方法是设置</p>
-
-<pre><code class="plain nova.conf">destroy_after_evacuate=False
-</code></pre>
-
-<p>这个问题会在Liberty中得到修复，相关的Spec：<a href="https://review.openstack.org/#/c/161444/3/specs/liberty/approved/robustify_evacuate.rst">https://review.openstack.org/#/c/161444/3/specs/liberty/approved/robustify_evacuate.rst</a></p>
-
-<h2>Glance新功能</h2>
-
-<ul>
-<li>自动进行镜像格式转化，例如，Ceph是使用RAW格式的，假如我们上传的是QCOW2，创建虚拟机时，就会经历一番上传下载的过程，速度异常缓慢。而且RAW格式通常都是原始大小，上传时候非常慢，完全可以通过上传小镜像自动转换为指定格式。</li>
-<li>Glance支持多字段排序
-<code>plain API
-/images?sort_key=status&amp;sort_dir=asc&amp;sort_key=name&amp;sort_dir=asc&amp;sort_key=created_at&amp;sort_dir=desc
-</code></li>
-<li>临时将镜像设置为非活跃状态，假如一个镜像里有病毒，管理员就会将该镜像设置为非活跃状态，在清理后重新发布该镜像，在这个过程中，所有非管理员用户都无法使用或者下载这个镜像</li>
-<li>免重启动态加载配置文件，配置文件改动后重启服务，现在可以给glance服务发送SIGHUP触发，这样升级就可以零当机时间。</li>
-<li>使用多个Swift容器存储镜像，减少大规模部署时的请求瓶颈</li>
-</ul>
-
-
-<h2>Cinder新功能</h2>
-
-<ul>
-<li>实现服务逻辑代码与数据库结构之间的解耦，支持Rolling更新</li>
-<li>一致性组是指具备公共操作的卷，逻辑上化为一组。在K版本中对增强一致性组的功能：可以添加、删除卷，从已经存在的快照创建新的组，关于一致性组的详细操作可以参考：<a href="http://docs.openstack.org/admin-guide-cloud/content/consistency-groups.html">http://docs.openstack.org/admin-guide-cloud/content/consistency-groups.html</a></li>
-</ul>
-
-
-<pre><code class="plain cinder">cinder consisgroup-update
-[--name NAME]
-[--description DESCRIPTION]
-[--add-volumes UUID1,UUID2,......]
-[--remove-volumes UUID3,UUID4,......]
-CG
-</code></pre>
-
-<pre><code class="plain cinder">cinder consisgroup-create-from-src
-[--cgsnapshot CGSNAPSHOT]
-[--name NAME]
-[--description DESCRIPTION]
-</code></pre>
-
-<ul>
-<li>卷类型的增强功能主要包含两个：为某一项目创建私有的卷类型和为卷类型增加描述信息</li>
-</ul>
-
-
-<pre><code class="plain cinder">cinder type-create &lt;name&gt; --is-public
-cinder type-create &lt;name&gt; &lt;description&gt;
-</code></pre>
-
-<h2>Neutron新功能</h2>
-
-<ul>
-<li>DVR支持OVS中的VLANs</li>
-<li>新的V2版本的LBaas的API</li>
-<li>新的插件的更新，详情请见更新日志中</li>
-<li>一些高级服务的分离，例如：L3, ML2, VPNaaS, LBaaS</li>
-</ul>
-
-
-<p>网络方面我不是权威，希望有高人能出来讲讲Kilo中的Neutron新功能。</p>
-
-<h2>Keystone新功能</h2>
-
-<ul>
-<li>项目嵌套，创建一个新的Project时候，可以指定parent的Project</li>
-</ul>
-
-
-<pre><code class="plain keystone">POST /projects
-
-{
-    "project": {
-        "description": "Project space for Test Group",
-        "domain_id": "1789d1",
-        "enabled": true,
-        "name": "Test Group",
-        "parent_id": "7fa612"
-    }
-}
-</code></pre>
-
-<ul>
-<li>Keystone与Keystone的联盟，有了这个功能两个或者更多的云服务提供者就可以共享资源，这个功能在J版本引入，在K版本中主要针对该功能的进一步增强，具体的使用方法可参考这篇博文：<a href="http://blog.rodrigods.com/playing-with-keystone-to-keystone-federation/">http://blog.rodrigods.com/playing-with-keystone-to-keystone-federation/</a></li>
-<li>针对新人授权的一些增强功能</li>
-<li>keystone的配置中有部分配置发生了变化，例如：keystone.token.backends.memcache被keystone.token.persistence.backends.memcache取代，更多详细内容请参考更新日志</li>
-</ul>
-
-
-<h2>Swift新功能</h2>
-
-<ul>
-<li>纠删码的加入应该是这个版本最大的亮点，但是纠删码作为beta版本发布，并不推荐应用于生产环境，关于纠删码的详细介绍可以参考：<a href="http://docs.openstack.org/developer/swift/overview_erasure_code.html">http://docs.openstack.org/developer/swift/overview_erasure_code.html</a></li>
-<li>复合型令牌，简而言之就是需要用户加上服务的Token才能对Swfit存放的内容进行操作，如下图所示：</li>
-</ul>
-
-
-<pre><code class="plain swift">client
-   \
-    \   &lt;request&gt;: &lt;path-specific-to-the-service&gt;
-     \  x-auth-token: &lt;user-token&gt;
-      \
-    SERVICE
-       \
-        \    PUT: /v1/SERVICE_1234/&lt;container&gt;/&lt;object&gt;
-         \   x-auth-token: &lt;user-token&gt;
-          \  x-service-token: &lt;service-token&gt;
-           \
-          Swift
-</code></pre>
-
-<p>具体的设计文档：<a href="http://docs.openstack.org/developer/swift/overview_backing_store.html">http://docs.openstack.org/developer/swift/overview_backing_store.html</a></p>
-
-<ul>
-<li>全局性的集群复制优化，大幅提高效率，避免经过广域网传播的数据</li>
-</ul>
-
-
-<h2>Ceilometer新功能</h2>
-
-<ul>
-<li>支持Ceph对象存储监控，当对象存储为Ceph而不是Swfit的时候，使用Polling机制，使用Ceph的Rados Gateway的API接口获取数据，具体的设计文档：<a href="https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst">https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst</a></li>
-<li>Ceilometer API RBAC - 更细粒度的权限控制: <a href="https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst">https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst</a>
-<code>plain Ceilometer
-{
-  "context_is_admin": [["role:admin"]]
-}
-</code>
-更细粒度的控制
-<code>plain Ceilometer
-{
-   "context_is_admin": [["role:admin"]],
-   "admin_or_cloud_admin": [["rule:context_is_admin"],
-            ["rule:admin_and_matching_project_domain_id"]],
-   "telemetry:alarm_delete": [["rule:admin_or_cloud_admin"]]
-}
-</code></li>
-<li>接口中的模糊查询，增加了一个新的查询符号=~</li>
-<li>支持更多的测量，包括Hyper-V，IPMI相关的</li>
-</ul>
-
-
-<h2>Ironic新功能</h2>
-
-<ul>
-<li>iLO的优化</li>
-<li>使用Config Drive替代Metadata服务</li>
-<li>全盘镜像支持，可以跳过raddisk和kernel，这样就可以部署Windows的镜像了</li>
-<li>使用本地盘启动，替代PXE方式，可以通过设置flavor的capabilities:boot_option实现</li>
-</ul>
-
-
-<h2>Oslo</h2>
-
-<p>解决了很多之前遗留的技术债，还有一些命名规范的问题。olso.messaging实现了心跳，olso.log在所有项目中使用，优化了oslo.db的代码。</p>
-
-<h2>OpenStack文档</h2>
-
-<p>优化了docs.openstack.org页面，也可以从中选择相应的语言。有专门的团队负责安装、网络和高可靠的文档。</p>
-
-<h2>其他模块</h2>
-
-<p>对于Sahara, Heat, Trove等模块的更新没有在这里Highlight出来，大家可以参考更新日志里的内容，或者查看specs中的具体描述。</p>
-
-<h2>总结</h2>
-
-<p>通过Kilo的一些更新可以看到，Kilo版本在不断优化代码结构的基础上，增加了一些新功能，也偿还了一些技术债，总体来说是一种稳中有升的态势，但是总体感觉并没有太多的惊喜和出人意料。相信随着更多的孵化项目进入正式版本中，OpenStack一定会向更多元化的方向发展。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[(Havana)将OpenStack Havana源代码编译为DEB包]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/03/05/build-openstack-source-code-to-deb-package/"/>
-    <updated>2015-03-05T21:57:16+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/03/05/build-openstack-source-code-to-deb-package</id>
-    <content type="html"><![CDATA[<h2>Why</h2>
-
-<p>我想有以下有几个原因促使我写这篇Blog：</p>
-
-<ul>
-<li>很多人开始OpenStack之旅是从Ubuntu开始，但是却没有一篇文章系统的介绍如何将修改后的代码重新编译回DEB包。</li>
-<li>如果我们采用源代码直接安装的方式对OpenStack模块进行管理，一致性很难保证，难以维护。</li>
-<li>Debian类系统的打包看起来比RPM包复杂很多。</li>
-</ul>
-
-
-<h2>Who</h2>
-
-<p>谁需要看这篇文章呢？</p>
-
-<ul>
-<li>不了解如何编译DEB包</li>
-<li>想把修改过的OpenStack源代码重新发布，供内部使用</li>
-<li>希望改变直接维护源代码</li>
-</ul>
-
-
-<p>当然，如果您已经是这方面的高手，欢迎给我指正我Blog中的不足，十分感谢。</p>
-
-<!-- more -->
-
-
-<h2>Quick Start</h2>
-
-<p>我已经将整个的编译过程集成在Vagrant脚本中，你可以直接安装Vagrant后，下载我的源代码，启动后就能看到整个的编译过程。</p>
-
-<p>Vagrant 版本要求为1.3.5，Virtualbox版本要求为4.1或者4.2均可。</p>
-
-<h2>Let&rsquo;s play some magic</h2>
-
-<pre><code>git clone https://github.com/xiaoquqi/vagrant-build-openstack-deb
-cd vagrant-build-openstack-deb
-vagrant up
-</code></pre>
-
-<p>虚拟机启动后，将会自动从github(这里使用的是csdn code的镜像代码)同步最新代码，然后使用编译脚本，执行打包操作。如果不考虑下载的时间，整个过程大概持续5分钟左右的时间，编译好的Deb包将会存放在/root/build目录下。</p>
-
-<pre><code>vagrant ssh
-</code></pre>
-
-<p>即可登陆到虚拟机，切换到root目录就可以查看到所有打包好的DEB的情况了，当然你也可以直接使用dpkg -i命令进行安装。</p>
-
-<pre><code>sudo -s
-cd /root/build
-ls -lrt *.deb
-dpkg -i python-glance_2013.2.2.dev1.g5cd7a22~precise-0ubuntu1_all.deb
-</code></pre>
-
-<h2>Step by Step</h2>
-
-<p>看过了整个的编译过程，下面来介绍一点点细节。</p>
-
-<p>全部的编译部分代码都在这个文件中：<a href="https://github.com/xiaoquqi/vagrant-build-openstack-deb/blob/master/scripts/build.sh">https://github.com/xiaoquqi/vagrant-build-openstack-deb/blob/master/scripts/build.sh</a></p>
-
-<p>下面让我们来仔细分析一下整个编译过程。</p>
-
-<ul>
-<li>添加必要的源</li>
-</ul>
-
-
-<p>这里面我们用的源包含sohu的Ubuntu 12.04源以及Ubuntu的Havana源</p>
-
-<pre><code>deb http://mirrors.sohu.com/ubuntu/ precise main restricted
-deb http://mirrors.sohu.com/ubuntu/ precise-updates main restricted
-deb http://mirrors.sohu.com/ubuntu/ precise universe
-deb http://mirrors.sohu.com/ubuntu/ precise-updates universe
-deb http://mirrors.sohu.com/ubuntu/ precise multiverse
-deb http://mirrors.sohu.com/ubuntu/ precise-updates multiverse
-deb http://mirrors.sohu.com/ubuntu/ precise-backports main restricted universe multiverse
-deb http://mirrors.sohu.com/ubuntu/ precise-security main restricted
-deb http://mirrors.sohu.com/ubuntu/ precise-security universe
-deb http://mirrors.sohu.com/ubuntu/ precise-security multiverse
-deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
-</code></pre>
-
-<ul>
-<li>安装必要的编译软件</li>
-</ul>
-
-
-<pre><code>apt-get install -y debootstrap equivs schroot
-apt-get install -y devscripts
-apt-get install -y build-essential checkinstall sbuild
-apt-get install -y dh-make
-apt-get install -y bzr bzr-builddeb
-apt-get install -y git
-apt-get install -y python-setuptools
-</code></pre>
-
-<ul>
-<li>编译脚本的源代码仓库</li>
-</ul>
-
-
-<p>Ubuntu维护源代码编译脚本是使用叫做bzr的工具，常使用Launchpad的朋友应该比较熟悉，这是一套类似于git的分布式管理工具，不同的是这是一套完全用python语言实现的管理工具，不仅具有代码版本控制功能并且与Launchpad高度整合，作为Ubuntu维护不可缺少的重要工具之一。例如，这里面用到的glance编译脚本就可以在这里找到：</p>
-
-<p><a href="https://code.launchpad.net/~ubuntu-server-dev/glance/havana">https://code.launchpad.net/~ubuntu-server-dev/glance/havana</a></p>
-
-<p>页面上方有下载代码的方式：</p>
-
-<pre><code>bzr branch lp:~ubuntu-server-dev/glance/havana
-git clone https://code.csdn.net/openstack/glance.git --branch "stable/havana" glance_source
-</code></pre>
-
-<ul>
-<li>准备环境</li>
-</ul>
-
-
-<p>在Vagrant启动一台新虚拟机之后，并没有pip，如果不安装pip，则会在python setup.py sdist过程中，把pip安装到源代码目录中，引起Build失败。将//vagrant/pip/pip-1.4.1.tar.gz解压缩并安装，之后安装pbr：</p>
-
-<pre><code>tar zxvf pip-1.4.1.tar.gz
-cd pip-1.4.1
-sudo python setup.py install
-sudo pip install pbr
-</code></pre>
-
-<ul>
-<li>生成source文件</li>
-</ul>
-
-
-<p>进入glance_source目录，执行</p>
-
-<pre><code>python setup.py sdist
-</code></pre>
-
-<p>生成的tar.gz文件会在glance_source/dist下，注意此时该文件的名称为：</p>
-
-<pre><code>glance-2013.2.2.dev1.g5cd7a22.tar.gz
-</code></pre>
-
-<p>接下来我们需要将该文件重命名为：</p>
-
-<pre><code>glance_2013.2.2.dev1.g5cd7a22~precise.orig.tar.gz
-</code></pre>
-
-<p>特别注意：glance后面已经变为下划线！！！</p>
-
-<p>把文件移动到与glance和glance_source同一级别的目录，这样在编译的时候，才能找到source文件。此时的目录结构为：</p>
-
-<pre><code>├── glance
-│   ├── debian
-├── glance_source
-├── glance_2013.2.2.dev1.g5cd7a22~precise.orig.tar.gz
-</code></pre>
-
-<ul>
-<li>安装依赖包</li>
-</ul>
-
-
-<p>为了保证顺利的完成编译，我们需要安装要编译包的所有依赖包，简单来说就是glance/debian/control文件中定义的Depends部分的内容。当然在编译的时候我们也可以完全忽略依赖，但是并不推荐。</p>
-
-<pre><code>mk-build-deps -i -t 'apt-get -y' debian/control
-</code></pre>
-
-<p>这样系统就会自动安装所有依赖包，并且生成一个glance-build-deps_1.0_all.deb文件。</p>
-
-<ul>
-<li>生成日志信息</li>
-</ul>
-
-
-<p>开始编译前，我们还需要告诉编译器我们要编译的版本，还记得刚才生成的dist包吗，把那个版本拿出来作为我们commit的版本。</p>
-
-<pre><code>cd glance
-dch -b -D precise --newversion "1:2013.2.2.dev1.g5cd7a22~precise-0ubuntu1" 'This is a build test.'
-debcommit
-</code></pre>
-
-<p>这样在glance/debian/changelog中就会增加一条新的日志。</p>
-
-<ul>
-<li>开始编译</li>
-</ul>
-
-
-<p>万事俱备，只欠东风。我们利用bzr提供的builddeb开始编译，这里我们忽略签名问题。</p>
-
-<pre><code>cd glance
-bzr builddeb -- -sa -us -uc
-</code></pre>
-
-<p>大功告成啦。快去/root/build/glance下看看你的deb包吧。</p>
-
-<h2>总结</h2>
-
-<p>Debian包的编译的确涉及很多知识点，而且可使用的编译工具很多，关系很复杂。这篇博文，只为了帮助大家对DEB包的编译有一个快速的认识，如果想了解更多关于编译的知识，请关注后续的博文。</p>
-
-<p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
-
-<ul>
-<li>邮箱：<a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#120;&#x69;&#x61;&#111;&#x71;&#117;&#x71;&#x69;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#x6f;&#x6d;">&#120;&#105;&#97;&#111;&#113;&#117;&#113;&#105;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#x2e;&#x63;&#111;&#109;</a></li>
-<li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
-</ul>
-
 ]]></content>
   </entry>
   
