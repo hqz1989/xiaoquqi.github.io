@@ -4,7 +4,7 @@
   <title><![CDATA[RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-09-09T14:09:12+08:00</updated>
+  <updated>2015-09-09T14:19:35+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -27,9 +27,13 @@
 
 <h2>注意</h2>
 
-<p>这篇Blog没有提及的地方：
-* 网络，需要根据实际情况进行配置，我这里面使用的是DHCP自动获取，所以没有相关步骤
-* 分区，这里面使用的是默认配置，但是生产环境的配置一般需要手动划分</p>
+<p>这篇Blog没有提及的地方：</p>
+
+<ul>
+<li>网络，需要根据实际情况进行配置，我这里面使用的是DHCP自动获取，所以没有相关步骤</li>
+<li>分区，这里面使用的是默认配置，但是生产环境的配置一般需要手动划分</li>
+</ul>
+
 
 <h2>安装步骤</h2>
 
@@ -80,6 +84,10 @@
 <img class="center" src="http://xiaoquqi.github.io/images/blogs/install-ubuntu/28.png"></li>
 </ul>
 
+
+<h2>后记</h2>
+
+<p>谨记此篇Blog送给我的小徒弟周小球小朋友，希望你能利用利用最后的一年的时间努力学习，找到称心如意的工作。</p>
 ]]></content>
   </entry>
   
@@ -2355,7 +2363,7 @@ deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#109;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#120;&#105;&#x61;&#111;&#113;&#117;&#113;&#x69;&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#x6f;&#109;">&#x78;&#105;&#x61;&#111;&#113;&#117;&#113;&#x69;&#64;&#103;&#109;&#x61;&#x69;&#108;&#x2e;&#x63;&#111;&#x6d;</a></li>
+<li>邮箱：<a href="&#109;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x78;&#x69;&#x61;&#x6f;&#113;&#117;&#x71;&#x69;&#64;&#x67;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#x6f;&#x6d;">&#120;&#x69;&#x61;&#111;&#113;&#117;&#113;&#x69;&#64;&#x67;&#x6d;&#x61;&#105;&#x6c;&#46;&#x63;&#111;&#109;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 

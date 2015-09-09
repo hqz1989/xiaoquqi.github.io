@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-09-09T14:09:12+08:00</updated>
+  <updated>2015-09-09T14:19:35+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -27,9 +27,13 @@
 
 <h2>注意</h2>
 
-<p>这篇Blog没有提及的地方：
-* 网络，需要根据实际情况进行配置，我这里面使用的是DHCP自动获取，所以没有相关步骤
-* 分区，这里面使用的是默认配置，但是生产环境的配置一般需要手动划分</p>
+<p>这篇Blog没有提及的地方：</p>
+
+<ul>
+<li>网络，需要根据实际情况进行配置，我这里面使用的是DHCP自动获取，所以没有相关步骤</li>
+<li>分区，这里面使用的是默认配置，但是生产环境的配置一般需要手动划分</li>
+</ul>
+
 
 <h2>安装步骤</h2>
 
@@ -80,6 +84,10 @@
 <img class="center" src="/images/blogs/install-ubuntu/28.png"></li>
 </ul>
 
+
+<h2>后记</h2>
+
+<p>谨记此篇Blog送给我的小徒弟周小球小朋友，希望你能利用利用最后的一年的时间努力学习，找到称心如意的工作。</p>
 ]]></content>
   </entry>
   
