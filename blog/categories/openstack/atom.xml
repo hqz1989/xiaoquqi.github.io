@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-09-09T14:19:35+08:00</updated>
+  <updated>2015-09-19T21:20:42+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -118,7 +118,8 @@
 <p>对于初步接触OpenStack的开发者而言，未必有那么多闲置的资源供你调配，所以比较容易的上手方式就是使用虚拟机，对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
 * VMWare Workstation是收费软件，Virtualbox是免费软件
 * VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中
-* VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试</p>
+* VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试
+* 使用Virtualbox时，为了让虚拟机能够访问外部网络，并且允许Host通过Floating IP对虚拟机进行访问，需要在Host层面设置NAT规则，转换到可以访问的物理网卡上，详情请见下文</p>
 
 <h2>Devstack快速开始</h2>
 
@@ -368,7 +369,62 @@ VNCSERVER_LISTEN=$HOST_IP
 VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
 </code></pre>
 
-<h2>Scenario 3: 单节点Neutron的安装</h2>
+<h2>Scenario 3: 单节点Neutron的安装(Virtualbox)</h2>
+
+<p><img class="center" src="/images/blogs/devstack-guide-neutron-topology.jpg"></p>
+
+<ul>
+<li>网卡配置</li>
+</ul>
+
+
+<pre><code class="plain /etc/network/interface">auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet static
+address 192.168.56.102
+netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet manual
+up ip link set dev $IFACE up
+down ip link set dev $IFACE down
+</code></pre>
+
+<ul>
+<li>MAC网卡NAT映射</li>
+</ul>
+
+
+<p>我们将第三块网卡作为提供外部网络的接口，采用系统层面的NAT方式让该网卡能够访问外部网络。</p>
+
+<pre><code class="plain bash">sudo sysctl net.inet.ip.forwarding=1
+</code></pre>
+
+<p>在nat-anchor后面添加</p>
+
+<pre><code class="plain /etc/pf.conf">nat on en0 from 172.16.0.0/24 -&gt; (en0)
+</code></pre>
+
+<p>之后加载</p>
+
+<pre><code class="bash bash">sudo pfctl -e -f /etc/pf.conf
+</code></pre>
+
+<ul>
+<li>Linux网卡NAT映射</li>
+</ul>
+
+
+<pre><code class="plain bash">echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+</code></pre>
+
+<ul>
+<li>基本配置</li>
+</ul>
+
 
 <pre><code class="bash devstack/localrc"># Nova
 enable_service n-novnc n-cauth
@@ -378,17 +434,142 @@ disable_service n-net
 ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
 ENABLED_SERVICES+=,q-lbaas,q-vpn,q-fwaas
 
-HOST_IP=10.0.2.15
-FIXED_RANGE=172.16.0.0/24
-NETWORK_GATEWAY=172.16.0.1
-FLOATING_RANGE=10.0.2.0/24
-PUBLIC_NETWORK_GATEWAY=10.0.2.1
-Q_FLOATING_ALLOCATION_POOL=start=10.0.2.100,10.0.2.200
+HOST_IP=192.168.56.102
+FIXED_RANGE=20.0.0.0/24
+NETWORK_GATEWAY=20.0.0.1
+FLOATING_RANGE=172.16.0.0/24
+PUBLIC_NETWORK_GATEWAY=172.16.0.1
+Q_FLOATING_ALLOCATION_POOL=start=172.16.0.101,end=172.16.0.200
 </code></pre>
 
-<h2>Scenario 4: 三节点Neutron的安装</h2>
+<ul>
+<li>OVS设置</li>
+</ul>
+
+
+<p>由于在Devstack安装过程中，将br-ex的地址也设置成了PUBLIC_NETWORK_GATEWAY的地址，但是实际使用过程中，我们建立的Host Apdator充当了gateway的角色，所以为了避免冲突，直接将br-ex地址清除掉。</p>
+
+<pre><code class="bash bash">sudo ip addr flush dev br-ex
+</code></pre>
+
+<p>之后将eth2作为br-ex的port，之后创建的虚拟机就可以通过eth2访问网络了，Host也可以通过floating ip访问虚拟机了。</p>
+
+<pre><code class="bash bash">sudo ovs-vsctl add-port br-ex eth2
+</code></pre>
+
+<h2>Scenario 4: 多节点Neutron的安装(控制/网络+计算节点)</h2>
+
+<ul>
+<li>控制/网络节点
+<figure class='code'><figcaption><span>devstack/localrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>&lt;h1&gt;Nova&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;enable_service n-novnc n-cauth
+</span><span class='line'>HOST_IP=192.168.56.102
+</span><span class='line'>disable_service n-cpu n-net n-api-meta c-vol&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;/ul&gt;
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>&lt;h1&gt;Neutron&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;disable_service n-net
+</span><span class='line'>ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta
+</span><span class='line'>FIXED_RANGE=20.0.0.0/24
+</span><span class='line'>NETWORK_GATEWAY=20.0.0.1
+</span><span class='line'>FLOATING_RANGE=172.16.0.0/24
+</span><span class='line'>PUBLIC_NETWORK_GATEWAY=172.16.0.1
+</span><span class='line'>Q_FLOATING_ALLOCATION_POOL=start=172.16.0.101,end=172.16.0.200</span></code></pre></td></tr></table></div></figure></p>
+
+<ul>
+<li>计算节点
+<figure class='code'><figcaption><span>devstack/localrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>&lt;h1&gt;Nova&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;disable_all_services
+</span><span class='line'>ENABLED_SERVICES=n-cpu,rabbit,neutron,q-agt,c-vol&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;/ul&gt;
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>&lt;h1&gt;current host ip&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;HOST_IP=192.168.56.103&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;h1&gt;needed by cinder-volume service&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;DATABASE_TYPE=mysql&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;h1&gt;controller ip&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;SERVICE_HOST=192.168.56.102
+</span><span class='line'>MYSQL_HOST=$SERVICE_HOST
+</span><span class='line'>RABBIT_HOST=$SERVICE_HOST
+</span><span class='line'>GLANCE_HOSTPORT=$SERVICE_HOST:9292
+</span><span class='line'>NOVA_VNC_ENABLED=True
+</span><span class='line'>NOVNCPROXY_URL=&ldquo;&lt;a href="http://$SERVICE_HOST:6080/vnc_auto.html"&gt;http://$SERVICE_HOST:6080/vnc_auto.html&lt;/a&gt;&rdquo;
+</span><span class='line'>VNCSERVER_LISTEN=$HOST_IP
+</span><span class='line'>VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
+</span><span class='line'>Q_HOST=$SERVICE_HOST</span></code></pre></td></tr></table></div></figure></p>
 
 <h2>Scenario 5: 从源代码安装客户端</h2>
+
+<p>新的Devstack里面默认不再提供client的源代码的安装方式，需要使用localrc中的环境变量进行开启，否则将直接从master获取的client代码进行安装，当然这样会造成系统无法正常使用。那么如何才能确定client在当前Devstack可用的版本呢？最简单的方法可以先从pip中安装包，之后通过pip list | grep client的方式获取client的源代码。这里面提供我在Kilo中使用的版本依赖。</p>
+
+<pre><code class="bash devstack/localrc">KEYSTONECLIENT_BRANCH=1.3.1
+CINDERCLIENT_BRANCH=1.1.1
+GLANCECLIENT_BRANCH=0.17.1
+HEATCLIENT_BRANCH=0.4.0
+NEUTRONCLIENT_BRANCH=2.4.0
+NOVACLIENT_BRANCH=2.23.0
+SWIFTCLIENT_BRANCH=2.4.0
+
+# client code
+LIBS_FROM_GIT=python-keystoneclient,python-glanceclient,python-novaclient,python-neutronclient,python-swiftclient,python-cinderclient
+</code></pre>
 
 <h2>Scenario 6: 安装Ceilometer/Heat/Trove/Sahara/Swift</h2>
 
@@ -420,26 +601,44 @@ CEPH_CONF=/etc/ceph/ceph.conf
 CEPH_REPLICAS=1
 
 # Glance - Image Service
-GLANCE_CEPH_USER=glancy
-GLANCE_CEPH_POOL=imajeez
+GLANCE_CEPH_USER=glance
+GLANCE_CEPH_POOL=glance-pool
 
 # Cinder - Block Device Service
 CINDER_DRIVER=ceph
-CINDER_CEPH_USER=cindy
-CINDER_CEPH_POOL=volumeuh
-CINDER_CEPH_UUID=6d52eb95-12f3-47e3-9eb9-0c1fe4142426
-CINDER_BAK_CEPH_POOL=backeups
-CINDER_BAK_CEPH_USER=cind-backeups
-CINDER_ENABLED_BACKENDS=ceph,lvm
+CINDER_CEPH_USER=cinder
+CINDER_CEPH_POOL=cinder-pool
+CINDER_CEPH_UUID=1b1519e4-5ecd-11e5-8559-080027f18a73
+CINDER_BAK_CEPH_POOL=cinder-backups
+CINDER_BAK_CEPH_USER=cinder-backups
+CINDER_ENABLED_BACKENDS=ceph
 CINDER_ENABLED_BACKENDS=ceph
 
 # Nova - Compute Service
-NOVA_CEPH_POOL=vmz
+NOVA_CEPH_POOL=nova-pool
 </code></pre>
 
 <h2>Scenario 8: 安装Murano</h2>
 
-<h2>Scenario 9: 超级localrc</h2>
+<p>想通过这个例子演示，对于一个新的OpenStack项目，如何使用Devstack尝鲜。</p>
+
+<pre><code class="bash bash">cd /opt/stack.kilo
+git clone https://github.com/openstack/murano --branch=stable/kilo
+cd murano/contrib/devstack
+cp lib/murano ${DEVSTACK_DIR}/lib
+cp lib/murano-dashboard ${DEVSTACK_DIR}/lib
+cp extras.d/70-murano.sh ${DEVSTACK_DIR}/extras.d
+</code></pre>
+
+<pre><code class="plain devstack/localrc"># Enable Neutron
+ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
+
+# Enable Heat
+enable_service heat h-api h-api-cfn h-api-cw h-eng
+
+# Enable Murano
+enable_service murano murano-api murano-engine
+</code></pre>
 ]]></content>
   </entry>
   
