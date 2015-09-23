@@ -149,10 +149,10 @@
 <p>本篇Blog主要介绍以下几个实用场景：</p>
 
 <ul>
-<li>提供Devstack安装成功率的方法</li>
+<li>如何利用Devstack构建一套完美的开发环境</li>
+<li>提高Devstack安装成功率的方法</li>
 <li>Devstack的实用技巧</li>
 <li>各种场景下的配置和注意事项</li>
-<li>超级localrc</li>
 </ul>
 
 
@@ -163,11 +163,85 @@
 
 <h2>运行环境的选择</h2>
 
-<p>对于初步接触OpenStack的开发者而言，未必有那么多闲置的资源供你调配，所以比较容易的上手方式就是使用虚拟机，对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
-* VMWare Workstation是收费软件，Virtualbox是免费软件
-* VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中
-* VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试
-* 使用Virtualbox时，为了让虚拟机能够访问外部网络，并且允许Host通过Floating IP对虚拟机进行访问，需要在Host层面设置NAT规则，转换到可以访问的物理网卡上，详情请见下文</p>
+<p>对于刚刚接触OpenStack的开发者而言，没有那么多闲置的资源，所以比较容易的上手方式就是使用虚拟机。对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：</p>
+
+<ul>
+<li>VMWare Workstation是收费软件，Virtualbox是免费软件</li>
+<li>VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，节省资源，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中</li>
+<li>VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试</li>
+<li>使用Virtualbox时，为了让虚拟机能够访问外部网络，并且允许Host通过Floating IP对虚拟机进行访问，需要在Host层面设置NAT规则，转换到可以访问的物理网卡上，详情请见下文</li>
+</ul>
+
+
+<h2>Virtualbox网络设置</h2>
+
+<p><img class="center" src="/images/blogs/devstack-guide-neutron-topology.jpg"></p>
+
+<ul>
+<li>网卡配置</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>/etc/network/interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth0
+</span><span class='line'>iface eth0 inet dhcp
+</span><span class='line'>
+</span><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet static
+</span><span class='line'>address 192.168.56.102
+</span><span class='line'>netmask 255.255.255.0
+</span><span class='line'>
+</span><span class='line'>auto eth2
+</span><span class='line'>iface eth2 inet manual
+</span><span class='line'>up ip link set dev $IFACE up
+</span><span class='line'>down ip link set dev $IFACE down</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>MAC网卡NAT映射</li>
+</ul>
+
+
+<p>我们将第三块网卡作为提供外部网络的接口，采用系统层面的NAT方式让该网卡能够访问外部网络。</p>
+
+<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo sysctl net.inet.ip.forwarding=1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在nat-anchor后面添加</p>
+
+<figure class='code'><figcaption><span>/etc/pf.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nat on en0 from 172.16.0.0/24 -&gt; (en0)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后加载</p>
+
+<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo pfctl -e -f /etc/pf.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Linux网卡NAT映射</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+</span><span class='line'>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span></code></pre></td></tr></table></div></figure>
+
 
 <h2>Devstack快速开始</h2>
 
@@ -527,75 +601,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Scenario 3: 单节点Neutron的安装(Virtualbox)</h2>
-
-<p><img class="center" src="/images/blogs/devstack-guide-neutron-topology.jpg"></p>
-
-<ul>
-<li>网卡配置</li>
-</ul>
-
-
-<figure class='code'><figcaption><span>/etc/network/interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth0
-</span><span class='line'>iface eth0 inet dhcp
-</span><span class='line'>
-</span><span class='line'>auto eth1
-</span><span class='line'>iface eth1 inet static
-</span><span class='line'>address 192.168.56.102
-</span><span class='line'>netmask 255.255.255.0
-</span><span class='line'>
-</span><span class='line'>auto eth2
-</span><span class='line'>iface eth2 inet manual
-</span><span class='line'>up ip link set dev $IFACE up
-</span><span class='line'>down ip link set dev $IFACE down</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>MAC网卡NAT映射</li>
-</ul>
-
-
-<p>我们将第三块网卡作为提供外部网络的接口，采用系统层面的NAT方式让该网卡能够访问外部网络。</p>
-
-<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo sysctl net.inet.ip.forwarding=1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>在nat-anchor后面添加</p>
-
-<figure class='code'><figcaption><span>/etc/pf.conf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>nat on en0 from 172.16.0.0/24 -&gt; (en0)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>之后加载</p>
-
-<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo pfctl -e -f /etc/pf.conf
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Linux网卡NAT映射</li>
-</ul>
-
-
-<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>echo 1 &gt; /proc/sys/net/ipv4/ip_forward
-</span><span class='line'>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span></code></pre></td></tr></table></div></figure>
-
+<h2>Scenario 3: 单节点Neutron的安装</h2>
 
 <ul>
 <li>基本配置</li>
@@ -730,6 +736,25 @@
 </span><span class='line'>VNCSERVER_LISTEN=$HOST_IP
 </span><span class='line'>VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
 </span><span class='line'>Q_HOST=$SERVICE_HOST</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>OVS设置</li>
+</ul>
+
+
+<p>由于在Devstack安装过程中，将br-ex的地址也设置成了PUBLIC_NETWORK_GATEWAY的地址，但是实际使用过程中，我们建立的Host Apdator充当了gateway的角色，所以为了避免冲突，直接将br-ex地址清除掉。</p>
+
+<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo ip addr flush dev br-ex
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后将eth2作为br-ex的port，之后创建的虚拟机就可以通过eth2访问网络了，Host也可以通过floating ip访问虚拟机了。</p>
+
+<figure class='code'><figcaption><span>bash</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo ovs-vsctl add-port br-ex eth2
+</span></code></pre></td></tr></table></div></figure>
 
 
 <h2>Scenario 5: 从源代码安装客户端</h2>
