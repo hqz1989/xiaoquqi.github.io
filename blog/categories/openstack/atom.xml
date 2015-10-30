@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-10-30T16:23:55+08:00</updated>
+  <updated>2015-10-30T18:16:35+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -57,7 +57,8 @@
 
 <p><img class="center" src="/images/blogs/contribution-in-liberty-99cloud.png" width="800"></p>
 
-<p>排名第16位的是99cloud，99cloud自上一个版本排名四朵小云之首后，本次继续强劲来袭，排名创造历史新高，第16名。通过对贡献模块的分析，我们能看出99cloud最大的贡献来自于社区文档，而在项目方面的贡献则主要来自murano-dashboard，horizon，neutron等项目上，从中可以看出99cloud对murano这个applicaton catalog的项目关注程度比较高，可能会在将来的产品中有所体现。从贡献中，我们隐约看到了九州云的副总裁李开总的提交，由此可见九州云为社区贡献的积极程度。</p>
+<p>排名第16位的是99cloud，99cloud自上一个版本排名四朵小云之首后，本次继续强劲来袭，排名创造历史新高，第16名。通过对贡献模块的分析，我们能看出99cloud最大的贡献来自于社区文档，而在项目方面的贡献则主要来自murano-dashboard，horizon，neutron等项目上，从中可以看出99cloud对murano这个applicaton catalog的项目关注程度比较高，可能会在将来的产品中有所体现。从贡献中，我们隐约看到了九州云的副总裁李开总的提交，由此可见九州云为社区贡献的积极程度。
+更加难能可贵的是，Horizon的全球贡献99cloud是全球前十，Tempest全球前八，Murano项目更是进入全球前三，相当给力。</p>
 
 <p><strong><em> UnitedStack社区贡献统计 </em></strong>
 <img class="center" src="/images/blogs/contribution-in-liberty-unitedstack.png" width="800"></p>
