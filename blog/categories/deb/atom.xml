@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Deb | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/deb/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-09-24T06:50:46+08:00</updated>
+  <updated>2015-10-30T16:23:55+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -217,7 +217,7 @@ bzr builddeb -- -sa -us -uc
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#x6d;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#120;&#105;&#x61;&#111;&#113;&#117;&#113;&#x69;&#64;&#103;&#109;&#97;&#x69;&#x6c;&#46;&#99;&#111;&#109;">&#120;&#105;&#x61;&#111;&#x71;&#117;&#x71;&#x69;&#x40;&#x67;&#x6d;&#x61;&#105;&#108;&#x2e;&#x63;&#111;&#109;</a></li>
+<li>邮箱：<a href="&#109;&#x61;&#x69;&#x6c;&#116;&#x6f;&#58;&#x78;&#x69;&#97;&#x6f;&#113;&#117;&#x71;&#x69;&#x40;&#x67;&#x6d;&#97;&#x69;&#x6c;&#46;&#x63;&#111;&#109;">&#x78;&#105;&#97;&#111;&#x71;&#117;&#x71;&#105;&#x40;&#103;&#109;&#x61;&#105;&#108;&#46;&#99;&#x6f;&#109;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
