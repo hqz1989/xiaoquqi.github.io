@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloud Computing | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/cloud-computing/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-11-05T17:13:37+08:00</updated>
+  <updated>2015-12-01T11:41:15+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,284 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[使用Grafana+Diamond+Graphite构造完美监控面板]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/12/01/use-grafana-to-monitor-your-cluster/"/>
+    <updated>2015-12-01T07:59:46+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/12/01/use-grafana-to-monitor-your-cluster</id>
+    <content type="html"><![CDATA[<p>服务器监控软件五花八门，没有一个是对的，但是总有一款是适合你的，本文中将使用Grafana+Dimaond+Graphite构造一款漂亮的监控面板，你可以独自欣赏，也可以让他们和你的应用勾勾搭搭。</p>
+
+<p>本文中的安装测试，主要在CentOS 6.5下完成。先来张Grafna效果图，左边是我们的数据源Graphite，右边是我们的Grafna的效果图：</p>
+
+<p><img class="center" src="/images/blogs/grafana-screenshot.png" width="800"></p>
+
+<!-- more -->
+
+
+<h2>安装及配置Dimaond</h2>
+
+<p>安装Diamond最直接和简单的方法就是自己编译RPM或者DEB的安装包, Diamond在这方面提供了比较好的支持。</p>
+
+<pre><code class="bash bash"># cd /root
+# yum install -y git rpm-build python-configobj python-setuptools
+# git clone https://github.com/python-diamond/Diamond
+# cd Diamond
+# make rpm
+# cd dist
+# rpm -ivh diamond-*.noarch.rpm
+</code></pre>
+
+<p>默认情况下，Diamond开启了基本的监控信息，包括CPU、内存、磁盘的性能数据。当然，我们可以通过配置启动相应的监控项，也能通过自定义的方式进行相应的扩展。这里，我们在/etc/diamond/collectors加载额外的插件，下面的例子中开启了网络的监控。</p>
+
+<pre><code class="bash bash"># cp -f /etc/diamond/diamond.conf.example /etc/diamond/diamond.conf
+
+# cat &lt;&lt; EOF | tee -a /etc/diamond/diamond.conf
+[configs]
+path = "/etc/diamond/collectors/"
+extension = ".conf"
+EOF
+
+# cat &lt;&lt; EOF | tee /etc/diamond/collectors/net.conf
+[collectors]
+
+[[NetworkCollector]]
+enabled = True
+EOF
+</code></pre>
+
+<p>那么到目前为止，Diamond的基本安装和配置已经完成，但是现在只是简单的采集数据，并没有指明数据要发送给谁，所以下一步我们来开始配置Graphite。</p>
+
+<h2>安装及配置Graphite</h2>
+
+<p>Graphite主要做两件事情：按照时间存储数据、生成图表，在我们的场景里面，实质上就是把Graphite作为数据源给Grafana提供数据。另外还需要安装的是carbon，负责通过网络接受数据并保存到后端存储中；另外还需要whisper，负责生成Graphite样式的基于文件的时间序列的数据库。</p>
+
+<h3>安装软件包</h3>
+
+<pre><code class="bash bash"># yum install -y graphite-web graphite-web-selinux
+# yum install -y mysql mysql-server MySQL-python
+# yum install -y python-carbon python-whisper
+</code></pre>
+
+<h3>配置MySQL</h3>
+
+<pre><code class="bash bash"># /etc/init.d/mysqld start
+
+# mysql -e "CREATE DATABASE graphite;" -u root
+# mysql -e "GRANT ALL PRIVILEGES ON graphite.* TO 'graphite'@'localhost' IDENTIFIED BY 'sysadmin';" -u root
+# mysql -e 'FLUSH PRIVILEGES;' -u root
+</code></pre>
+
+<h3>配置Graphite</h3>
+
+<ul>
+<li>local setting</li>
+</ul>
+
+
+<pre><code class="bash /etc/graphite-web/local_settings.py"># SECRET_KEY=$(md5sum /etc/passwd | awk {'print $1'})
+
+# echo "SECRET_KEY = '$SECRET_KEY'" | tee -a /etc/graphite-web/local_settings.py
+# echo "TIME_ZONE = 'Asia/Shanghai'" | tee -a /etc/graphite-web/local_settings.py
+
+# cat &lt;&lt; EOF | tee -a /etc/graphite-web/local_settings.py
+DATABASES = {
+    'default': {
+        'NAME': 'graphite',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'graphite',
+        'PASSWORD': 'sysadmin',
+    }
+}
+EOF
+
+# cd /usr/lib/python2.6/site-packages/graphite
+# ./manage.py syncdb --noinput
+
+# echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@hihuron.com', 'sysadmin')" | ./manage.py shell
+</code></pre>
+
+<ul>
+<li>Apache配置</li>
+</ul>
+
+
+<pre><code class="bash /etc/httpd/conf.d/graphite-web.conf">Listen 0.0.0.0:10000
+&lt;VirtualHost *:10000&gt;
+    ServerName graphite-web
+    DocumentRoot "/usr/share/graphite/webapp"
+    ErrorLog /var/log/httpd/graphite-web-error.log
+    CustomLog /var/log/httpd/graphite-web-access.log common
+    Alias /media/ "/usr/lib/python2.6/site-packages/django/contrib/admin/media/"
+
+    WSGIScriptAlias / /usr/share/graphite/graphite-web.wsgi
+    WSGIImportScript /usr/share/graphite/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
+
+    &lt;Location "/content/"&gt;
+        SetHandler None
+    &lt;/Location&gt;
+
+    &lt;Location "/media/"&gt;
+        SetHandler None
+    &lt;/Location&gt;
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<ul>
+<li>Diamond配置</li>
+</ul>
+
+
+<pre><code class="bash bash"># HOST_IP=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' | head -1)
+
+# sed  -i "/^\[\[GraphiteHandler\]\]$/,/^\[.*\]/s/^host = 127.0.0.1$/host = $HOST_IP/" /etc/diamond/diamond.conf
+# sed  -i "/^\[\[GraphitePickleHandler\]\]$/,/^\[.*\]/s/^host = 127.0.0.1$/host = $HOST_IP/" /etc/diamond/diamond.conf
+</code></pre>
+
+<h3>启动服务</h3>
+
+<pre><code class="bash bash"># service carbon-cache restart
+# service httpd restart
+# service diamond restart
+</code></pre>
+
+<h2>安装和配置Grafana</h2>
+
+<p>Grafana最主要的功能就是对数据的呈现，基于一切可提供time series的后台服务。这里面我们使用Graphite为Grafana提供数据。</p>
+
+<h3>安装及配置</h3>
+
+<pre><code class="bash bash"># yum install -y nodejs
+# rpm -ivh https://grafanarel.s3.amazonaws.com/builds/grafana-2.5.0-1.x86_64.rpm
+# sudo /sbin/chkconfig --add grafana-server
+# sed -i 's/^;http_port = 3000$/http_port = 10001/g' /etc/grafana/grafana.ini
+# sudo service grafana-server start
+</code></pre>
+
+<h3>添加datasource</h3>
+
+<p>Grafana提供了非常丰富的REST API，我们不仅可以直接利用Grafana作为数据呈现层，还可以利用REST API直接将Grafana的Graph集成在我们的应用中。下面我们利用REST API为Grafana添加datasource。</p>
+
+<pre><code class="bash bash"># curl -i 'http://admin:admin@localhost:10001/api/datasources' -X POST -H "Accept: application/json" -H "Content-Type: application/json" -d '{"name": "graphite", "type": "graphite", "url": "http://localhost:10000", "access": "proxy", "basicAuth": false}'
+</code></pre>
+
+<h2>Ceph监控</h2>
+
+<h3>修改ceph脚本兼容性</h3>
+
+<p>Diamond是基于Python开发的，但是由于CentOS 6.5的Python版本较低(2.6)，所以直接使用社区版本的Ceph监控时，会导致错误。可以通过简单的修改进行修复。</p>
+
+<pre><code class="python /usr/share/diamond/collectors/ceph/ceph.py">    def _get_stats_from_socket(self, name):
+        """Return the parsed JSON data returned when ceph is told to
+        dump the stats from the named socket.
+
+        In the event of an error error, the exception is logged, and
+        an empty result set is returned.
+        """
+        try:
+            #json_blob = subprocess.check_output(
+            #    [self.config['ceph_binary'],
+            #     '--admin-daemon',
+            #     name,
+            #     'perf',
+            #     'dump',
+            #     ])
+            cmd = [
+                 self.config['ceph_binary'],
+                 '--admin-daemon',
+                 name,
+                 'perf',
+                 'dump',
+            ]
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            json_blob = process.communicate()[0]
+</code></pre>
+
+<h3>增加对ceph osd perf监控</h3>
+
+<p>在实际运维Ceph过程中，ceph osd perf是一个非常重要的指令，能够观察出集群中磁盘的latency的信息，通过观察变化，可以辅助判断磁盘出现性能问题。Diamond的设计中，每个Diamond Agent只会采集自己本机的指标，所以我们在添加的时候，只需要在一个节点上增加这个监控就可以了。在ceph.py中结尾处新增加一个类。</p>
+
+<pre><code class="python /usr/share/diamond/collectors/ceph/ceph.py">class CephOsdCollector(CephCollector):
+
+    def _get_stats(self):
+        """Return the parsed JSON data returned when ceph is told to
+        dump the stats from the named socket.
+
+        In the event of an error error, the exception is logged, and
+        an empty result set is returned.
+        """
+        try:
+            #json_blob = subprocess.check_output(
+            #    [self.config['ceph_binary'],
+            #     '--admin-daemon',
+            #     name,
+            #     'perf',
+            #     'dump',
+            #     ])
+            cmd = [
+                 self.config['ceph_binary'],
+                 'osd',
+                 'perf',
+                 '--format=json',
+            ]
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            json_blob = process.communicate()[0]
+        except subprocess.CalledProcessError, err:
+            self.log.info('Could not get stats from %s: %s',
+                          name, err)
+            self.log.exception('Could not get stats from %s' % name)
+            return {}
+
+        try:
+            json_data = json.loads(json_blob)
+        except Exception, err:
+            self.log.info('Could not parse stats from %s: %s',
+                          name, err)
+            self.log.exception('Could not parse stats from %s' % name)
+            return {}
+
+        return json_data
+
+    def _publish_stats(self, stats):
+        """Given a stats dictionary from _get_stats_from_socket,
+        publish the individual values.
+        """
+        for perf in stats['osd_perf_infos']:
+            counter_prefix = 'osd.' + str(perf['id'])
+            for stat_name, stat_value in flatten_dictionary(
+                perf['perf_stats'],
+                prefix=counter_prefix,
+            ):
+              self.log.info('stat_name is %s', stat_name)
+              self.log.info('stat_value is %s', stat_value)
+              self.publish_gauge(stat_name, stat_value)
+
+    def collect(self):
+        """
+        Collect stats
+        """
+        self.log.info('in ceph osd collector')
+        stats = self._get_stats()
+        self._publish_stats(stats)
+</code></pre>
+
+<h3>修改Diamond监控配置</h3>
+
+<pre><code class="bash /etc/diamond/collectors/ceph.conf"># cat &lt;&lt; EOF | tee /etc/diamond/collectors/ceph.conf
+[collectors]
+
+[[CephCollector]]
+enabled = True
+
+[[CephOsdCollector]]
+enabled = True
+EOF
+</code></pre>
+
+<pre><code class="bash bash"># service diamond restart
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[深度解读OpenStack Liberty国内代码贡献]]></title>
@@ -1148,128 +1426,6 @@ cinder type-create &lt;name&gt; &lt;description&gt;
 <h2>总结</h2>
 
 <p>通过Kilo的一些更新可以看到，Kilo版本在不断优化代码结构的基础上，增加了一些新功能，也偿还了一些技术债，总体来说是一种稳中有升的态势，但是总体感觉并没有太多的惊喜和出人意料。相信随着更多的孵化项目进入正式版本中，OpenStack一定会向更多元化的方向发展。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ceph可靠性的量化分析]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/03/04/ceph-reliability/"/>
-    <updated>2015-03-04T08:36:06+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/03/04/ceph-reliability</id>
-    <content type="html"><![CDATA[<p>在开始正文之前，首先要感谢UnitedStack工程师朱荣泽对这篇博文的大力帮助和悉心指教。本文主要针对UnitedStack公司在巴黎峰会上对Ceph可靠性的计算方法(<a href="https://www.ustack.com/blog/build-block-storage-service/">https://www.ustack.com/blog/build-block-storage-service/</a>)做了一个更明确的分析和阐述，供对此话题感兴趣的朋友一起来讨论、研究，文章中如果有不当之处，还请各位高人指教。</p>
-
-<!-- more -->
-
-
-<h2>什么情况下数据会丢失？</h2>
-
-<p>这个话题的另外一种提法就是存储的可靠性，所谓存储的可靠性最基本的一点就是数据不要丢失，也就是我们俗称的“找不回来了”。所以，要分析Ceph的可靠性我们只需要搞清楚，到底在什么情况下我们的数据会丢失，并且再也无法恢复，基于此我们便可以创建我们的计算模型。</p>
-
-<p>我们先来假定一套简单的Ceph环境，3个OSD节点，每个OSD节点对应一块物理硬盘，副本数为3。那么我们排除MON的因素影响Ceph集群的运行的问题，显而易见，当三个OSD对应的物理硬盘全部损坏时，数据必然无法恢复。所以此时集群的可靠性是与硬盘本身的可靠性直接相关。</p>
-
-<p>我们再来假定一套更大的Ceph环境，30个OSD节点，分3个机架摆放，每一个机架有10个OSD节点，每个OSD节点仍然对应一块物理硬盘，副本数为3，并且通过CRUSH MAP，将每一份副本均匀分布在三个机架上，不会出现两份副本同时出现在一个机架的情况。此时，什么时候会出现数据丢失的情况呢？当三个机架上都有一块硬盘损坏，而恰恰这三块硬盘又保存了同一个Object的全部副本，此时数据就会出现丢失的情况。</p>
-
-<p>所以根据以上的分析，我们认为，Ceph的可靠性的计算是与OSD的数量(N)、副本数(R)、每一个服务节点的OSD数量(S)、硬盘的年失败概率(AFR)。这里我们使用UnitedStack相关参数进行计算。</p>
-
-<p>具体取值如下图所示：</p>
-
-<p><img src="/images/blogs/ceph-reliability-formula.jpg" width="640" height="480"></p>
-
-<p><img src="/images/blogs/ceph-reliability-constant.jpg" width="640" height="480"></p>
-
-<h2>硬盘年失败概率</h2>
-
-<p>根据维基百科的计算方法(<a href="http://en.wikipedia.org/wiki/Annualized_failure_rate">http://en.wikipedia.org/wiki/Annualized_failure_rate</a>)，AFR的计算方法如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-afr.jpg" width="640" height="480"></p>
-
-<p>例如，计算Seagate某企业级硬盘的AFR，根据文档查到MTBF为1,200,000小时，则AFR为0.73%，计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-afr-example.jpg" width="640" height="480"></p>
-
-<p>但是，根据Google的相关计算，在一个大规模集群环境下，往往AFR的值并没有硬盘厂商那样乐观，下面的统计告诉了我们在真实环境下AFR变化的情况：</p>
-
-<p><img src="/images/blogs/ceph-reliability-google-afr.jpg" width="640" height="480"></p>
-
-<p>所以我们可以看到实际的AFR的变化范围随着年份而变化，取值范围在1.7%-8%左右，所以本文中AFR为1.7%。</p>
-
-<h2>硬盘在一年之内损坏的概率</h2>
-
-<p>有了AFR，我们就可以尝试计算硬盘在一年中出现故障的概率，根据相关研究，硬盘在一定时间内的失败概率符合Possion分布(已经把知识还给老师的同学请移步：<a href="http://en.wikipedia.org/wiki/Poisson_distribution">http://en.wikipedia.org/wiki/Poisson_distribution</a>)。具体的计算公式为：</p>
-
-<p><img src="/images/blogs/ceph-reliability-Pn.jpg" width="640" height="480"></p>
-
-<p>当我最初拿到这个计算公式时，一下子懵了，到底该如何确定数学期望值lamda呢？</p>
-
-<h2>lamda的计算过程</h2>
-
-<p>根据相关的研究资料，单块的硬盘损坏的期望值(Failures in Time)是指每10亿小时硬盘的失败率(Failure Rate λ)，计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-fit.jpg" width="640" height="480"></p>
-
-<p>这里的Af(Acceleration Factor)是由测试时间乘以阿伦尼乌斯方程的值得出来的结果，好吧，我承认，我也是现学现卖，这个方程式是化学反应的速率常数与温度之间的关系式，适用于基元反应和非基元反应，甚至某些非均相反应。不过可以看出Failure Rate的计算过程实质主要是计算环境因素引起的物理变化，最终导致失败的数学期望值。所以根据相关研究，最终FIT的计算方法为：</p>
-
-<p><img src="/images/blogs/ceph-reliability-fit-afr.jpg" width="640" height="480"></p>
-
-<p>有了这些参数后，我们就可以开始正式计算Ceph集群中，不同机架上有三块硬盘同时出现损坏的概率啦。</p>
-
-<h2>任意一个OSD出现损坏的概率P1(any)</h2>
-
-<p>我们不太容易直接去计算任意一个OSD出现损坏的概率，但是我们很容易计算没有OSD出现问题的概率，方法如下，用一减去无OSD节点出现问题的概率，得到P1(any)。</p>
-
-<p><img src="/images/blogs/ceph-reliability-osd1-failure.jpg" width="640" height="480"></p>
-
-<h2>在恢复时间内第二个节点出现故障的概率P2(any)</h2>
-
-<p>我们知道当Ceph发现一个有问题的OSD节点时，会自动的将节点OUT出去，这个时间大约为10min，同时Ceph的自我修复机制会自动平衡数据，将故障节点的数据重新分配在其他的OSD节点上。</p>
-
-<p>我们假设我们单盘的容量为1000 GB，使用率为75%，也就是此时将有750 GB的数据需要同步。我们的数据只在本机架平衡，节点写入速度为50 MB/s，计算方法如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-recovery-time.jpg" width="640" height="480"></p>
-
-<p>注意：由于每个节点有三个OSD，所以要求每台物理机所承受的节点带宽至少要大于150 MB/s。并且在这个计算模型下，并没有计算元数据、请求数据、IP包头等额外的信息的大小。</p>
-
-<p>有了Recovery Time，我们就可以计算我们第二个节点在Recovery Time内失败的概率，具体的计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-osd2-failure.jpg" width="640" height="480"></p>
-
-<h2>在恢复时间内第三个节点出现故障的概率P3(any)</h2>
-
-<p>计算方法同上，计算过程如下：</p>
-
-<p><img src="/images/blogs/ceph-reliability-osd3-failure.jpg" width="640" height="480"></p>
-
-<h2>一年内任意副本数&reg;个OSD出现故障的概率</h2>
-
-<p>所以将上述概率相乘即可得到一年内任意副本数&reg;个OSD出现故障的概率。</p>
-
-<p><img src="/images/blogs/ceph-reliability-arbitrary-osd-failure.jpg" width="640" height="480"></p>
-
-<h2>Copy Sets(M)</h2>
-
-<p>在这个计算模型中，因为任意R个OSD节点的损坏并不意外着副本的完全丢失，因为损坏的R个OSD未必保存着一个Object的全部副本信息，所以未必造成数据不可恢复，所以这里引入了Copy Sets的概念。简单来说，Copyset就是存放所有拷贝的一个集合，具体的定义和计算方法可以查看参考链接。那么这里的场景下，Copy Sets为三个机架OSD数量相乘，即M=24<em>24</em>24。当然如果是两个副本的情况下，M应该为24<em>24+24</em>24+24*24。</p>
-
-<p><img src="/images/blogs/ceph-reliability-copysets.jpg" width="640" height="480"></p>
-
-<h2>CEPH的可靠性</h2>
-
-<p>所以最终归纳出CEPH可靠性的算法为：</p>
-
-<p><img src="/images/blogs/ceph-reliability-copysets-failure.jpg" width="640" height="480"></p>
-
-<p>可以看出Ceph三副本的可靠性大约为9个9，由于Recovery Time和AFR取值的问题，所以计算结果和UnitedStack上略有出入。</p>
-
-<h2>参考链接</h2>
-
-<ul>
-<li><a href="http://en.wikipedia.org/wiki/Annualized_failure_rate">Annualized Failure Rate</a></li>
-<li><a href="http://en.wikipedia.org/wiki/Poisson_distribution">Poisson distribution</a></li>
-<li><a href="http://www.microsemi.com/document-portal/doc_view/124041-calculating-reliability-using-fit-mttf-arrhenius-htol-model">Calculating Reliability using FIT &amp; MTTF: Arrhenius HTOL Model</a></li>
-<li><a href="http://storagemojo.com/2007/02/19/googles-disk-failure-experience/">Google’s Disk Failure Experience</a></li>
-<li><a href="https://static.googleusercontent.com/media/research.google.com/en//archive/disk_failures.pdf">Failure Trends in a Large Disk Drive Population</a></li>
-<li><a href="http://0b4af6cdc2f0c5998459-c0245c5c937c5dedcca3f1764ecc9b2f.r43.cf2.rackcdn.com/11727-atc13-cidon.pdf">Copysets: Reducing the Frequency of Data Loss in Cloud Storage</a></li>
-</ul>
-
 ]]></content>
   </entry>
   
