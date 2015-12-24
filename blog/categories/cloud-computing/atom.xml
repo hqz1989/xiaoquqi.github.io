@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloud Computing | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/cloud-computing/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2015-12-01T11:41:15+08:00</updated>
+  <updated>2015-12-24T17:56:14+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,171 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Consul的安装方法]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2015/12/07/consul-installation/"/>
+    <updated>2015-12-07T10:00:13+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2015/12/07/consul-installation</id>
+    <content type="html"><![CDATA[<h2>什么是Consul?</h2>
+
+<p>Consul拥有众多的组件，简言之，就是一个用于在你的基础设施中，发现和配置服务的工具。包含以下关键功能：服务发现、健康检查、键值存储和多数据中心支持。再说的通俗一点，就是用于管理分布式系统的利器。</p>
+
+<!-- more -->
+
+
+<h2>安装Consul</h2>
+
+<p>Consul的安装比较简单，下载之后直接解压缩就可以了，下载地址：<a href="https://www.consul.io/downloads.html">https://www.consul.io/downloads.html</a></p>
+
+<p>我们把consul直接放在/usr/local/bin目录中。</p>
+
+<h2>Consul Server</h2>
+
+<pre><code>$ /usr/local/bin/consul agent -server -bootstrap-expect 3 -data-dir /tmp/consul -node=server1 -bind=10.10.10.10
+</code></pre>
+
+<h3>参数说明</h3>
+
+<ul>
+<li>-server - Serve模式</li>
+<li>-bootstrap-expect - Server数量</li>
+<li>-data-dir - 数据目录</li>
+<li>-node - Node名称</li>
+<li>-bind - 集群通讯地址</li>
+</ul>
+
+
+<h3>输出</h3>
+
+<pre><code>==&gt; WARNING: Expect Mode enabled, expecting 3 servers
+==&gt; WARNING: It is highly recommended to set GOMAXPROCS higher than 1
+==&gt; Starting Consul agent...
+==&gt; Starting Consul agent RPC...
+==&gt; Consul agent running!
+         Node name: 'server1.consul.com'
+        Datacenter: 'dc1'
+            Server: true (bootstrap: false)
+       Client Addr: 127.0.0.1 (HTTP: 8500, HTTPS: -1, DNS: 8600, RPC: 8400)
+      Cluster Addr: 200.21.1.101 (LAN: 8301, WAN: 8302)
+    Gossip encrypt: false, RPC-TLS: false, TLS-Incoming: false
+             Atlas: &lt;disabled&gt;
+
+==&gt; Log data will now stream in as it occurs:
+
+    2015/12/23 03:13:36 [WARN] memberlist: Binding to public address without encryption!
+    2015/12/23 03:13:36 [INFO] serf: EventMemberJoin: server1.consul.com 200.21.1.101
+    2015/12/23 03:13:36 [WARN] memberlist: Binding to public address without encryption!
+    2015/12/23 03:13:36 [INFO] serf: EventMemberJoin: server1.consul.com.dc1 200.21.1.101
+    2015/12/23 03:13:36 [INFO] raft: Node at 200.21.1.101:8300 [Follower] entering Follower state
+    2015/12/23 03:13:36 [INFO] consul: adding server server1.consul.com (Addr: 200.21.1.101:8300) (DC: dc1)
+    2015/12/23 03:13:36 [INFO] consul: adding server server1.consul.com.dc1 (Addr: 200.21.1.101:8300) (DC: dc1)
+    2015/12/23 03:13:36 [ERR] agent: failed to sync remote state: No cluster leader
+    2015/12/23 03:13:37 [WARN] raft: EnableSingleNode disabled, and no known peers. Aborting election.
+    2015/12/23 03:13:51 [ERR] agent: failed to sync remote state: No cluster leader
+==&gt; Newer Consul version available: 0.6.0
+    2015/12/23 03:14:17 [ERR] agent: failed to sync remote state: No cluster leader
+</code></pre>
+
+<h3>查看成员</h3>
+
+<pre><code>$ consul members
+</code></pre>
+
+<pre><code>Node                Address            Status  Type    Build  Protocol  DC
+server1.consul.com  200.21.1.101:8301  alive   server  0.5.2  2         dc1
+</code></pre>
+
+<h2>Consul Agent</h2>
+
+<pre><code>$ /usr/local/bin/consul agent -data-dir /tmp/consul -node=agent1 -bind=10.10.10.100 -config-dir /etc/consul.d
+</code></pre>
+
+<ul>
+<li>输出</li>
+</ul>
+
+
+<pre><code>==&gt; WARNING: It is highly recommended to set GOMAXPROCS higher than 1
+==&gt; Starting Consul agent...
+==&gt; Starting Consul agent RPC...
+==&gt; Consul agent running!
+         Node name: 'agent1.consul.com'
+        Datacenter: 'dc1'
+            Server: false (bootstrap: false)
+       Client Addr: 127.0.0.1 (HTTP: 8500, HTTPS: -1, DNS: 8600, RPC: 8400)
+      Cluster Addr: 200.21.1.201 (LAN: 8301, WAN: 8302)
+    Gossip encrypt: false, RPC-TLS: false, TLS-Incoming: false
+             Atlas: &lt;disabled&gt;
+
+==&gt; Log data will now stream in as it occurs:
+
+    2015/12/24 08:09:51 [WARN] memberlist: Binding to public address without encryption!
+    2015/12/24 08:09:51 [INFO] serf: EventMemberJoin: agent1.consul.com 200.21.1.201
+    2015/12/24 08:09:51 [ERR] agent: failed to sync remote state: No known Consul servers
+    2015/12/24 08:09:56 [INFO] agent.rpc: Accepted client: 127.0.0.1:42794
+    2015/12/24 08:09:56 [INFO] agent: (LAN) joining: [200.21.1.101 200.21.1.102 200.21.1.103]
+    2015/12/24 08:09:56 [INFO] serf: EventMemberJoin: server1.consul.com 200.21.1.101
+    2015/12/24 08:09:56 [INFO] consul: adding server server1.consul.com (Addr: 200.21.1.101:8300) (DC: dc1)
+    2015/12/24 08:09:58 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:10:02 [INFO] agent: (LAN) joined: 1 Err: &lt;nil&gt;
+    2015/12/24 08:10:02 [INFO] agent.rpc: Accepted client: 127.0.0.1:42800
+==&gt; Newer Consul version available: 0.6.0
+    2015/12/24 08:10:21 [WARN] agent: Check 'ping' is now warning
+    2015/12/24 08:10:22 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:10:43 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:11:01 [WARN] agent: Check 'ping' is now warning
+    2015/12/24 08:11:02 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:11:23 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:11:41 [WARN] agent: Check 'ping' is now warning
+    2015/12/24 08:11:43 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:12:12 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:12:21 [WARN] agent: Check 'ping' is now warning
+    2015/12/24 08:12:36 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+    2015/12/24 08:13:01 [WARN] agent: Check 'ping' is now warning
+    2015/12/24 08:13:03 [ERR] agent: failed to sync remote state: rpc error: No cluster leader
+</code></pre>
+
+<ul>
+<li>server日志输出</li>
+</ul>
+
+
+<pre><code>    2015/12/24 08:09:58 [INFO] serf: EventMemberJoin: agent1.consul.com 200.21.1.201
+</code></pre>
+
+<h3>查看成员</h3>
+
+<pre><code>$ consul members
+</code></pre>
+
+<pre><code>Node                Address            Status  Type    Build  Protocol  DC
+server1.consul.com  200.21.1.101:8301  alive   server  0.5.2  2         dc1
+agent1.consul.com   200.21.1.201:8301  alive   client  0.5.2  2         dc1
+</code></pre>
+
+<h2>最终结果</h2>
+
+<pre><code>$ consul members
+</code></pre>
+
+<pre><code>Node                Address            Status  Type    Build  Protocol  DC
+server1.consul.com  200.21.1.101:8301  alive   server  0.5.2  2         dc1
+agent1.consul.com   200.21.1.201:8301  alive   client  0.5.2  2         dc1
+agent2.consul.com   200.21.1.202:8301  alive   client  0.5.2  2         dc1
+server2.consul.com  200.21.1.102:8301  alive   server  0.5.2  2         dc1
+server3.consul.com  200.21.1.103:8301  alive   server  0.5.2  2         dc1
+agent3.consul.com   200.21.1.203:8301  alive   client  0.5.2  2         dc1
+</code></pre>
+
+<h2>参考文档</h2>
+
+<ul>
+<li><a href="https://www.consul.io/intro/getting-started/install.html">https://www.consul.io/intro/getting-started/install.html</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[使用Grafana+Diamond+Graphite构造完美监控面板]]></title>
@@ -1091,341 +1256,6 @@ sudo ovs-vsctl add-port br-ex eth1
         Interface "eth1"
 ovs_version: "2.0.2"
 </code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[OpenStack Kilo版本新功能分析]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/05/04/what-is-new-in-kilo/"/>
-    <updated>2015-05-04T10:37:22+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/05/04/what-is-new-in-kilo</id>
-    <content type="html"><![CDATA[<p>OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第11个版本，距离OpenStack项目推出已经整整过去了5年多的时间。在这个阶段OpenStack得到不断的增强，同时OpenStack社区也成为即Linux之后的第二大开源社区，参与的人数、厂商众多，也成就了OpenStack今天盛世的局面。虽然OpenStack在今年经历了Nebula的倒闭，但是随着国内的传统行业用户对OpenStack越来越重视，我们坚信OpenStack明天会更好。</p>
-
-<p>OpenStack Kilo版本的完整翻译版本可见：<a href="https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans">https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans</a></p>
-
-<p>OpenStack Kilo版本的翻译工作由我和我的同事裴莹莹(Wendy)共同完成，翻译校对工作由裴莹莹完成。如果翻译有任何问题，请各位多多指正。</p>
-
-<!-- more -->
-
-
-<h2>社区贡献分析</h2>
-
-<p>我们先来看一下OpenStack在最近的4个稳定版本发布中，每一个项目的贡献情况：</p>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-contribution-by-modules.jpg"></p>
-
-<p>我们能够很明显的发现，OpenStack最早的几大核心模块(Nova, Cinder, Glance, Keystone, Horizon, Swift)的代码贡献所占比例呈明显下降趋势，这里强调一下，是比例而不是数量，从数量上来看，版本之间相差并不大，以Nova为例，从Havana版本的24%下降到如今的10%。这从一个侧面反映了OpenStack的核心模块日趋稳定，更多的关注集中到更高层次或者功能优化上。</p>
-
-<p>Neutron模块则一直处于稳中有升的状态,从Havana版本的7%上升到10%，说明Neutron仍然处于需要进一步完善的状态。</p>
-
-<p>对于Ceilometer，Heat，Sahara，Ironic, Trove等新晋的核心模块，都处于稳步增长的阶段。贡献的比例在四个版本中基本保持持平的态势。在Kilo版本中，Sahara和Heat进入了前十名。</p>
-
-<p>从Kilo版本的比例来看，Others的比例过半，Others主要包括了OpenStack测试相关项目，例如Rally；开发相关项目，例如Devstack;以及一些新的模块，例如：Manila，Magnum等众多进入孵化器的项目;还包括所有的Client以及Spec等。可以预见，OpenStack的开发重心逐步从底层的核心模块，逐步向更高层次、提供更丰富功能的方向发展。</p>
-
-<h2>国内社区贡献分析</h2>
-
-<p><img class="center" src="/images/blogs/what-is-new-in-kilo-contributor.png"></p>
-
-<p>从企业贡献排名来看，几大巨头企业牢牢占据贡献榜的前几名，OpenStack最成功的公司-Mirantis排名紧追Redhat成为第二贡献大户。排名前几位的公司还包括：IBM, Rackspace, Cisco, Suse, VMware, Intel等。</p>
-
-<p>国内方面，华为继续稳定在第13名，但Review的数量从Juno版本的1353提升到2548个，贡献的项目几乎涵盖所有的项目，主要贡献来自Heat，Ceilometer, Horizon，Neutron, Nova等项目。</p>
-
-<p>国内排名第2的贡献企业是九州云，排名达到了21位，看来龚永生的到来为九州云添加了无限活力。九州云的贡献主要来自Horizon和Neutron两个项目，龚永生不愧为Neutron的Core，在网络方面的贡献，九州云的确很给力。</p>
-
-<p>排名第3的企业是海云捷迅，排名为44位，海云是国内比较早的一批OpenStack创业企业，贡献方面以Sahara，Neutron，Nova，oslo.messaging以及Cinder为主，从之前了解的情况来看，海云的项目不少，可能提交的修改是与在实际项目中遇到的问题有关。</p>
-
-<p>排名之后的企业还有Kylin Cloud，UnitedStack，EasyStack等。由于是手工统计，在统计过程中如有遗漏，希望大家多多指正。</p>
-
-<h2>Horizon新功能</h2>
-
-<p>Horizon在K版本除了增强了对新增模块的支持，从UE的角度也为我们带来了很多新功能</p>
-
-<ul>
-<li>支持向导式的创建虚拟机，现在还处于beta版本，如果想在Horizon里激活，可以通过设置local_setting.py的配置实现：</li>
-</ul>
-
-
-<pre><code class="plain local_setting.py">LAUNCH_INSTANCE_NG_ENABLED = True
-</code></pre>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-instance-guide1.png"></p>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-instance-guide2.png"></p>
-
-<ul>
-<li>支持简单的主题，主要通过修改<em>variables.scss和</em>style.scss完成对主题颜色和简单样式的修改，但是格局不能改变，修改local_settings.py</li>
-</ul>
-
-
-<pre><code class="plain local_setting.py">CUSTOM_THEME_PATH = 'static/themes/blue'
-</code></pre>
-
-<pre><code class="plain static/themes/blue/_variables.scss">$gray:                   #2751DB !default;
-$gray-darker:            #94A5F2 !default;
-$gray-dark:              #0C0CED !default;
-$gray-light:             #C7CFF2 !default;
-$gray-lighter:           #DCE1F5 !default;
-
-$brand-primary:         #375A7F !default;
-$brand-success:         #00bc8c !default;
-$brand-info:            #34DB98 !default;
-$brand-warning:         #F39C12 !default;
-$brand-danger:          #E74C3C !default;
-</code></pre>
-
-<pre><code class="plain static/themes/blue/_style.scss">// Blue
-// ----
-
-@mixin btn-shadow($color) {
-  @include gradient-vertical-three-colors(lighten($color, 3%), $color, 6%, darken($color, 3%));
-  filter: none;
-  border: 1px solid darken($color, 10%);
-}
-
-// Buttons ====================================================================
-
-.btn-default,
-.btn-default:hover {
-  @include btn-shadow($btn-default-bg);
-}
-
-.btn-primary,
-.btn-primary:hover {
-  @include btn-shadow($btn-primary-bg);
-}
-</code></pre>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-horizon-theme1.png"></p>
-
-<p><img class="left" src="/images/blogs/what-is-new-in-kilo-horizon-theme2.png"></p>
-
-<h2>Nova新功能</h2>
-
-<h3>Nova Scheduler</h3>
-
-<ul>
-<li>标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备，对于部分直接访问nova数据库的filters进行了优化，不再允许直接访问，参考链接：<a href="https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst">https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst</a></li>
-<li>对Scheduler做了一些优化，例如：Scheduler对于每一个请求都会重新进行Filters/Weighers，为了优化这个问题，将filter/weighter的初始化从handler移到scheduler，这样每次请求的时候都可以重新使用了。</li>
-</ul>
-
-
-<h3>Libvirt NFV相关功能</h3>
-
-<ul>
-<li>NUMA(Non Uniform Memory Architecture)，在这个架构下，每个处理器都会访问“本地”的内存池，从而在CPU和存储之间有更小的延迟和更大的带宽。</li>
-<li>在Kilo版本中针对此功能的实现包括：基于NUMA的调度的实现；可以将vCPU绑定在物理CPU上；超大页的支持。以上提到的三点都是通过Flavor的Extra Spces完成定义的。</li>
-</ul>
-
-
-<h3>EC2 API</h3>
-
-<ul>
-<li>EC2 API被从Nova中踢出去了</li>
-<li>取而代之的是在stackforge的EC2 API转换服务</li>
-</ul>
-
-
-<h3>API Microversioning</h3>
-
-<p>先来解释一下为什么需要API的微版本：主要原因在于现在这种API扩展方式，对于API实现的代码的增加或减少管理非常不方便，容易导致不一致性。引入微版本主要目的就是让开发人员在修改API代码时能够向前兼容，而不是加入一个新的API扩展；用户通过指定API的版本，在请求时也能决定是使用的具体的动作。</p>
-
-<p>包含版本的返回:
-<code>plain Result
-GET /
-{
-     "versions": [
-        {
-            "id": "v2.1",
-            "links": [
-                  {
-                    "href": "http://localhost:8774/v2/",
-                    "rel": "self"
-                }
-            ],
-            "status": "CURRENT",
-            "version": "5.2"
-            "min_version": "2.1"
-        },
-   ]
-}
-</code></p>
-
-<p>客户端的Header信息：
-<code>plain Header
-X-OpenStack-Nova-API-Version: 2.114
-</code></p>
-
-<h3>一个已知的问题：Evacuate</h3>
-
-<p>这个问题的产生主要是因为Evacuate的清理机制，主机名的变化会导致nova-compute重启过程中误删所有虚拟机，所以一个变通的方法是设置</p>
-
-<pre><code class="plain nova.conf">destroy_after_evacuate=False
-</code></pre>
-
-<p>这个问题会在Liberty中得到修复，相关的Spec：<a href="https://review.openstack.org/#/c/161444/3/specs/liberty/approved/robustify_evacuate.rst">https://review.openstack.org/#/c/161444/3/specs/liberty/approved/robustify_evacuate.rst</a></p>
-
-<h2>Glance新功能</h2>
-
-<ul>
-<li>自动进行镜像格式转化，例如，Ceph是使用RAW格式的，假如我们上传的是QCOW2，创建虚拟机时，就会经历一番上传下载的过程，速度异常缓慢。而且RAW格式通常都是原始大小，上传时候非常慢，完全可以通过上传小镜像自动转换为指定格式。</li>
-<li>Glance支持多字段排序
-<code>plain API
-/images?sort_key=status&amp;sort_dir=asc&amp;sort_key=name&amp;sort_dir=asc&amp;sort_key=created_at&amp;sort_dir=desc
-</code></li>
-<li>临时将镜像设置为非活跃状态，假如一个镜像里有病毒，管理员就会将该镜像设置为非活跃状态，在清理后重新发布该镜像，在这个过程中，所有非管理员用户都无法使用或者下载这个镜像</li>
-<li>免重启动态加载配置文件，配置文件改动后重启服务，现在可以给glance服务发送SIGHUP触发，这样升级就可以零当机时间。</li>
-<li>使用多个Swift容器存储镜像，减少大规模部署时的请求瓶颈</li>
-</ul>
-
-
-<h2>Cinder新功能</h2>
-
-<ul>
-<li>实现服务逻辑代码与数据库结构之间的解耦，支持Rolling更新</li>
-<li>一致性组是指具备公共操作的卷，逻辑上化为一组。在K版本中对增强一致性组的功能：可以添加、删除卷，从已经存在的快照创建新的组，关于一致性组的详细操作可以参考：<a href="http://docs.openstack.org/admin-guide-cloud/content/consistency-groups.html">http://docs.openstack.org/admin-guide-cloud/content/consistency-groups.html</a></li>
-</ul>
-
-
-<pre><code class="plain cinder">cinder consisgroup-update
-[--name NAME]
-[--description DESCRIPTION]
-[--add-volumes UUID1,UUID2,......]
-[--remove-volumes UUID3,UUID4,......]
-CG
-</code></pre>
-
-<pre><code class="plain cinder">cinder consisgroup-create-from-src
-[--cgsnapshot CGSNAPSHOT]
-[--name NAME]
-[--description DESCRIPTION]
-</code></pre>
-
-<ul>
-<li>卷类型的增强功能主要包含两个：为某一项目创建私有的卷类型和为卷类型增加描述信息</li>
-</ul>
-
-
-<pre><code class="plain cinder">cinder type-create &lt;name&gt; --is-public
-cinder type-create &lt;name&gt; &lt;description&gt;
-</code></pre>
-
-<h2>Neutron新功能</h2>
-
-<ul>
-<li>DVR支持OVS中的VLANs</li>
-<li>新的V2版本的LBaas的API</li>
-<li>新的插件的更新，详情请见更新日志中</li>
-<li>一些高级服务的分离，例如：L3, ML2, VPNaaS, LBaaS</li>
-</ul>
-
-
-<p>网络方面我不是权威，希望有高人能出来讲讲Kilo中的Neutron新功能。</p>
-
-<h2>Keystone新功能</h2>
-
-<ul>
-<li>项目嵌套，创建一个新的Project时候，可以指定parent的Project</li>
-</ul>
-
-
-<pre><code class="plain keystone">POST /projects
-
-{
-    "project": {
-        "description": "Project space for Test Group",
-        "domain_id": "1789d1",
-        "enabled": true,
-        "name": "Test Group",
-        "parent_id": "7fa612"
-    }
-}
-</code></pre>
-
-<ul>
-<li>Keystone与Keystone的联盟，有了这个功能两个或者更多的云服务提供者就可以共享资源，这个功能在J版本引入，在K版本中主要针对该功能的进一步增强，具体的使用方法可参考这篇博文：<a href="http://blog.rodrigods.com/playing-with-keystone-to-keystone-federation/">http://blog.rodrigods.com/playing-with-keystone-to-keystone-federation/</a></li>
-<li>针对新人授权的一些增强功能</li>
-<li>keystone的配置中有部分配置发生了变化，例如：keystone.token.backends.memcache被keystone.token.persistence.backends.memcache取代，更多详细内容请参考更新日志</li>
-</ul>
-
-
-<h2>Swift新功能</h2>
-
-<ul>
-<li>纠删码的加入应该是这个版本最大的亮点，但是纠删码作为beta版本发布，并不推荐应用于生产环境，关于纠删码的详细介绍可以参考：<a href="http://docs.openstack.org/developer/swift/overview_erasure_code.html">http://docs.openstack.org/developer/swift/overview_erasure_code.html</a></li>
-<li>复合型令牌，简而言之就是需要用户加上服务的Token才能对Swfit存放的内容进行操作，如下图所示：</li>
-</ul>
-
-
-<pre><code class="plain swift">client
-   \
-    \   &lt;request&gt;: &lt;path-specific-to-the-service&gt;
-     \  x-auth-token: &lt;user-token&gt;
-      \
-    SERVICE
-       \
-        \    PUT: /v1/SERVICE_1234/&lt;container&gt;/&lt;object&gt;
-         \   x-auth-token: &lt;user-token&gt;
-          \  x-service-token: &lt;service-token&gt;
-           \
-          Swift
-</code></pre>
-
-<p>具体的设计文档：<a href="http://docs.openstack.org/developer/swift/overview_backing_store.html">http://docs.openstack.org/developer/swift/overview_backing_store.html</a></p>
-
-<ul>
-<li>全局性的集群复制优化，大幅提高效率，避免经过广域网传播的数据</li>
-</ul>
-
-
-<h2>Ceilometer新功能</h2>
-
-<ul>
-<li>支持Ceph对象存储监控，当对象存储为Ceph而不是Swfit的时候，使用Polling机制，使用Ceph的Rados Gateway的API接口获取数据，具体的设计文档：<a href="https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst">https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst</a></li>
-<li>Ceilometer API RBAC - 更细粒度的权限控制: <a href="https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst">https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst</a>
-<code>plain Ceilometer
-{
-  "context_is_admin": [["role:admin"]]
-}
-</code>
-更细粒度的控制
-<code>plain Ceilometer
-{
-   "context_is_admin": [["role:admin"]],
-   "admin_or_cloud_admin": [["rule:context_is_admin"],
-            ["rule:admin_and_matching_project_domain_id"]],
-   "telemetry:alarm_delete": [["rule:admin_or_cloud_admin"]]
-}
-</code></li>
-<li>接口中的模糊查询，增加了一个新的查询符号=~</li>
-<li>支持更多的测量，包括Hyper-V，IPMI相关的</li>
-</ul>
-
-
-<h2>Ironic新功能</h2>
-
-<ul>
-<li>iLO的优化</li>
-<li>使用Config Drive替代Metadata服务</li>
-<li>全盘镜像支持，可以跳过raddisk和kernel，这样就可以部署Windows的镜像了</li>
-<li>使用本地盘启动，替代PXE方式，可以通过设置flavor的capabilities:boot_option实现</li>
-</ul>
-
-
-<h2>Oslo</h2>
-
-<p>解决了很多之前遗留的技术债，还有一些命名规范的问题。olso.messaging实现了心跳，olso.log在所有项目中使用，优化了oslo.db的代码。</p>
-
-<h2>OpenStack文档</h2>
-
-<p>优化了docs.openstack.org页面，也可以从中选择相应的语言。有专门的团队负责安装、网络和高可靠的文档。</p>
-
-<h2>其他模块</h2>
-
-<p>对于Sahara, Heat, Trove等模块的更新没有在这里Highlight出来，大家可以参考更新日志里的内容，或者查看specs中的具体描述。</p>
-
-<h2>总结</h2>
-
-<p>通过Kilo的一些更新可以看到，Kilo版本在不断优化代码结构的基础上，增加了一些新功能，也偿还了一些技术债，总体来说是一种稳中有升的态势，但是总体感觉并没有太多的惊喜和出人意料。相信随着更多的孵化项目进入正式版本中，OpenStack一定会向更多元化的方向发展。</p>
 ]]></content>
   </entry>
   
