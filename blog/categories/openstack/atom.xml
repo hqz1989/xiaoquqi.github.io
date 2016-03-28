@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2016-01-20T14:59:37+08:00</updated>
+  <updated>2016-03-28T20:49:52+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,108 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[OpenStack培训的用户体验]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2016/03/27/openstack-training-user-experience/"/>
+    <updated>2016-03-27T18:42:38+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2016/03/27/openstack-training-user-experience</id>
+    <content type="html"><![CDATA[<p>尽管在云计算领域仍然有很大的争议，但是OpenStack事实上已经成为Iaas云平台的事实标准和首选的平台。从培训市场的火热也证明了这一点，现在的OpenStack培训有很多，讲的内容也不尽相同，那么哪一种培训才是用户最需要的呢？</p>
+
+<p>这篇文章并不是要评价任何一个OpenStack培训，只是想从用户体验的角度分析一下，到底什么才是用户真正需要的。如果文章观点有任何不妥，还请各位前辈和大牛们多多海涵。</p>
+
+<!-- more -->
+
+
+<h2>关于我</h2>
+
+<p>简单来说，我带过OpenStack产品的研发团队，谈过OpenStack的合作，做过OpenStack培训讲师，也卖过OpenStack的私有云产品，也和大量的用户聊过OpenStack，所以还算是对OpenStack这个行业整体上有个清晰认识。</p>
+
+<h2>OpenStack培训的目标群体</h2>
+
+<p>我做过的OpenStack培训大体上分为两类，内训和外训。</p>
+
+<p>内训是面向公司内部，因为我曾经带过的两个团队都是以开发OpenStack私有云产品为主的，所以我的培训对象主要是研发、运维、售前和销售人员。</p>
+
+<p>外训的对象很多，包括知名的国企、外企和民营企业以及学校，行业大部分以传统行业为主，涉及通讯、金融、系统集成等，面向的群体主要是研发、IT和售前，培训的内容以OpenStack的基础和研发为主。</p>
+
+<p>所以我把OpenStack培训的目标群体定义为：研发人员、系统工程师和运维人员、售前、销售人员、学生。</p>
+
+<h2>针对不同的群体，到底需要哪些培训？</h2>
+
+<h3>销售人员</h3>
+
+<p>现在做OpenStack生意的无外乎两种：产品和服务。无论是哪一种，对传统的销售人员都是一种极大的挑战。云平台并不像传统软件一样，能够一眼看明白他到底是做什么的，解决了用户的哪些痛点。并且在企业中，能够做决策的人往往并不全是技术出身，所以想和他们解释清楚OpenStack到底能做什么，又是难上艰难。</p>
+
+<p>所以对于销售人员来讲，培训的重点应该有以下几点：</p>
+
+<ul>
+<li>使用培训：我觉得无论为哪一类群体培训，演示如何使用OpenStack，都是最有效的帮助人理解的方式。但是这里的演示，必须要设定场景，即传统的业务形态下我们的业务系统是什么样子的，迁移到云平台后该如何部署，从这种比较中，加深对OpenStack的理解。销售人员通过对OpenStack操作，加深对OpenStack或OpenStack产品的理解。毕竟图形是最高效的一种记忆方式。</li>
+<li>理解什么是开源软件：开源软件一定是未来的发展趋势，如果无法对开源软件有一个清晰的认识，也就无法理解清楚OpenStack这个项目出现的价值和意义。</li>
+<li>了解OpenStack的发展历史、OpenStack基金会以及OpenStack社区的运营方式：学习这些的目的是为了给用户讲故事，让用户了解为什么要选择OpenStack，为什么OpenStack项目有持续的生命力，让用户相信使用了OpenStack能够保证未来的基础架构灵活面对业务层面敏捷性的需求。</li>
+<li>案例学习：案例最大的价值就是教育用户，VMWare花了十几年的时间教育了用户，OpenStack不可能在短短的几年时间内就改变这样的局面，所以“学会用别人的案例来教育自己的用户”，是在销售人员OpenStack培训中非常重要的一课。</li>
+</ul>
+
+
+<h3>售前人员</h3>
+
+<p>售前人员不但要从技术层面让用户信服产品，而且还要结合用户的业务系统需求提供建设方案，外企中的很多售前工程师还要承担搭建POC环境的职责。售前人员沟通的主要对象是企业中有实际需求的业务部门，也是最有可能落地的部门，沟通的成败决定了是否能签单，所以需要更多的专业知识来满足和用户的沟通需要。 培训的重点应该是：</p>
+
+<ul>
+<li>使用培训：理由同上，但是我觉得售前人员还需要站在用户的角度来思考一下，我的用户到底会如何使用云平台？业务系统迁移到平台后，会有哪些问题？</li>
+<li>如何部署：部署培训向来是各大OpenStack培训必讲的内容，而且90%的内容都是围绕部署展开的，例如某知名企业的OpenStack授证培训。对于售前人员，我认为OpenStack部署训练还是很有必要的。一方面，能够帮助培训对象快速理解OpenStack的架构；另一方面，也能在未来的方案设计上提供参考和依据。由于云平台在使用上与企业传统的IT环境有较大的区别，所以售前人员在学习过程中，应该更多的了解OpenStack部署的特点，服务和服务之间的关系，云平台高可靠等和生产环境部署息息相关的问题。另外还要关注，用户的业务系统迁移到云平台后，可能带来的变化以及应对方式。例如：OpenStack里的网络分为fixed ip和floating ip，但是用户原有的业务系统只会有一个IP，这时候就需要考虑如何为用户选择适当的部署方案。</li>
+<li>OpenStack架构：掌握OpenStack模块的基本工作原理和模块的详细作用。学习这些内容，是为了帮助售前人员在和用户后续交流中，帮助用户选择适当的模块解决用户的需求。</li>
+<li>OpenStack的发展趋势：这部分内容就是能够引导客户未来的项目需求。例如在分布式存储，NFV和SDN方面。</li>
+</ul>
+
+
+<h3>系统工程师和运维人员</h3>
+
+<p>Iaas云平台不但是对传统的企业IT架构进行了变革，也从管理上对企业原有的流程形成了冲击。需要培训的用户往往集中在自用OpenStack云平台的企业。</p>
+
+<ul>
+<li>使用培训，不同于上面两种简单的使用，运维人员要求对OpenStack管理部分的使用也要有很深的理解，而且还需要掌握命令行方式的相关操作。</li>
+<li>OpenStack架构，了解OpenStack内部的工作原理，有助于快速定位问题，对系统进行维护。这部分包含的内容比较多，从OpenStack自身的原理到虚拟机，存储，再到虚拟网络的实现都需要有一个系统的了解才可以。</li>
+<li>部署培训，要求详细掌握安装的过程，了解全部配置文件的功能及常用选项和参数。</li>
+<li>自动化部署培训，手动部署即耗费时间又不能保证准确，所以作为运维人员，必须要掌握至少一种自动化部署的方法。这方面的方案有很多，从TripleO、Fuel到Puppet，Salt，Ansible。个人还是推崇应该选择Salt或者Ansible的一种进行学习和掌握。</li>
+<li>运维培训，要求就是在云平台出现问题之后快速定位问题。</li>
+<li>自动化运维培训，DevOps作为未来运维的趋势，反复被提到。云平台自动化运维的内容很多，部署、监控、告警、自动巡检、健康检查等等，使用的工具无外乎上面提到的Salt或者Ansible这样的工具。自动化运维不仅仅是云平台未来培训的一大趋势，也是企业有需求的培训内容。</li>
+</ul>
+
+
+<h3>开发人员</h3>
+
+<p>开发人员对OpenStack培训的需求主要和未来的工作有关（除了是公司强制或者兴趣之外），从我的经验来看：一种是基于OpenStack API开发，一种是开发OpenStack。所以针对两种不同的需求，培训内容需要单独进行设计，总体来说后一种包含前一种培训。</p>
+
+<p>与之前几种培训不同，我认为部署培训对开发人员并不是必须的，因为在实际工作中，开发人员很难有机会真正接触到安装过程，这部分工作往往由公司的IT人员去完成，并且其中涉及到大量的Linux基础命令，很多研发人员其实对这部分并不是十分熟悉，所以即使学习了安装内容，也还是一知半解。与其在安装上浪费时间，不如多了解一些架构方面的细节。</p>
+
+<ul>
+<li>使用培训，帮助开发人员快速了解OpenStack。</li>
+<li>了解社区的开发流程，OpenStack之所以发展到今天的程度，和社区的代码的管理流程密不可分，所以这部分是值得每一名开发人员学习的。</li>
+<li>搭建研发环境，既然要开发OpenStack就应该按照开发的方式搭建研发环境，这样屏蔽了很多安装上的细节，并且让开发人员有个快速能使用和开发的环境。</li>
+<li>基于OpenStack API开发，这部分应该是个重点，我通常会设定一个具体的用户需求，通过解决用户需求来了解API的使用。例如：作为一名用户，我想给我的虚拟机挂卷并自动分区，挂载到/mnt目录。这里的内容包含API文档的使用，通过浏览器REST Client插件详细了解OpenStack API的调用过程，学习使用OpenStack SDK。</li>
+<li>OpenStack编排服务，将API开发中的场景，用编排服务加以实现，还可以包含Scaling和Auto Scaling的场景。这部分很可能是开发人员在未来开发中非常需要的一部分内容。</li>
+<li>OpenStack发展方向，OpenStack的大帐篷展现了对未来的野心，所以了解OpenStack未来的发展方向是很有必要的。</li>
+</ul>
+
+
+<p>针对于以后开发OpenStack的研发人员，还需要根据实际的开发内容增加以下的培训内容：</p>
+
+<ul>
+<li>OpenStack通用技术，学习OpenStack的通用技术有助于理解OpenStack的所有模块，这部分内容主要包括：Eventlet，REST和WSGI，Taskflow，OSLO项目等诸多重要的类库。</li>
+<li>典型模块的架构及开发入门，这里面推荐的模块包含：Nova/Neutron/Horizon/Ceilometer，这几种模块几乎涵盖了OpenStack大部分模块的架构，所以重点理解这些模块的架构和工作原理，对于理解整个OpenStack项目都非常有帮助。直接将代码其实真的很困难，我习惯于使用场景的方式追踪代码的运行轨迹，从而整理出时序图的方式讲解。</li>
+</ul>
+
+
+<h3>学生</h3>
+
+<p>学生群体事实上是相当有潜力的市场，现在国内OpenStack人才紧缺，所以OpenStack一定要从大学抓起。学生对OpenStack的学习不能仅仅停留在OpenStack本身，与之相关的内容都要学习，但是又不建议完全理论化的学习，强调动手的能力是关键。例如：对Python的学习，虚拟化软件的学习，OpenStack的安装，OpenStack的开发进行循序渐进的学习。</p>
+
+<h2>总结</h2>
+
+<p>我认为培训中很重要的一环就是让学员动手，否则培训的效果不会很好。以上就是我对OpenStack培训的粗浅认识，还请各位多多指教。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[深度解读OpenStack Liberty国内代码贡献]]></title>
@@ -1381,155 +1483,6 @@ rbd cache max dirty age = 5
 <h2>总结</h2>
 
 <p>优化是一个长期迭代的过程，所有的方法都是别人的，只有在实践过程中才能发现自己的，本篇文章仅仅是一个开始，欢迎各位积极补充，共同完成一篇具有指导性的文章。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ceph集群磁盘没有剩余空间的解决方法]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/05/12/ceph-osd-is-full/"/>
-    <updated>2015-05-12T09:21:42+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/05/12/ceph-osd-is-full</id>
-    <content type="html"><![CDATA[<h2>故障描述</h2>
-
-<p>OpenStack + Ceph集群在使用过程中，由于虚拟机拷入大量新的数据，导致集群的磁盘迅速消耗，没有空余空间，虚拟机无法操作，Ceph集群所有操作都无法执行。</p>
-
-<!-- more -->
-
-
-<h2>故障现象</h2>
-
-<ul>
-<li>尝试使用OpenStack重启虚拟机无效</li>
-<li>尝试直接用rbd命令直接删除块失败</li>
-</ul>
-
-
-<pre><code class="plain">[root@controller ~]# rbd -p volumes rm volume-c55fd052-212d-4107-a2ac-cf53bfc049be
-2015-04-29 05:31:31.719478 7f5fb82f7760  0 client.4781741.objecter  FULL, paused modify 0xe9a9e0 tid 6
-</code></pre>
-
-<ul>
-<li>查看ceph健康状态</li>
-</ul>
-
-
-<pre><code class="plain ceph -s">cluster 059f27e8-a23f-4587-9033-3e3679d03b31
- health HEALTH_ERR 20 pgs backfill_toofull; 20 pgs degraded; 20 pgs stuck unclean; recovery 7482/129081 objects degraded (5.796%); 2 full osd(s); 1 near full osd(s)
- monmap e6: 4 mons at {node-5e40.cloud.com=10.10.20.40:6789/0,node-6670.cloud.com=10.10.20.31:6789/0,node-66c4.cloud.com=10.10.20.36:6789/0,node-fb27.cloud.com=10.10.20.41:6789/0}, election epoch 886, quorum 0,1,2,3 node-6670.cloud.com,node-66c4.cloud.com,node-5e40.cloud.com,node-fb27.cloud.com
- osdmap e2743: 3 osds: 3 up, 3 in
-        flags full
-  pgmap v6564199: 320 pgs, 4 pools, 262 GB data, 43027 objects
-        786 GB used, 47785 MB / 833 GB avail
-        7482/129081 objects degraded (5.796%)
-             300 active+clean
-              20 active+degraded+remapped+backfill_toofull
-</code></pre>
-
-<pre><code class="plain ceph health detail">HEALTH_ERR 20 pgs backfill_toofull; 20 pgs degraded; 20 pgs stuck unclean; recovery 7482/129081 objects degraded (5.796%); 2 full osd(s); 1 near full osd(s)
-pg 3.8 is stuck unclean for 7067109.597691, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.7d is stuck unclean for 1852078.505139, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.21 is stuck unclean for 7072842.637848, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.22 is stuck unclean for 7070880.213397, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.a is stuck unclean for 7067057.863562, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.7f is stuck unclean for 7067122.493746, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.5 is stuck unclean for 7067088.369629, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.1e is stuck unclean for 7073386.246281, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.19 is stuck unclean for 7068035.310269, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.5d is stuck unclean for 1852078.505949, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.1a is stuck unclean for 7067088.429544, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.1b is stuck unclean for 7072773.771385, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.3 is stuck unclean for 7067057.864514, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.15 is stuck unclean for 7067088.825483, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.11 is stuck unclean for 7067057.862408, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.6d is stuck unclean for 7067083.634454, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.6e is stuck unclean for 7067098.452576, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.c is stuck unclean for 5658116.678331, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.e is stuck unclean for 7067078.646953, current state active+degraded+remapped+backfill_toofull, last acting [2,0]
-pg 3.20 is stuck unclean for 7067140.530849, current state active+degraded+remapped+backfill_toofull, last acting [0,2]
-pg 3.7d is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.7f is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.6d is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.6e is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.5d is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.20 is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.21 is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.22 is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.1e is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.19 is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.1a is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.1b is active+degraded+remapped+backfill_toofull, acting [0,2]
-pg 3.15 is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.11 is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.c is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.e is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.8 is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.a is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.5 is active+degraded+remapped+backfill_toofull, acting [2,0]
-pg 3.3 is active+degraded+remapped+backfill_toofull, acting [2,0]
-recovery 7482/129081 objects degraded (5.796%)
-osd.0 is full at 95%
-osd.2 is full at 95%
-osd.1 is near full at 93%
-</code></pre>
-
-<h2>解决方案一(已验证)</h2>
-
-<p>增加OSD节点，这也是官方文档中推荐的做法，增加新的节点后，Ceph开始重新平衡数据，OSD使用空间开始下降</p>
-
-<pre><code class="plain">2015-04-29 06:51:58.623262 osd.1 [WRN] OSD near full (91%)
-2015-04-29 06:52:01.500813 osd.2 [WRN] OSD near full (92%)
-</code></pre>
-
-<h2>解决方案二(理论上，没有进行验证)</h2>
-
-<p>如果在没有新的硬盘的情况下，只能采用另外一种方式。在当前状态下，Ceph不允许任何的读写操作，所以此时任何的Ceph命令都不好使，解决的方案就是尝试降低Ceph对于full的比例定义，我们从上面的日志中可以看到Ceph的full的比例为95%，我们需要做的就是提高full的比例，之后尽快尝试删除数据，将比例下降。</p>
-
-<ul>
-<li>尝试直接用命令设置，但是失败了，Ceph集群并没有重新同步数据，怀疑可能仍然需要重启服务本身</li>
-</ul>
-
-
-<pre><code class="plain">ceph mon tell \* injectargs '--mon-osd-full-ratio 0.98'
-</code></pre>
-
-<ul>
-<li>修改配置文件，之后重启monitor服务，但是担心出问题，所以没有敢尝试该方法，后续经过在邮件列表确认，该方法应该不会对数据产生影响，但是前提是在恢复期间，所有的虚拟机不要向Ceph再写入任何数据。</li>
-</ul>
-
-
-<p>默认情况下full的比例是95%，而near full的比例是85%，所以需要根据实际情况对该配置进行调整。</p>
-
-<pre><code class="plain /etc/ceph/ceph.conf">[global]
-    mon osd full ratio = .98
-    mon osd nearfull ratio = .80
-</code></pre>
-
-<h2>分析总结</h2>
-
-<h3>原因</h3>
-
-<p>根据Ceph官方文档中的描述，当一个OSD full比例达到95%时，集群将不接受任何Ceph Client端的读写数据的请求。所以导致虚拟机在重启时，无法启动的情况。</p>
-
-<h3>解决方法</h3>
-
-<p>从官方的推荐来看，应该比较支持添加新的OSD的方式，当然临时的提高比例是一个解决方案，但是并不推荐，因为需要手动的删除数据去解决，而且一旦再有一个新的节点出现故障，仍然会出现比例变满的状况，所以解决之道最好是扩容。</p>
-
-<h3>思考</h3>
-
-<p>在这次故障过程中，有两点是值得思考的：</p>
-
-<ul>
-<li>监控：由于当时服务器在配置过程中DNS配置错误，导致监控邮件无法正常发出，从而没有收到Ceph WARN的提示信息</li>
-<li>云平台本身： 由于Ceph的机制，在OpenStack平台中分配中，大多时候是超分的，从用户角度看，拷贝大量数据的行为并没有不妥之处，但是由于云平台并没有相应的预警机制，导致了该问题的发生</li>
-</ul>
-
-
-<h2>参考文档</h2>
-
-<ul>
-<li><a href="http://ceph.com/docs/master/rados/configuration/mon-config-ref/#storage-capacity">http://ceph.com/docs/master/rados/configuration/mon-config-ref/#storage-capacity</a></li>
-</ul>
-
 ]]></content>
   </entry>
   
