@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Openstack | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/openstack/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2016-03-28T20:49:52+08:00</updated>
+  <updated>2016-04-11T16:20:34+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[深度解读OpenStack Mitaka国内代码贡献]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka/"/>
+    <updated>2016-04-07T23:19:39+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka</id>
+    <content type="html"><![CDATA[<p>转眼间，OpenStack又迎来了新版本发布的日子，这是OpenStack第13个版本，也是Big Tent后的第二个版本，秉承“公开公正”的原则，OpenStack Release的项目达到了29个，比Liberty多出了8个。</p>
+
+<p>去年的时候，对国内的OpenStack Liberty贡献进行了深度解读后引起了广泛的关注，在今年Mitaka版本发布之后，类似的解读已经遍布朋友圈，但是在看过后，发现并非国内贡献的全部统计，所以决定还是自己写一篇完整的深度解读系列文章，来帮助国内用户对国内OpenStack的现状有一个全面的了解和认识。</p>
+
+<p>这几天一直在思考写这篇文章的目的和意义，我们搞分析也好，搞排名也罢，到底是为了什么？Mitaka版本更新后，各个公司也以排名作为企业宣传的最好的武器，我觉得这些都无可厚非。但是我觉得更重要的一点是在当前去IOEV的大形势下，我们应该告诉国内的企业用户，有一批热衷于追求Geek精神的年轻人在为中国未来的IT产业变革做着不懈的努力，他们用数字证明了国外公司能做到的我们国内公司也能做到，这个世界上不仅有IOEV，还有中国制造的OpenStack。</p>
+
+<p>对于友商们已经分析的数据，这里不再赘述，本文主要通过stackalytics.com提供的API对国内社区贡献进行一次深度挖掘和整理。</p>
+
+<p>OpenStack Liberty深度解读请见：<a href="http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/">http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/</a></p>
+
+<!-- more -->
+
+
+<h2>Release项目简介</h2>
+
+<p>Openstack官方的Release的网站已经更新为：<a href="http://releases.openstack.org/">http://releases.openstack.org/</a></p>
+
+<p>在Big Tent公布之后，OpenStack的项目被分为Core Projects和Big Tent Projects。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-big-tent.jpg"></p>
+
+<p>让我们来看一下在Mitaka版本中，多了哪些新项目。</p>
+
+<ul>
+<li>几个与Docker相关的项目被发布出来，magnum, senlin, solum</li>
+<li>数据备份容灾的项目：freezer</li>
+<li>计费的项目：cloudkitty</li>
+<li>NFV相关的项目：tracker</li>
+<li>监控相关的项目：monasca</li>
+</ul>
+
+
+<p>关于这些新项目的一些介绍，我将放在另外一篇博客里，敬请关注。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-projects.png"></p>
+
+<h2>社区贡献总体分析</h2>
+
+<p>本次统计的方法仍然为commits的方式，统计范围为stackalystatics默认统计的全部项目。</p>
+
+<p>从总体参与的公司数量来看，Mitaka版本略有下降，但是参与的人数多了100多人。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-companies-contributors.png"></p>
+
+<p>整个社区的公司贡献排名上没有明显的变化，传统的几大豪强仍然霸占公司排名的前十位，华为表现依然强劲，是中国区唯一能进入前十名的公司。</p>
+
+<p>在模块方面，整体统计的绝大部分比例已经被others所占据，说明在Big Tent计划下，OpenStack正在朝更多元化的方向演进。在Mitaka排名前十位的项目中，fuel相关的两个项目都进入了前十，说明fuel在OpenStack部署的地位已经越来越重要了。同时，核心项目中的nova，neutron，cinder项目仍然在前十名的范围内，贡献量基本保持不变。值得一提的是，在Mitaka统计的项目数量已经从Liberty的708个增长到了829个，可见在短短的6个月内，OpenStack社区的蓬勃发展。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-companies-modules.png"></p>
+
+<h2>OpenStack国内社区分析</h2>
+
+<p>看完了整体统计，我们再回到国内，因为已经有文章做了我在Liberty时候的分析，所以这里我换个角度来看国内的社区贡献，首先是统计排名的变化。</p>
+
+<h3>贡献企业</h3>
+
+<p>在Liberty中，有13家国内企业为社区做了贡献，在Mitaka中这个数量增加到了15家企业，这里简单的将这些企业做了一下分类：</p>
+
+<ul>
+<li>互联网用户：乐视、新浪、网易</li>
+<li>电信用户：中国移动</li>
+<li>传统IT服务商：华为、中兴、华三</li>
+<li>私有云服务商：Easystack、九州云、海云捷迅、北京有云、麒麟云、UMCloud、象云、Huron(休伦科技)</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-china-companies.png"></p>
+
+<h3>行业分析</h3>
+
+<p>通过行业的分析我们可以看出，国内的主要贡献仍然来自私有云服务商和传统IT服务商，换言之来自于以OpenStack提供产品或者服务的公司。厂商们贡献的目的很明确，主要为了展示自身在开源项目中的积累和专家形象。而用户的贡献主要来自平时在使用OpenStack时候遇到Bug，就是在实际应用过程中出现的问题。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-china-by-industry.png"></p>
+
+<h3>人员投入分析</h3>
+
+<p>单纯的社区贡献排名的比较仅仅是一个维度，下面我们来看一下各个公司的人员投入情况：</p>
+
+<ul>
+<li>排名前几位的公司对社区投入的人力基本都是两位数，相对于Liberty版本，人员均有所增加</li>
+<li>在人均贡献投入上，99cloud是国内最高的，平均达到了59天，甚至超过了华为，这个统计不仅仅包含了代码贡献，还包含了邮件、Review、Blueprint的时间，基本可以衡量每个公司在OpenStack社区贡献方面的投入力量</li>
+<li>人员投入来看，Easystack和中国移动无疑是最下本的两家，Easystack从Liberty的3人，增长到了23人，一下子增加了20人；中国移动也从最初的4个人，增加到了13个人，可见中国移动未来对OpenStack的野心</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-companies-effort.png"></p>
+
+<h3>贡献模块分析</h3>
+
+<p>从模块的角度进行统计，国内企业的贡献情况并未出现一个统一的趋势，总体的贡献项目为193个，项目几乎涉及OpenStack所有最活跃的项目，从排名前十的项目来看：</p>
+
+<ul>
+<li>得益于华为的主导，dargonflow项目的贡献量超高</li>
+<li>紧随其后的，也是当下的热点，容器相关的两个项目</li>
+<li>几大OpenStack老模块贡献量也高居前十位，说明这些模块是在解决方案中使用频率较高的</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-modules.png"></p>
+
+<h3>投入产出比</h3>
+
+<p>这是一个很敏感的话题，每个公司对社区的投入到底换来多少项目上的回报呢？可能这只有每个公司的CEO能够回答的问题了。我在这里就不多做过多的分析，留给大家充分讨论的空间吧。</p>
+
+<h2>总结</h2>
+
+<p>刚刚结束在南京的OpenStack开发培训，也了解到5G的通信网络上已经确定引入了OpenStack，虽然我说不清楚他的具体用途，但是我相信这对OpenStack这个项目、社区是一个重大的利好消息。我也相信，通过国内企业的集体努力，一定能让OpenStack在中国遍地开花结果。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[OpenStack培训的用户体验]]></title>
@@ -885,604 +1000,6 @@ enable_service heat h-api h-api-cfn h-api-cw h-eng
 # Enable Murano
 enable_service murano murano-api murano-engine
 </code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Ceph性能优化总结(v0.94)]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/06/28/ceph-performance-optimization-summary/"/>
-    <updated>2015-06-28T14:30:22+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/06/28/ceph-performance-optimization-summary</id>
-    <content type="html"><![CDATA[<p>最近一直在忙着搞Ceph存储的优化和测试，看了各种资料，但是好像没有一篇文章把其中的方法论交代清楚，所以呢想在这里进行一下总结，很多内容并不是我原创，只是做一个总结。如果其中有任何的问题，欢迎各位喷我，以便我提高。</p>
-
-<h2>优化方法论</h2>
-
-<p>做任何事情还是要有个方法论的，“授人以鱼不如授人以渔”的道理吧，方法通了，所有的问题就有了解决的途径。通过对公开资料的分析进行总结，对分布式存储系统的优化离不开以下几点：</p>
-
-<h3>1. 硬件层面</h3>
-
-<ul>
-<li>硬件规划</li>
-<li>SSD选择</li>
-<li>BIOS设置</li>
-</ul>
-
-
-<h3>2. 软件层面</h3>
-
-<ul>
-<li>Linux OS</li>
-<li>Ceph Configurations</li>
-<li>PG Number调整</li>
-<li>CRUSH Map</li>
-<li>其他因素</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>硬件优化</h2>
-
-<h3>1. 硬件规划</h3>
-
-<ul>
-<li>Processor</li>
-</ul>
-
-
-<p>ceph-osd进程在运行过程中会消耗CPU资源，所以一般会为每一个ceph-osd进程绑定一个CPU核上。当然如果你使用EC方式，可能需要更多的CPU资源。</p>
-
-<p>ceph-mon进程并不十分消耗CPU资源，所以不必为ceph-mon进程预留过多的CPU资源。</p>
-
-<p>ceph-msd也是非常消耗CPU资源的，所以需要提供更多的CPU资源。</p>
-
-<ul>
-<li>内存</li>
-</ul>
-
-
-<p>ceph-mon和ceph-mds需要2G内存，每个ceph-osd进程需要1G内存，当然2G更好。</p>
-
-<ul>
-<li>网络规划</li>
-</ul>
-
-
-<p>万兆网络现在基本上是跑Ceph必备的，网络规划上，也尽量考虑分离cilent和cluster网络。</p>
-
-<h3>2. SSD选择</h3>
-
-<p>硬件的选择也直接决定了Ceph集群的性能，从成本考虑，一般选择SATA SSD作为Journal，<a href="http://www.intel.com/content/www/us/en/solid-state-drives/solid-state-drives-dc-s3500-series.html">Intel® SSD DC S3500 Series</a>基本是目前看到的方案中的首选。400G的规格4K随机写可以达到11000 IOPS。如果在预算足够的情况下，推荐使用PCIE SSD，性能会得到进一步提升，但是由于Journal在向数据盘写入数据时Block后续请求，所以Journal的加入并未呈现出想象中的性能提升，但是的确会对Latency有很大的改善。</p>
-
-<p>如何确定你的SSD是否适合作为SSD Journal，可以参考SÉBASTIEN HAN的<a href="http://www.sebastien-han.fr/blog/2014/10/10/ceph-how-to-test-if-your-ssd-is-suitable-as-a-journal-device/">Ceph: How to Test if Your SSD Is Suitable as a Journal Device?</a>，这里面他也列出了常见的SSD的测试结果，从结果来看SATA SSD中，Intel S3500性能表现最好。</p>
-
-<h3>3. BIOS设置</h3>
-
-<ul>
-<li>Hyper-Threading(HT)</li>
-</ul>
-
-
-<p>基本做云平台的，VT和HT打开都是必须的，超线程技术(HT)就是利用特殊的硬件指令，把两个逻辑内核模拟成两个物理芯片，让单个处理器都能使用线程级并行计算，进而兼容多线程操作系统和软件，减少了CPU的闲置时间，提高的CPU的运行效率。</p>
-
-<ul>
-<li>关闭节能</li>
-</ul>
-
-
-<p>关闭节能后，对性能还是有所提升的，所以坚决调整成性能型(Performance)。当然也可以在操作系统级别进行调整，详细的调整过程请参考<a href="http://www.servernoobs.com/avoiding-cpu-speed-scaling-in-modern-linux-distributions-running-cpu-at-full-speed-tips/">链接</a>，但是不知道是不是由于BIOS已经调整的缘故，所以在CentOS 6.6上并没有发现相关的设置。</p>
-
-<pre><code>for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f $CPUFREQ ] || continue; echo -n performance &gt; $CPUFREQ; done
-</code></pre>
-
-<ul>
-<li><a href="http://www.ibm.com/developerworks/cn/linux/l-numa/">NUMA</a></li>
-</ul>
-
-
-<p>简单来说，NUMA思路就是将内存和CPU分割为多个区域，每个区域叫做NODE,然后将NODE高速互联。 node内cpu与内存访问速度快于访问其他node的内存，<a href="http://lists.ceph.com/pipermail/ceph-users-ceph.com/2013-December/036211.html">NUMA可能会在某些情况下影响ceph-osd</a>。解决的方案，一种是通过BIOS关闭NUMA，另外一种就是通过cgroup将ceph-osd进程与某一个CPU Core以及同一NODE下的内存进行绑定。但是第二种看起来更麻烦，所以一般部署的时候可以在系统层面关闭NUMA。CentOS系统下，通过修改/etc/grub.conf文件，添加numa=off来关闭NUMA。</p>
-
-<pre><code>kernel /vmlinuz-2.6.32-504.12.2.el6.x86_64 ro root=UUID=870d47f8-0357-4a32-909f-74173a9f0633 rd_NO_LUKS rd_NO_LVM LANG=en_US.UTF-8 rd_NO_MD SYSFONT=latarcyrheb-sun16 crashkernel=auto  KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM   biosdevname=0 numa=off
-</code></pre>
-
-<h2>软件优化</h2>
-
-<h3>1. Linux OS</h3>
-
-<ul>
-<li>Kernel pid max</li>
-</ul>
-
-
-<pre><code>echo 4194303 &gt; /proc/sys/kernel/pid_max
-</code></pre>
-
-<ul>
-<li>Jumbo frames, 交换机端需要支持该功能，系统网卡设置才有效果</li>
-</ul>
-
-
-<pre><code>ifconfig eth0 mtu 9000
-</code></pre>
-
-<p>永久设置</p>
-
-<pre><code>echo "MTU=9000" | tee -a /etc/sysconfig/network-script/ifcfg-eth0
-/etc/init.d/networking restart
-</code></pre>
-
-<ul>
-<li>read_ahead, 通过数据预读并且记载到随机访问内存方式提高磁盘读操作，查看默认值</li>
-</ul>
-
-
-<pre><code>cat /sys/block/sda/queue/read_ahead_kb
-</code></pre>
-
-<p>根据一些Ceph的公开分享，8192是比较理想的值</p>
-
-<pre><code>echo "8192" &gt; /sys/block/sda/queue/read_ahead_kb
-</code></pre>
-
-<ul>
-<li>swappiness, 主要控制系统对swap的使用，这个参数的调整最先见于UnitedStack公开的文档中，猜测调整的原因主要是使用swap会影响系统的性能。</li>
-</ul>
-
-
-<pre><code>echo "vm.swappiness = 0" | tee -a /etc/sysctl.conf
-</code></pre>
-
-<ul>
-<li>I/O Scheduler，关于I/O Scheculder的调整网上已经有很多资料，这里不再赘述，简单说SSD要用noop，SATA/SAS使用deadline。</li>
-</ul>
-
-
-<pre><code>echo "deadline" &gt; /sys/block/sd[x]/queue/scheduler
-echo "noop" &gt; /sys/block/sd[x]/queue/scheduler
-</code></pre>
-
-<ul>
-<li>cgroup</li>
-</ul>
-
-
-<p>这方面的文章好像比较少，昨天在和Ceph社区交流过程中，Jan Schermer说准备把生产环境中的一些脚本贡献出来，但是暂时还没有，他同时也列举了一些使用cgroup进行隔离的<a href="https://www.mail-archive.com/ceph-users@lists.ceph.com/msg21111.html">原因</a>。</p>
-
-<blockquote><ul>
-<li>不在process和thread在不同的core上移动(更好的缓存利用)</li>
-<li>减少NUMA的影响</li>
-<li>网络和存储控制器影响 - 较小</li>
-<li>通过限制cpuset来限制Linux调度域(不确定是不是重要但是是最佳实践)</li>
-<li>如果开启了HT，可能会造成OSD在thread1上，KVM在thread2上，并且是同一个core。Core的延迟和性能取决于其他一个线程做什么。</li>
-</ul>
-</blockquote>
-
-<p>这一点具体实现待补充！！！</p>
-
-<h3>2. Ceph Configurations</h3>
-
-<h4>[global]</h4>
-
-<table>
-<thead>
-<tr>
-<th> 参数名 </th>
-<th> 描述 </th>
-<th> 默认值 </th>
-<th> 建议值 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> public network </td>
-<td> 客户端访问网络 </td>
-<td> </td>
-<td> 192.168.100.0/24 </td>
-</tr>
-<tr>
-<td> cluster network </td>
-<td> 集群网络 </td>
-<td> </td>
-<td> 192.168.1.0/24 </td>
-</tr>
-<tr>
-<td> max open files </td>
-<td> 如果设置了该选项，Ceph会设置系统的max open fds </td>
-<td> 0 </td>
-<td> 131072 </td>
-</tr>
-</tbody>
-</table>
-
-
-<hr />
-
-<ul>
-<li>查看系统最大文件打开数可以使用命令</li>
-</ul>
-
-
-<pre><code>    cat /proc/sys/fs/file-max
-</code></pre>
-
-<hr />
-
-<h4>[osd] - filestore</h4>
-
-<table>
-<thead>
-<tr>
-<th> 参数名 </th>
-<th> 描述 </th>
-<th> 默认值 </th>
-<th> 建议值 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> filestore xattr use omap </td>
-<td> 为XATTRS使用object map，EXT4文件系统时使用，XFS或者btrfs也可以使用 </td>
-<td> false </td>
-<td> true </td>
-</tr>
-<tr>
-<td> filestore max sync interval </td>
-<td> 从日志到数据盘最大同步间隔(seconds) </td>
-<td> 5 </td>
-<td> 15 </td>
-</tr>
-<tr>
-<td> filestore min sync interval </td>
-<td> 从日志到数据盘最小同步间隔(seconds) </td>
-<td> 0.1 </td>
-<td> 10 </td>
-</tr>
-<tr>
-<td> filestore queue max ops </td>
-<td> 数据盘最大接受的操作数 </td>
-<td> 500 </td>
-<td> 25000 </td>
-</tr>
-<tr>
-<td> filestore queue max bytes </td>
-<td> 数据盘一次操作最大字节数(bytes) </td>
-<td> 100 &lt;&lt; 20 </td>
-<td> 10485760 </td>
-</tr>
-<tr>
-<td> filestore queue committing max ops </td>
-<td> 数据盘能够commit的操作数 </td>
-<td> 500 </td>
-<td> 5000 </td>
-</tr>
-<tr>
-<td> filestore queue committing max bytes </td>
-<td> 数据盘能够commit的最大字节数(bytes) </td>
-<td> 100 &lt;&lt; 20 </td>
-<td> 10485760000 </td>
-</tr>
-<tr>
-<td> filestore op threads </td>
-<td> 并发文件系统操作数 </td>
-<td> 2 </td>
-<td> 32 </td>
-</tr>
-</tbody>
-</table>
-
-
-<hr />
-
-<ul>
-<li>调整omap的原因主要是EXT4文件系统默认仅有4K</li>
-<li>filestore queue相关的参数对于性能影响很小，参数调整不会对性能优化有本质上提升</li>
-</ul>
-
-
-<hr />
-
-<h4>[osd] - journal</h4>
-
-<table>
-<thead>
-<tr>
-<th> 参数名 </th>
-<th> 描述 </th>
-<th> 默认值 </th>
-<th> 建议值 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> osd journal size </td>
-<td> OSD日志大小(MB) </td>
-<td> 5120 </td>
-<td> 20000 </td>
-</tr>
-<tr>
-<td> journal max write bytes </td>
-<td> journal一次性写入的最大字节数(bytes) </td>
-<td> 10 &lt;&lt; 20 </td>
-<td> 1073714824 </td>
-</tr>
-<tr>
-<td> journal max write entries </td>
-<td> journal一次性写入的最大记录数 </td>
-<td> 100 </td>
-<td> 10000 </td>
-</tr>
-<tr>
-<td> journal queue max ops </td>
-<td> journal一次性最大在队列中的操作数 </td>
-<td> 500 </td>
-<td> 50000 </td>
-</tr>
-<tr>
-<td> journal queue max bytes </td>
-<td> journal一次性最大在队列中的字节数(bytes) </td>
-<td> 10 &lt;&lt; 20 </td>
-<td> 10485760000 </td>
-</tr>
-</tbody>
-</table>
-
-
-<hr />
-
-<ul>
-<li>Ceph OSD Daemon stops writes and synchronizes the journal with the filesystem, allowing Ceph OSD Daemons to trim operations from the journal and reuse the space.</li>
-<li>上面这段话的意思就是，Ceph OSD进程在往数据盘上刷数据的过程中，是停止写操作的。</li>
-</ul>
-
-
-<hr />
-
-<h4>[osd] - osd config tuning</h4>
-
-<table>
-<thead>
-<tr>
-<th> 参数名 </th>
-<th> 描述 </th>
-<th> 默认值 </th>
-<th> 建议值 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> osd max write size </td>
-<td> OSD一次可写入的最大值(MB) </td>
-<td> 90 </td>
-<td> 512 </td>
-</tr>
-<tr>
-<td> osd client message size cap </td>
-<td> 客户端允许在内存中的最大数据(bytes) </td>
-<td> 524288000 </td>
-<td> 2147483648 </td>
-</tr>
-<tr>
-<td> osd deep scrub stride </td>
-<td> 在Deep Scrub时候允许读取的字节数(bytes) </td>
-<td> 524288 </td>
-<td> 131072 </td>
-</tr>
-<tr>
-<td> osd op threads </td>
-<td> OSD进程操作的线程数 </td>
-<td> 2 </td>
-<td> 8 </td>
-</tr>
-<tr>
-<td> osd disk threads </td>
-<td> OSD密集型操作例如恢复和Scrubbing时的线程 </td>
-<td> 1 </td>
-<td> 4 </td>
-</tr>
-<tr>
-<td> osd map cache size </td>
-<td> 保留OSD Map的缓存(MB) </td>
-<td> 500 </td>
-<td> 1024 </td>
-</tr>
-<tr>
-<td> osd map cache bl size </td>
-<td> OSD进程在内存中的OSD Map缓存(MB) </td>
-<td> 50 </td>
-<td> 128 </td>
-</tr>
-<tr>
-<td> osd mount options xfs </td>
-<td> Ceph OSD xfs Mount选项 </td>
-<td> rw,noatime,inode64 </td>
-<td> rw,noexec,nodev,noatime,nodiratime,nobarrier </td>
-</tr>
-</tbody>
-</table>
-
-
-<hr />
-
-<ul>
-<li>增加osd op threads和disk threads会带来额外的CPU开销</li>
-</ul>
-
-
-<hr />
-
-<h4>[osd] - recovery tuning</h4>
-
-<table>
-<thead>
-<tr>
-<th> 参数名 </th>
-<th> 描述 </th>
-<th> 默认值 </th>
-<th> 建议值 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> osd recovery op priority </td>
-<td> 恢复操作优先级，取值1-63，值越高占用资源越高 </td>
-<td> 10 </td>
-<td> 4 </td>
-</tr>
-<tr>
-<td> osd recovery max active </td>
-<td> 同一时间内活跃的恢复请求数 </td>
-<td> 15 </td>
-<td> 10 </td>
-</tr>
-<tr>
-<td> osd max backfills </td>
-<td> 一个OSD允许的最大backfills数 </td>
-<td> 10 </td>
-<td> 4 </td>
-</tr>
-</tbody>
-</table>
-
-
-<h4>[osd] - client tuning</h4>
-
-<table>
-<thead>
-<tr>
-<th> 参数名 </th>
-<th> 描述 </th>
-<th> 默认值 </th>
-<th> 建议值 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> rbd cache </td>
-<td> RBD缓存 </td>
-<td> true </td>
-<td> true </td>
-</tr>
-<tr>
-<td> rbd cache size </td>
-<td> RBD缓存大小(bytes) </td>
-<td> 33554432 </td>
-<td> 268435456 </td>
-</tr>
-<tr>
-<td> rbd cache max dirty </td>
-<td> 缓存为write-back时允许的最大dirty字节数(bytes)，如果为0，使用write-through </td>
-<td> 25165824 </td>
-<td> 134217728 </td>
-</tr>
-<tr>
-<td> rbd cache max dirty age </td>
-<td> 在被刷新到存储盘前dirty数据存在缓存的时间(seconds) </td>
-<td> 1 </td>
-<td> 5 </td>
-</tr>
-</tbody>
-</table>
-
-
-<h4>关闭Debug</h4>
-
-<h3>3. PG Number</h3>
-
-<p>PG和PGP数量一定要根据OSD的数量进行调整，计算公式如下，但是最后算出的结果一定要接近或者等于一个2的指数。</p>
-
-<pre><code>Total PGs = (Total_number_of_OSD * 100) / max_replication_count
-</code></pre>
-
-<p>例如15个OSD，副本数为3的情况下，根据公式计算的结果应该为500，最接近512，所以需要设定该pool(volumes)的pg_num和pgp_num都为512.</p>
-
-<pre><code>ceph osd pool set volumes pg_num 512
-ceph osd pool set volumes pgp_num 512
-</code></pre>
-
-<h3>4. CRUSH Map</h3>
-
-<p>CRUSH是一个非常灵活的方式，CRUSH MAP的调整取决于部署的具体环境，这个可能需要根据具体情况进行分析，这里面就不再赘述了。</p>
-
-<h3>5. 其他因素的影响</h3>
-
-<p>在今年的(2015年)的Ceph Day上，海云捷迅在调优过程中分享过一个由于在集群中存在一个性能不好的磁盘，导致整个集群性能下降的case。通过osd perf可以提供磁盘latency的状况，同时在运维过程中也可以作为监控的一个重要指标，很明显在下面的例子中，OSD 8的磁盘延时较长，所以需要考虑将该OSD剔除出集群：</p>
-
-<pre><code>ceph osd perf
-</code></pre>
-
-<pre><code>osd fs_commit_latency(ms) fs_apply_latency(ms)
-  0                    14                   17
-  1                    14                   16
-  2                    10                   11
-  3                     4                    5
-  4                    13                   15
-  5                    17                   20
-  6                    15                   18
-  7                    14                   16
-  8                   299                  329
-</code></pre>
-
-<h2>ceph.conf</h2>
-
-<pre><code>[global]
-fsid = 059f27e8-a23f-4587-9033-3e3679d03b31
-mon_host = 10.10.20.102, 10.10.20.101, 10.10.20.100
-auth cluster required = cephx
-auth service required = cephx
-auth client required = cephx
-osd pool default size = 3
-osd pool default min size = 1
-
-public network = 10.10.20.0/24
-cluster network = 10.10.20.0/24
-
-max open files = 131072
-
-[mon]
-mon data = /var/lib/ceph/mon/ceph-$id
-
-[osd]
-osd data = /var/lib/ceph/osd/ceph-$id
-osd journal size = 20000
-osd mkfs type = xfs
-osd mkfs options xfs = -f
-
-filestore xattr use omap = true
-filestore min sync interval = 10
-filestore max sync interval = 15
-filestore queue max ops = 25000
-filestore queue max bytes = 10485760
-filestore queue committing max ops = 5000
-filestore queue committing max bytes = 10485760000
-
-journal max write bytes = 1073714824
-journal max write entries = 10000
-journal queue max ops = 50000
-journal queue max bytes = 10485760000
-
-osd max write size = 512
-osd client message size cap = 2147483648
-osd deep scrub stride = 131072
-osd op threads = 8
-osd disk threads = 4
-osd map cache size = 1024
-osd map cache bl size = 128
-osd mount options xfs = "rw,noexec,nodev,noatime,nodiratime,nobarrier"
-osd recovery op priority = 4
-osd recovery max active = 10
-osd max backfills = 4
-
-[client]
-rbd cache = true
-rbd cache size = 268435456
-rbd cache max dirty = 134217728
-rbd cache max dirty age = 5
-</code></pre>
-
-<h2>总结</h2>
-
-<p>优化是一个长期迭代的过程，所有的方法都是别人的，只有在实践过程中才能发现自己的，本篇文章仅仅是一个开始，欢迎各位积极补充，共同完成一篇具有指导性的文章。</p>
 ]]></content>
   </entry>
   

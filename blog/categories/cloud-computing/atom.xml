@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloud Computing | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/cloud-computing/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2016-03-28T20:49:52+08:00</updated>
+  <updated>2016-04-11T16:20:34+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,121 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[深度解读OpenStack Mitaka国内代码贡献]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka/"/>
+    <updated>2016-04-07T23:19:39+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka</id>
+    <content type="html"><![CDATA[<p>转眼间，OpenStack又迎来了新版本发布的日子，这是OpenStack第13个版本，也是Big Tent后的第二个版本，秉承“公开公正”的原则，OpenStack Release的项目达到了29个，比Liberty多出了8个。</p>
+
+<p>去年的时候，对国内的OpenStack Liberty贡献进行了深度解读后引起了广泛的关注，在今年Mitaka版本发布之后，类似的解读已经遍布朋友圈，但是在看过后，发现并非国内贡献的全部统计，所以决定还是自己写一篇完整的深度解读系列文章，来帮助国内用户对国内OpenStack的现状有一个全面的了解和认识。</p>
+
+<p>这几天一直在思考写这篇文章的目的和意义，我们搞分析也好，搞排名也罢，到底是为了什么？Mitaka版本更新后，各个公司也以排名作为企业宣传的最好的武器，我觉得这些都无可厚非。但是我觉得更重要的一点是在当前去IOEV的大形势下，我们应该告诉国内的企业用户，有一批热衷于追求Geek精神的年轻人在为中国未来的IT产业变革做着不懈的努力，他们用数字证明了国外公司能做到的我们国内公司也能做到，这个世界上不仅有IOEV，还有中国制造的OpenStack。</p>
+
+<p>对于友商们已经分析的数据，这里不再赘述，本文主要通过stackalytics.com提供的API对国内社区贡献进行一次深度挖掘和整理。</p>
+
+<p>OpenStack Liberty深度解读请见：<a href="http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/">http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/</a></p>
+
+<!-- more -->
+
+
+<h2>Release项目简介</h2>
+
+<p>Openstack官方的Release的网站已经更新为：<a href="http://releases.openstack.org/">http://releases.openstack.org/</a></p>
+
+<p>在Big Tent公布之后，OpenStack的项目被分为Core Projects和Big Tent Projects。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-big-tent.jpg"></p>
+
+<p>让我们来看一下在Mitaka版本中，多了哪些新项目。</p>
+
+<ul>
+<li>几个与Docker相关的项目被发布出来，magnum, senlin, solum</li>
+<li>数据备份容灾的项目：freezer</li>
+<li>计费的项目：cloudkitty</li>
+<li>NFV相关的项目：tracker</li>
+<li>监控相关的项目：monasca</li>
+</ul>
+
+
+<p>关于这些新项目的一些介绍，我将放在另外一篇博客里，敬请关注。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-projects.png"></p>
+
+<h2>社区贡献总体分析</h2>
+
+<p>本次统计的方法仍然为commits的方式，统计范围为stackalystatics默认统计的全部项目。</p>
+
+<p>从总体参与的公司数量来看，Mitaka版本略有下降，但是参与的人数多了100多人。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-companies-contributors.png"></p>
+
+<p>整个社区的公司贡献排名上没有明显的变化，传统的几大豪强仍然霸占公司排名的前十位，华为表现依然强劲，是中国区唯一能进入前十名的公司。</p>
+
+<p>在模块方面，整体统计的绝大部分比例已经被others所占据，说明在Big Tent计划下，OpenStack正在朝更多元化的方向演进。在Mitaka排名前十位的项目中，fuel相关的两个项目都进入了前十，说明fuel在OpenStack部署的地位已经越来越重要了。同时，核心项目中的nova，neutron，cinder项目仍然在前十名的范围内，贡献量基本保持不变。值得一提的是，在Mitaka统计的项目数量已经从Liberty的708个增长到了829个，可见在短短的6个月内，OpenStack社区的蓬勃发展。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-companies-modules.png"></p>
+
+<h2>OpenStack国内社区分析</h2>
+
+<p>看完了整体统计，我们再回到国内，因为已经有文章做了我在Liberty时候的分析，所以这里我换个角度来看国内的社区贡献，首先是统计排名的变化。</p>
+
+<h3>贡献企业</h3>
+
+<p>在Liberty中，有13家国内企业为社区做了贡献，在Mitaka中这个数量增加到了15家企业，这里简单的将这些企业做了一下分类：</p>
+
+<ul>
+<li>互联网用户：乐视、新浪、网易</li>
+<li>电信用户：中国移动</li>
+<li>传统IT服务商：华为、中兴、华三</li>
+<li>私有云服务商：Easystack、九州云、海云捷迅、北京有云、麒麟云、UMCloud、象云、Huron(休伦科技)</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-china-companies.png"></p>
+
+<h3>行业分析</h3>
+
+<p>通过行业的分析我们可以看出，国内的主要贡献仍然来自私有云服务商和传统IT服务商，换言之来自于以OpenStack提供产品或者服务的公司。厂商们贡献的目的很明确，主要为了展示自身在开源项目中的积累和专家形象。而用户的贡献主要来自平时在使用OpenStack时候遇到Bug，就是在实际应用过程中出现的问题。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-china-by-industry.png"></p>
+
+<h3>人员投入分析</h3>
+
+<p>单纯的社区贡献排名的比较仅仅是一个维度，下面我们来看一下各个公司的人员投入情况：</p>
+
+<ul>
+<li>排名前几位的公司对社区投入的人力基本都是两位数，相对于Liberty版本，人员均有所增加</li>
+<li>在人均贡献投入上，99cloud是国内最高的，平均达到了59天，甚至超过了华为，这个统计不仅仅包含了代码贡献，还包含了邮件、Review、Blueprint的时间，基本可以衡量每个公司在OpenStack社区贡献方面的投入力量</li>
+<li>人员投入来看，Easystack和中国移动无疑是最下本的两家，Easystack从Liberty的3人，增长到了23人，一下子增加了20人；中国移动也从最初的4个人，增加到了13个人，可见中国移动未来对OpenStack的野心</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-companies-effort.png"></p>
+
+<h3>贡献模块分析</h3>
+
+<p>从模块的角度进行统计，国内企业的贡献情况并未出现一个统一的趋势，总体的贡献项目为193个，项目几乎涉及OpenStack所有最活跃的项目，从排名前十的项目来看：</p>
+
+<ul>
+<li>得益于华为的主导，dargonflow项目的贡献量超高</li>
+<li>紧随其后的，也是当下的热点，容器相关的两个项目</li>
+<li>几大OpenStack老模块贡献量也高居前十位，说明这些模块是在解决方案中使用频率较高的</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-mitaka-modules.png"></p>
+
+<h3>投入产出比</h3>
+
+<p>这是一个很敏感的话题，每个公司对社区的投入到底换来多少项目上的回报呢？可能这只有每个公司的CEO能够回答的问题了。我在这里就不多做过多的分析，留给大家充分讨论的空间吧。</p>
+
+<h2>总结</h2>
+
+<p>刚刚结束在南京的OpenStack开发培训，也了解到5G的通信网络上已经确定引入了OpenStack，虽然我说不清楚他的具体用途，但是我相信这对OpenStack这个项目、社区是一个重大的利好消息。我也相信，通过国内企业的集体努力，一定能让OpenStack在中国遍地开花结果。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Consul主要使用场景]]></title>
@@ -708,583 +823,6 @@ EOF
 <p>OpenStack在国内发展已经超过了四年的时间，但是遗憾的一点，尽管我们拥有世界上最多的开发人员，但是我们对社区仍然没有话语权，国内的用户的需求无法对社区上游形成影响，导致很多本地化定制的需求无法真正的在社区版本代码得到体现。所以如何让中国的声音出现在社区，是我们所有OpenStack人需要思考的问题。欣喜的一点，本土的巨头华为已经身先士卒，投入很大的力量搞OpenStack的社区贡献，我们更希望越来越多的国内传统IT巨头能够意识到这个问题，投身于开源的事业中，否则我们又在起跑线上输给了别人。</p>
 
 <p>以上仅代表个人观点，如有任何异议，欢迎批评指正。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[(Kilo)Devstack完全用户手册]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/09/03/devstack-guide/"/>
-    <updated>2015-09-03T18:34:20+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/09/03/devstack-guide</id>
-    <content type="html"><![CDATA[<p>Devstack作为开发OpenStack必不可少的辅助环境搭建工具，其重要性不言而喻，但是由于网络上的原因，在使用中总是出现各种各样的问题，而且也不是所有人对使用上的细节非常清晰，所以想用这篇Blog总结一下在三年多的使用过程中的心得，来帮助将要走进OpenStack开发的志愿者们。下一篇博客我将为大家介绍Devstack的源代码，以及扩展插件的开发方法。</p>
-
-<p>本篇Blog主要介绍以下几个实用场景：</p>
-
-<ul>
-<li>如何利用Devstack构建一套完美的开发环境</li>
-<li>提高Devstack安装成功率的方法</li>
-<li>Devstack的实用技巧</li>
-<li>各种场景下的配置和注意事项</li>
-</ul>
-
-
-<p>本篇博客提到的所有方法均在2015年9月4日使用stable/kilo branch得到验证，后续版本请持续关注本博客。</p>
-
-<!-- more -->
-
-
-<h2>运行环境的选择</h2>
-
-<p>对于刚刚接触OpenStack的开发者而言，没有太多闲置的资源，所以比较容易的上手方式就是使用虚拟机。对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：</p>
-
-<ul>
-<li>VMWare Workstation是收费软件，Virtualbox是免费软件</li>
-<li>VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，节省资源，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中</li>
-<li>VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试</li>
-<li>使用Virtualbox时，为了让虚拟机能够访问外部网络，并且允许Host通过Floating IP对虚拟机进行访问，需要在Host层面设置NAT规则，转换到可以访问的物理网卡上，详情请见下文</li>
-</ul>
-
-
-<h2>Virtualbox网络设置</h2>
-
-<p><img class="center" src="/images/blogs/devstack-guide-network-topology.jpg"></p>
-
-<ul>
-<li>Nova Network网卡配置</li>
-</ul>
-
-
-<pre><code class="plain /etc/network/interface">auto eth0
-iface eth0 inet dhcp
-
-auto eth1
-iface eth1 inet static
-address 192.168.56.101
-netmask 255.255.255.0
-
-auto eth2
-iface eth1 inet static
-address 172.16.0.101
-netmask 255.255.255.0
-</code></pre>
-
-<ul>
-<li>Neutron网卡配置</li>
-</ul>
-
-
-<pre><code class="plain /etc/network/interface">auto eth0
-iface eth0 inet dhcp
-
-auto eth1
-iface eth1 inet static
-address 192.168.56.101
-netmask 255.255.255.0
-
-auto eth2
-iface eth2 inet manual
-up ip link set dev $IFACE up
-down ip link set dev $IFACE down
-</code></pre>
-
-<ul>
-<li>MAC网卡NAT映射</li>
-</ul>
-
-
-<p>我们将第三块网卡作为提供外部网络的接口，采用系统层面的NAT方式让该网卡能够访问外部网络。</p>
-
-<pre><code class="plain bash">sudo sysctl net.inet.ip.forwarding=1
-</code></pre>
-
-<p>在nat-anchor后面添加</p>
-
-<pre><code class="plain /etc/pf.conf">nat on en0 from 172.16.0.0/24 -&gt; (en0)
-</code></pre>
-
-<p>之后加载</p>
-
-<pre><code class="bash bash">sudo pfctl -e -f /etc/pf.conf
-</code></pre>
-
-<ul>
-<li>Linux网卡NAT映射</li>
-</ul>
-
-
-<pre><code class="plain bash">echo 1 &gt; /proc/sys/net/ipv4/ip_forward
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-</code></pre>
-
-<h2>Devstack快速开始</h2>
-
-<p>其实，Devstack本身并不需要很复杂的配置就可以成功运行，但是仍然有几个需要注意的地方：</p>
-
-<ul>
-<li>Ubuntu 14.04 64bit(LTS), 12.04已经逐渐退出历史舞台，所以这里推荐14.04</li>
-<li>不能使用root用户，即使你使用root用户执行Devstack，默认也会为你建立一个stack用户，所以不如老老实实的直接使用普通用户运行Devstack，或者提前建立好stack用户，切换后再执行</li>
-<li>默认获取Devstack进行安装，安装的是master分支的代码，但是在实际开发中(比如我们做产品的时候)，都是基于某个stable分支进行，所以一般情况在clone devstack的时候需要指定stable分支</li>
-</ul>
-
-
-<p>下面给出一个最简安装步骤：</p>
-
-<pre><code class="plain"># adduser stack
-# apt-get install sudo -y
-# echo "stack ALL=(ALL) NOPASSWD: ALL" &gt;&gt; /etc/sudoers
-# sudo su - stack
-
-(stack)$ git clone https://git.openstack.org/openstack-dev/devstack --branch=stable/kilo
-(stack)$ cd devstack &amp;&amp; ./stack.sh
-</code></pre>
-
-<h2>提高Devstack安装成功率</h2>
-
-<p>估计在国内使用Devstack的人基本都遇到过安装失败的状况，为了节约大家的时间，先分析一下Devstack为什么会失败，我们先从这张时序图看一下Devstack执行的过程：</p>
-
-<p><img class="center" src="/images/blogs/devstack-guide-flow.png"></p>
-
-<p>从上述流程图中可以很清楚的看到Devstack有以下几个地方需要访问网络：</p>
-
-<ul>
-<li>安装依赖时，需要访问Ubuntu的源</li>
-<li>执行get_pip.sh时，地址是彻底被墙的，需要访问<a href="https://bootstrap.pypa.io/get-pip.py">https://bootstrap.pypa.io/get-pip.py</a></li>
-<li>从github clone源代码，github在国内访问速度并不很快而且间歇性被墙</li>
-<li>安装过程中执行pip install requirements，需要访问pip repo</li>
-<li>下载镜像，这一步骤取决于你需要安装的模块，如果默认安装只会下载cirros镜像，但是如果是安装类似Trove的模块，可能需要下载的更多</li>
-</ul>
-
-
-<hr />
-
-<p>所以综上所述，为了提高devstack的安装成功率，需要从这几个方面着手优化：</p>
-
-<ul>
-<li>使用国内源</li>
-</ul>
-
-
-<pre><code class="plain /etc/apt/sources.list">deb http://mirrors.163.com/ubuntu/ trusty main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ trusty-security main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ trusty-updates main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ trusty-proposed main restricted universe multiverse
-deb http://mirrors.163.com/ubuntu/ trusty-backports main restricted universe multiverse
-</code></pre>
-
-<ul>
-<li>从国内源获取get-pip.py，从源代码可以分析出，检测get-pip.py的方式，这里面有两种方式一种是手动下载get-pip.py之后，注释代码，还有一种就是修改PIP_GET_PIP_URL的地址，但是这里只能通过修改install_pip.sh的方式，暂时无法从环境变量里获取</li>
-</ul>
-
-
-<pre><code class="bash devstack/tools/install_pip.sh">FILES=$TOP_DIR/files
-
-PIP_GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
-LOCAL_PIP="$FILES/$(basename $PIP_GET_PIP_URL)"
-
-function install_get_pip {
-    # The OpenStack gate and others put a cached version of get-pip.py
-    # for this to find, explicitly to avoid download issues.
-    #
-    # However, if DevStack *did* download the file, we want to check
-    # for updates; people can leave their stacks around for a long
-    # time and in the mean-time pip might get upgraded.
-    #
-    # Thus we use curl's "-z" feature to always check the modified
-    # since and only download if a new version is out -- but only if
-    # it seems we downloaded the file originally.
-    if [[ ! -r $LOCAL_PIP || -r $LOCAL_PIP.downloaded ]]; then
-        curl --retry 6 --retry-delay 5 \
-            -z $LOCAL_PIP -o $LOCAL_PIP $PIP_GET_PIP_URL || \
-            die $LINENO "Download of get-pip.py failed"
-        touch $LOCAL_PIP.downloaded
-    fi
-    sudo -H -E python $LOCAL_PIP
-}
-</code></pre>
-
-<p>修改为我在coding.net上缓存的get-pip脚本</p>
-
-<pre><code class="bash devstack/tools/install_pip.sh">PIP_GET_PIP_URL=https://coding.net/u/xiaoquqi/p/pip/git/raw/master/contrib/get-pip.py
-</code></pre>
-
-<ul>
-<li>国内的代码托管服务器有从github上定期同步源代码的，但是经过实际测试都不是很理想，所以可能这是最不稳定的一部分，但是可以提前使用脚本，人工的下载所有代码，之后我会尝试在我自己的源中定时同步OpenStack源代码，敬请关注</li>
-<li>现在pip的安装速度明显提升，原来还需要使用国内源，例如豆瓣，现在即使不修改也能很快的进行安装</li>
-<li>镜像下载建议使用一些下载工具，然后放到指定的目录中，这样最有效</li>
-</ul>
-
-
-<h2>无网络状况下安装Devstack</h2>
-
-<p>因为我们是做OpenStack的产品的公司，所以就要求我们的Devstack要能够满足无网络状况下的安装，之前也写过一篇详细介绍无网络安装Devstack博客,由于时间关系，可能一些内容已经过时了，这里面再进行一下更新，思路还是上面的思路，这里给出一些使用的工具，如果不清楚如何使用的话，可以参考我之前的博客。</p>
-
-<ul>
-<li>本地源的缓存使用apt-mirror，这是一个需要时间的工作，第一次同步的时间会非常长，准备好大约100G左右的空间吧</li>
-<li>缓存get-pip.py，这个比较容易，搭建一个Apache服务器，但是需要把端口修改为10000，否则在安装好OpenStack后，会占用80端口，重新执行Devstack时候会出现错误</li>
-<li>建立本地的Gerrit，并且上传所有代码</li>
-<li>从requirements项目中，下载所有的pip，建立本地的pip缓存源，如果是搭建研发环境，可能还需要下载test-requirements的内容和tox</li>
-<li>将镜像下载到刚刚创建的Apache服务器</li>
-</ul>
-
-
-<p>完成以上步骤，你可以尽情断掉外网，愉快的进行Devstack的安装了，稍后我会将以上步骤进行进一步完善。</p>
-
-<h2>OFFLINE模式下安装Devstack</h2>
-
-<p>在Devstack中提供了一种OFFLINE的方式，这种方式的含义就是，当你第一次完成安装后，所有需要的内容已经下载到本地，再次运行就没有必要访问网络了(前提是你不想升级)，所以可以将安装模式设置为OFFLINE，避免网络的访问，方法为：</p>
-
-<pre><code class="bash devstack/localrc">OFFLINE=True
-</code></pre>
-
-<h2>虚拟机重启后，如何利用rejoin-stack.sh，免重新安装</h2>
-
-<p>其实使用OFFLINE模式，可以在离线状态下无数次重新运行devstack，但是如果不是为了重新配置，我们并没有需要每次重新运行stack.sh。在Devstack中提供了另外一个脚本叫做rejoin-stack.sh，原理很简单就是把所有的进程重新组合进screen，所以我们借助这个脚本完全可以不重新执行stack.sh，快速恢复环境。但是当虚拟机重启后，cinder使用的卷组并不会自动重建，所以在运行rejoin之前，需要将恢复卷组的工作，放入开机启动的脚本中。</p>
-
-<pre><code class="bash /etc/init.d/cinder-setup-backing-file">losetup /dev/loop1 /opt/stack/data/stack-volumes-default-backing-file
-losetup /dev/loop2 /opt/stack/data/stack-volumes-lvmdriver-1-backing-file
-exit 0
-</code></pre>
-
-<pre><code class="bash Run as root">chmod 755 /etc/init.d/cinder-setup-backing-file
-ln -s /etc/init.d/cinder-setup-backing-file /etc/rc2.d/S10cinder-setup-backing-file
-</code></pre>
-
-<pre><code class="bash Run as normal user">cd $HOME/devstack
-./rejoin-stack.sh
-</code></pre>
-
-<h2>Scenario 0: 公共部分</h2>
-
-<pre><code class="bash devstack/localrc"># Misc
-ADMIN_PASSWORD=sysadmin
-DATABASE_PASSWORD=$ADMIN_PASSWORD
-RABBIT_PASSWORD=$ADMIN_PASSWORD
-SERVICE_PASSWORD=$ADMIN_PASSWORD
-SERVICE_TOKEN=$ADMIN_PASSWORD
-
-# Target Path
-DEST=/opt/stack.kilo
-
-# Enable Logging
-LOGFILE=$DEST/logs/stack.sh.log
-VERBOSE=True
-LOG_COLOR=True
-SCREEN_LOGDIR=$DEST/logs
-</code></pre>
-
-<h2>Scenario 1: 单节点Nova-Network的安装</h2>
-
-<p>这应该就是Devstack默认的模式，有以下几点需要注意：</p>
-
-<ul>
-<li>根据上面的网卡配置</li>
-</ul>
-
-
-<blockquote><p>第一块网卡为NAT方式，用于访问外部网络</p>
-
-<p>第二块为Host-only Adaptor，用于访问云平台</p>
-
-<p>第三块为Host-only Adaptor，用于虚拟机桥接网路</p>
-
-<p>需要注意的是：这种方式下并不能让虚拟机正常访问外部网络，可以通过将eth2设置为Bridge模式，但是这样会造成DHCP冲突(如果外部网络有DHCP)，所以暂时没有完美的解决方案</p></blockquote>
-
-<ul>
-<li>打开novnc和consoleauth，否则无法访问VNC</li>
-</ul>
-
-
-<p>这里给出的配置方案是第一种网络配置，即虚拟机无法网络外部网络的情况</p>
-
-<pre><code class="bash devstack/localrc"># Nova
-enable_service n-novnc n-cauth
-
-FLAT_INTERFACE=eth1
-# eth1 address
-HOST_IP=192.168.56.101
-FIXED_RANGE=172.24.17.0/24
-FIXED_NETWORK_SIZE=254
-FLOATING_RANGE=172.16.0.128/25
-</code></pre>
-
-<h2>Scenario 2: 双节点Nova-Network的安装</h2>
-
-<ul>
-<li>控制节点</li>
-</ul>
-
-
-<pre><code class="bash devstack/localrc"># Nova
-enable_service n-novnc n-cauth
-disable_service n-cpu n-net n-api-meta c-vol
-
-# current host ip
-HOST_IP=192.168.56.101
-FLAT_INTERFACE=eth1
-MULTI_HOST=1
-</code></pre>
-
-<ul>
-<li>计算节点</li>
-</ul>
-
-
-<pre><code class="bash devstack/localrc"># Nova
-enable_service n-novnc n-cauth
-ENABLED_SERVICES=n-cpu,n-net,n-api-meta,c-vol
-
-# current host ip
-HOST_IP=192.168.56.101
-FLAT_INTERFACE=eth1
-# needed by cinder-volume service
-DATABASE_TYPE=mysql
-
-# controller ip
-SERVICE_HOST=192.168.56.101
-MYSQL_HOST=$SERVICE_HOST
-RABBIT_HOST=$SERVICE_HOST
-GLANCE_HOSTPORT=$SERVICE_HOST:9292
-NOVA_VNC_ENABLED=True
-NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
-VNCSERVER_LISTEN=$HOST_IP
-VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
-</code></pre>
-
-<h2>Scenario 3: 单节点Neutron的安装</h2>
-
-<ul>
-<li>基本配置</li>
-</ul>
-
-
-<pre><code class="bash devstack/localrc"># Nova
-enable_service n-novnc n-cauth
-
-# Neutron
-disable_service n-net
-ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
-ENABLED_SERVICES+=,q-lbaas,q-vpn,q-fwaas
-
-HOST_IP=192.168.56.101
-FIXED_RANGE=20.0.0.0/24
-NETWORK_GATEWAY=20.0.0.1
-FLOATING_RANGE=172.16.0.0/24
-PUBLIC_NETWORK_GATEWAY=172.16.0.1
-Q_FLOATING_ALLOCATION_POOL=start=172.16.0.101,end=172.16.0.200
-</code></pre>
-
-<ul>
-<li>OVS设置</li>
-</ul>
-
-
-<p>由于在Devstack安装过程中，将br-ex的地址也设置成了PUBLIC_NETWORK_GATEWAY的地址，但是实际使用过程中，我们建立的Host Apdator充当了gateway的角色，所以为了避免冲突，直接将br-ex地址清除掉。</p>
-
-<pre><code class="bash bash">sudo ip addr flush dev br-ex
-</code></pre>
-
-<p>之后将eth2作为br-ex的port，之后创建的虚拟机就可以通过eth2访问网络了，Host也可以通过floating ip访问虚拟机了。</p>
-
-<pre><code class="bash bash">sudo ovs-vsctl add-port br-ex eth2
-</code></pre>
-
-<h2>Scenario 4: 多节点Neutron的安装(控制/网络+计算节点)</h2>
-
-<ul>
-<li>控制/网络节点
-<figure class='code'><figcaption><span>devstack/localrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>&lt;h1&gt;Nova&lt;/h1&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;enable_service n-novnc n-cauth
-</span><span class='line'>HOST_IP=192.168.56.101
-</span><span class='line'>disable_service n-cpu n-net n-api-meta c-vol&lt;/p&gt;&lt;/li&gt;
-</span><span class='line'>&lt;/ul&gt;
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>&lt;h1&gt;Neutron&lt;/h1&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;disable_service n-net
-</span><span class='line'>ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta
-</span><span class='line'>FIXED_RANGE=20.0.0.0/24
-</span><span class='line'>NETWORK_GATEWAY=20.0.0.1
-</span><span class='line'>FLOATING_RANGE=172.16.0.0/24
-</span><span class='line'>PUBLIC_NETWORK_GATEWAY=172.16.0.1
-</span><span class='line'>Q_FLOATING_ALLOCATION_POOL=start=172.16.0.101,end=172.16.0.200</span></code></pre></td></tr></table></div></figure></p>
-
-<ul>
-<li>计算节点
-<figure class='code'><figcaption><span>devstack/localrc</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>&lt;h1&gt;Nova&lt;/h1&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;disable_all_services
-</span><span class='line'>ENABLED_SERVICES=n-cpu,rabbit,neutron,q-agt,c-vol&lt;/p&gt;&lt;/li&gt;
-</span><span class='line'>&lt;/ul&gt;
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>&lt;h1&gt;current host ip&lt;/h1&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;HOST_IP=192.168.56.103&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h1&gt;needed by cinder-volume service&lt;/h1&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;DATABASE_TYPE=mysql&lt;/p&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;h1&gt;controller ip&lt;/h1&gt;
-</span><span class='line'>
-</span><span class='line'>&lt;p&gt;SERVICE_HOST=192.168.56.101
-</span><span class='line'>MYSQL_HOST=$SERVICE_HOST
-</span><span class='line'>RABBIT_HOST=$SERVICE_HOST
-</span><span class='line'>GLANCE_HOSTPORT=$SERVICE_HOST:9292
-</span><span class='line'>NOVA_VNC_ENABLED=True
-</span><span class='line'>NOVNCPROXY_URL=&ldquo;&lt;a href="http://$SERVICE_HOST:6080/vnc_auto.html"&gt;http://$SERVICE_HOST:6080/vnc_auto.html&lt;/a&gt;&rdquo;
-</span><span class='line'>VNCSERVER_LISTEN=$HOST_IP
-</span><span class='line'>VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
-</span><span class='line'>Q_HOST=$SERVICE_HOST</span></code></pre></td></tr></table></div></figure></p>
-
-<ul>
-<li>OVS设置</li>
-</ul>
-
-
-<p>由于在Devstack安装过程中，将br-ex的地址也设置成了PUBLIC_NETWORK_GATEWAY的地址，但是实际使用过程中，我们建立的Host Apdator充当了gateway的角色，所以为了避免冲突，直接将br-ex地址清除掉。</p>
-
-<pre><code class="bash bash">sudo ip addr flush dev br-ex
-</code></pre>
-
-<p>之后将eth2作为br-ex的port，之后创建的虚拟机就可以通过eth2访问网络了，Host也可以通过floating ip访问虚拟机了。</p>
-
-<pre><code class="bash bash">sudo ovs-vsctl add-port br-ex eth2
-</code></pre>
-
-<h2>Scenario 5: 从源代码安装客户端</h2>
-
-<p>新的Devstack里面默认不再提供client的源代码的安装方式，需要使用localrc中的环境变量进行开启，否则将直接从master获取的client代码进行安装，当然这样会造成系统无法正常使用。那么如何才能确定client在当前Devstack可用的版本呢？最简单的方法可以先从pip中安装包，之后通过pip list | grep client的方式获取client的源代码。这里面提供我在Kilo中使用的版本依赖。</p>
-
-<pre><code class="bash devstack/localrc">KEYSTONECLIENT_BRANCH=1.3.1
-CINDERCLIENT_BRANCH=1.1.1
-GLANCECLIENT_BRANCH=0.17.1
-HEATCLIENT_BRANCH=0.4.0
-NEUTRONCLIENT_BRANCH=2.4.0
-NOVACLIENT_BRANCH=2.23.0
-SWIFTCLIENT_BRANCH=2.4.0
-
-# client code
-LIBS_FROM_GIT=python-keystoneclient,python-glanceclient,python-novaclient,python-neutronclient,python-swiftclient,python-cinderclient
-</code></pre>
-
-<h2>Scenario 6: 安装Ceilometer/Heat/Trove/Sahara/Swift</h2>
-
-<pre><code class="bash devstack/localrc"># Ceilometer
-enable_service ceilometer-acompute ceilometer-acentral ceilometer-anotification ceilometer-collector ceilometer-api
-enable_service ceilometer-alarm-notifier ceilometer-alarm-evaluator
-
-# Heat
-enable_service heat h-api h-api-cfn h-api-cw h-eng
-
-# Trove
-enable_service trove tr-api tr-tmgr tr-cond
-
-# Sahara
-enable_service sahara
-
-# Swift
-enable_service s-proxy s-object s-container s-account
-SWIFT_REPLICAS=1
-SWIFT_HASH=011688b44136573e209e
-</code></pre>
-
-<h2>Scenario 7: 安装Ceph</h2>
-
-<pre><code class="bash devstack/localrc"># Ceph
-ENABLED_SERVICES+=,ceph
-CEPH_LOOPBACK_DISK_SIZE=200G
-CEPH_CONF=/etc/ceph/ceph.conf
-CEPH_REPLICAS=1
-
-# Glance - Image Service
-GLANCE_CEPH_USER=glance
-GLANCE_CEPH_POOL=glance-pool
-
-# Cinder - Block Device Service
-CINDER_DRIVER=ceph
-CINDER_CEPH_USER=cinder
-CINDER_CEPH_POOL=cinder-pool
-CINDER_CEPH_UUID=1b1519e4-5ecd-11e5-8559-080027f18a73
-CINDER_BAK_CEPH_POOL=cinder-backups
-CINDER_BAK_CEPH_USER=cinder-backups
-CINDER_ENABLED_BACKENDS=ceph
-CINDER_ENABLED_BACKENDS=ceph
-
-# Nova - Compute Service
-NOVA_CEPH_POOL=nova-pool
-</code></pre>
-
-<h2>Scenario 8: 安装Murano</h2>
-
-<p>想通过这个例子演示，对于一个新的OpenStack项目，如何使用Devstack尝鲜。</p>
-
-<pre><code class="bash bash">cd /opt/stack.kilo
-git clone https://github.com/openstack/murano --branch=stable/kilo
-cd murano/contrib/devstack
-cp lib/murano ${DEVSTACK_DIR}/lib
-cp lib/murano-dashboard ${DEVSTACK_DIR}/lib
-cp extras.d/70-murano.sh ${DEVSTACK_DIR}/extras.d
-</code></pre>
-
-<pre><code class="plain devstack/localrc"># Enable Neutron
-ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
-
-# Enable Heat
-enable_service heat h-api h-api-cfn h-api-cw h-eng
-
-# Enable Murano
-enable_service murano murano-api murano-engine
-</code></pre>
 ]]></content>
   </entry>
   
