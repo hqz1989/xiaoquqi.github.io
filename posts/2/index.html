@@ -136,6 +136,75 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-28T14:30:22+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-06-28 14:30</time>
+        
+        
+           | <a href="/blog/2015/06/28/ceph-performance-optimization-summary/#comments">Comments</a>
+        
+      </p>
+    
+    
+      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2015/06/28/ceph-performance-optimization-summary/" itemprop="url">Ceph性能优化总结(v0.94)</a></h2>
+    
+  </header>
+
+
+  <div class="entry-content clearfix" itemprop="articleBody description"><p>最近一直在忙着搞Ceph存储的优化和测试，看了各种资料，但是好像没有一篇文章把其中的方法论交代清楚，所以呢想在这里进行一下总结，很多内容并不是我原创，只是做一个总结。如果其中有任何的问题，欢迎各位喷我，以便我提高。</p>
+
+<h2>优化方法论</h2>
+
+<p>做任何事情还是要有个方法论的，“授人以鱼不如授人以渔”的道理吧，方法通了，所有的问题就有了解决的途径。通过对公开资料的分析进行总结，对分布式存储系统的优化离不开以下几点：</p>
+
+<h3>1. 硬件层面</h3>
+
+<ul>
+<li>硬件规划</li>
+<li>SSD选择</li>
+<li>BIOS设置</li>
+</ul>
+
+
+<h3>2. 软件层面</h3>
+
+<ul>
+<li>Linux OS</li>
+<li>Ceph Configurations</li>
+<li>PG Number调整</li>
+<li>CRUSH Map</li>
+<li>其他因素</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a class="btn btn-default" href="/blog/2015/06/28/ceph-performance-optimization-summary/">Read on &rarr;</a>
+    </footer>
+  
+
+
+        </article>
+      
+      
+        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-12T09:21:42+08:00"  data-updated="true" itemprop="datePublished dateCreated">2015-05-12 09:21</time>
         
         
@@ -532,6 +601,8 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2016/06/13/bootstrap-your-ceph-cluster-in-docker/">使用Docker部署Ceph</a>
+    
     <a class="list-group-item " href="/blog/2016/04/07/contribution-in-mitaka/">深度解读OpenStack Mitaka国内代码贡献</a>
     
     <a class="list-group-item " href="/blog/2016/03/27/openstack-training-user-experience/">OpenStack培训的用户体验</a>
@@ -539,8 +610,6 @@
     <a class="list-group-item " href="/blog/2015/12/24/use-consul/">Consul主要使用场景</a>
     
     <a class="list-group-item " href="/blog/2015/12/07/consul-installation/">Consul的安装方法</a>
-    
-    <a class="list-group-item " href="/blog/2015/12/01/use-grafana-to-monitor-your-cluster/">使用Grafana+Diamond+Graphite构造完美监控面板</a>
     
   </div>
 </section>
