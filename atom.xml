@@ -4,7 +4,7 @@
   <title><![CDATA[RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2016-06-14T08:34:57+08:00</updated>
+  <updated>2016-06-19T17:38:38+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,86 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[使用国内源部署Ceph]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2016/06/19/deploy-ceph-using-china-mirror/"/>
+    <updated>2016-06-19T17:25:37+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2016/06/19/deploy-ceph-using-china-mirror</id>
+    <content type="html"><![CDATA[<p>由于网络方面的原因，Ceph的部署经常受到干扰，通常为了加速部署，基本上大家都是将Ceph的源同步到本地进行安装。根据Ceph中国社区的统计，当前已经有国内的网站定期将Ceph安装源同步，极大的方便了我们的测试。本文就是介绍如何使用国内源，加速ceph-deploy部署Ceph集群。</p>
+
+<!-- more -->
+
+
+<h2>关于国内源</h2>
+
+<p>根据Ceph中国社区的<a href="http://bbs.ceph.org.cn/?/page/image">统计</a>，国内已经有四家网站开始同步Ceph源，分别是：</p>
+
+<ul>
+<li>网易镜像源<a href="http://mirrors.163.com/ceph">http://mirrors.163.com/ceph</a></li>
+<li>阿里镜像源<a href="http://mirrors.aliyun.com/ceph">http://mirrors.aliyun.com/ceph</a></li>
+<li>中科大镜像源<a href="http://mirrors.ustc.edu.cn/ceph">http://mirrors.ustc.edu.cn/ceph</a></li>
+<li>宝德镜像源 <a href="http://mirrors.plcloud.com/ceph">http://mirrors.plcloud.com/ceph</a></li>
+</ul>
+
+
+<h2>国内源分析</h2>
+
+<p>以163为例，是以天为单位向回同步Ceph源，完全可以满足大多数场景的需求，同步的源也非常全，包含了calamari，debian和rpm的全部源，最近几个版本的源也能从中找到。</p>
+
+<h2>安装指定版本的Ceph</h2>
+
+<p>这里以安装最新版本的Jewel为例，由于Jewel版本中已经不提供el6的镜像源，所以只能使用CentOS 7以上版本进行安装。我们并不需要在repos里增加相应的源，只需要设置环境变量，即可让ceph-deploy使用国内源，具体过程如下：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export CEPH_DEPLOY_REPO_URL=http://mirrors.163.com/ceph/rpm-jewel/el7
+</span><span class='line'>export CEPH_DEPLOY_GPG_URL=http://mirrors.163.com/ceph/keys/release.asc</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后的过程就没有任何区别了：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Create monitor node
+</span><span class='line'>ceph-deploy new node1 node2 node3
+</span><span class='line'>
+</span><span class='line'># Software Installation
+</span><span class='line'>ceph-deploy install deploy node1 node2 node3
+</span><span class='line'>
+</span><span class='line'># Gather keys
+</span><span class='line'>ceph-deploy mon create-initial
+</span><span class='line'>
+</span><span class='line'># Ceph deploy parepare and activate
+</span><span class='line'>ceph-deploy osd prepare node1:/dev/sdb node2:/dev/sdb node3:/dev/sdb
+</span><span class='line'>ceph-deploy osd activate node1:/var/lib/ceph/osd/ceph-0 node2:/var/lib/ceph/osd/ceph-1 node3:/var/lib/ceph/osd/ceph-2
+</span><span class='line'>
+</span><span class='line'># Make 3 copies by default
+</span><span class='line'>echo "osd pool default size = 3" | tee -a $HOME/ceph.conf
+</span><span class='line'>
+</span><span class='line'># Copy admin keys and configuration files
+</span><span class='line'>ceph-deploy --overwrite-conf admin deploy node1 node2 node3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样就可以很快速的使用国内源创建出Ceph集群，希望能对大家日常的使用提供便捷。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[使用Docker部署Ceph]]></title>
@@ -4334,7 +4414,7 @@ deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#x6d;&#x61;&#x69;&#108;&#116;&#111;&#58;&#120;&#x69;&#x61;&#x6f;&#x71;&#x75;&#x71;&#105;&#64;&#103;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#109;">&#x78;&#105;&#97;&#111;&#x71;&#117;&#113;&#105;&#x40;&#103;&#109;&#97;&#105;&#108;&#x2e;&#x63;&#111;&#109;</a></li>
+<li>邮箱：<a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#58;&#x78;&#105;&#97;&#111;&#113;&#x75;&#113;&#105;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#109;">&#120;&#105;&#x61;&#111;&#113;&#x75;&#x71;&#x69;&#64;&#x67;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#x6f;&#109;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
