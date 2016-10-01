@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloud Computing | RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/blog/categories/cloud-computing/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2016-06-19T17:38:38+08:00</updated>
+  <updated>2016-10-01T16:15:03+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,140 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[深度解读OpenStack Newton国内代码贡献]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2016/10/01/contricution-in-newton/"/>
+    <updated>2016-10-01T09:00:49+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2016/10/01/contricution-in-newton</id>
+    <content type="html"><![CDATA[<p>今天是十一黄金周开始的第一天，在2016年10月6日，OpenStack马上要迎来第14个版本的发布，也是Big Tent后的第三个版本，计划Release项目达到32个，比Mitaka版本多了3个。</p>
+
+<p>这是继OpenStack Liberty贡献分析后的第三篇系列文章，我们很欣喜的看到在每次的OpenStack Release之后，我们总是可以发现有很多新的中国企业投身于OpenStack生态圈中，无论如何，随着时间的推移，像OpenStack这样的开源软件势必在企业市场中有越来越多的应用。在当今房价飞速增长的今天，整个的社会充满了浮躁，能出现一个像OpenStack一样的项目实属不易。我们的国家、我们的民族太需要一些脚踏实地的人做一些真正的“自主可控”的技术积累，否则我们的未来仍然摆脱不了表面强大的现实。</p>
+
+<p>最近一段时间一直在接触客户，也在思考为什么OpenStack无法像苹果手机那样轻松落地、供不应求，当然这个对比并不恰当。记得寄云科技的时博士曾经说过：越接近于用户底层的应用越难落地。现实也的确如此，就好像用户盖了一栋大楼，这时候你告诉用户，我这有个地基比你原来的好，来我给你换了；又或者你告诉用户说，我这个地基比你以前的好，我给你重新搭个地基，你再盖个楼。我想如果我是用户，我也不会答应的。所以，在用户基础架构已经非常成熟的企业中，OpenStack在落地过程中势必会遇到痛点不痛，落地困难的问题。我觉得解决这个问题无外乎几个方面：第一，有一位高瞻远瞩的领导，像携程的叶总、恒丰银行的张总；第二，把OpenStack的解决方案做的像VMWare一样完整，比如用户原来的业务系统怎么无缝迁移过来，用户原有资产怎么重新利用，怎么让OpenStack适用用户现有的网络架构，怎么让OpenStack适用用户现有的管理流程；第三，将OpenStack和刺中用户痛点的应用结合起来，进而推进OpenStack在企业中的应用，这也是我一直在寻找的方向。这仅仅是我在从事四年多OpenStack研发、销售过程中的一点点思考，也欢迎各位一起进行讨论。</p>
+
+<p>还是那句话，排名并不是这篇文章的真正目的。我们希望能有更多的用户看到，我们中国企业在OpenStack上的影响力，让更多的用户了解OpenStack，从而能够在未来的应用中使用OpenStack，形成真正的OpenStack的生态圈。</p>
+
+<p>OpenStack Liberty深度解读请见：<a href="http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/">http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/</a></p>
+
+<p>OpenStack Mitaka深度解读请见：<a href="http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka/">http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka/</a></p>
+
+<!-- more -->
+
+
+<h2>Release项目简介</h2>
+
+<p>Openstack官方的Release的网站已经更新为：<a href="http://releases.openstack.org/">http://releases.openstack.org/</a></p>
+
+<p>下面是最近三个版本Release的详细对比：</p>
+
+<p>让我们先来关注一些这次Release中的三个新项目：</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-projects.png"></p>
+
+<h3>Panko(计量服务事件消息存储)</h3>
+
+<p>Panko是计量模块中的一部分，主要是为了计量模块提供事件消息存储，众所周知，在上一个OpenStack Release中，Ceilometer被一分为三，分别为aodh(告警服务)/Gnocchi(基于时间的数据库服务)/Ceilometer，为了解决当前Ceilometer中存在的性能问题，提高更好的扩展性。</p>
+
+<p>现在Panko的文档并不是很丰富，如果有需要了解更多详细内容的，可以关注Developer的文档：<a href="http://docs.openstack.org/developer/panko/">http://docs.openstack.org/developer/panko/</a></p>
+
+<h3>Vitrage(广大OpenStack管理员的福音，平台问题定位分析服务)</h3>
+
+<p>Vitrage是一个OpenStack RCA(Root Cause Analysis)服务，用于组织、分析和扩展OpenStack的告警和事件，在真正的问题发生前找到根本原因。</p>
+
+<p>众所周知，OpenStack平台最大的优势来自于架构的可扩展性，这也是OpenStack能够在基础架构曾一枝独秀的重要原因。分布式架构最大的优势在于扩展，但是过于灵活的扩展性为运维带来的极大的困难，所以Vitrage的出现在一定程度上缓解了OpenStack运维上的痛点。</p>
+
+<p>我们来简单看一下他的架构，更多详细的介绍请查看WIKI：<a href="https://wiki.openstack.org/wiki/Vitrage">https://wiki.openstack.org/wiki/Vitrage</a></p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-vitrage-architecture.png"></p>
+
+<h3>Watcher(OpenStack平台优化服务)</h3>
+
+<p>从名字上看，我们并不能理解这个模块的具体左右，我们通过文档中用户应用场景来了解一下Watcher的作用：</p>
+
+<p>作为一名云平台的管理员在云平台使用一段时间后，想根据一些物理特性对云平台虚拟机的分布进行重新平衡，例如服务器的温度、电源的状态等信息，那么这时候就可以通过watcher，利用Nova虚拟机的在线迁移对整个数据中心云平台的虚拟机进行一些优化处理，从而达到某种平衡。我认为这其实类似于VMWare的DRS功能。</p>
+
+<p>当然Watcher还有更多的应用场景，更多详细的介绍请查看：<a href="https://wiki.openstack.org/wiki/Watcher">https://wiki.openstack.org/wiki/Watcher</a></p>
+
+<p>我们来简单看一下他的架构，更多架构方面的详细的介绍请查看：<a href="http://docs.openstack.org/developer/watcher/architecture.html">http://docs.openstack.org/developer/watcher/architecture.html</a></p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-watcher-architecture.svg"></p>
+
+<h2>社区贡献总体分析</h2>
+
+<p>本次统计的方法仍然为commits和blueprints的方式，统计范围为stackalystatics默认统计的全部项目。</p>
+
+<p>从总体参与的公司和贡献者来说，都有所上升，这也不难理解，随着OpenStack模块增加，势必涉及更多的领域，所以更多的公司加入了这个生态圈。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-companies-contributors.png"></p>
+
+<p>从commits角度进行分析，传统几大好强几乎没有变化，日本的Fujitsu在commits上挤掉了华为，进入了前十名的位置。模块方面，核心模块的贡献仍然位于前十名，也说明是应用最多的模块，所以才会不断的发现问题。本次统计的总项目数量为629个，可能stackalytics在统计策略上有所调整。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-companies-modules-commits.png"></p>
+
+<p>单从commits角度统计其实有失偏颇，真正能够体现公司在OpenStack实力的指标应该是Blueprints。我认为完成Blueprints至少具备三个必要条件：英语要好、在社区有一定的影响力、架构设计能力。这些都是需要不断在社区进行积累和沉淀的。</p>
+
+<p>本次release周期内，能够完成Blueprints的公司为64个，国内的华为和九州云均进入前10名，排名比较靠前的国内企业还包括：Easystack、中兴。</p>
+
+<p>完成Blueprints最多的仍然是核心模块，排在第二名的是kolla，看来在上一个周期中，kolla项目的活跃程度是较高的。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-companies-modules-blueprints.png"></p>
+
+<h2>OpenStack国内社区分析</h2>
+
+<p>看完总体的状况，再来关注一些国内的贡献情况，与去年相比，今年上榜的国内企业达到了21家，创历年之最，比去年的15家企业整整多了7家，并且我们发现在这些新增企业中大部分都是提供企业服务的公司，说明OpenStack在国内的企业级市场开始站稳脚跟。下面我们来做一个详细的分析：</p>
+
+<h3>贡献企业</h3>
+
+<p>在最近的三个版本连续对社区有贡献的企业包括：华为，Easystack，九州云，海云捷迅，华三，Unitedstack，乐视，中国移动和北京休伦科技(Huron)。</p>
+
+<p>本次爬升最快的企业：中兴，从108位攀升至13位。</p>
+
+<p>本次统计新增的7家企业：云途腾(t2cloud)，大唐高鸿数据(GohighSec)，华云数据，烽火通信，爱数，北京国电通，云英，中国银联，赛特斯信息。</p>
+
+<p>本次排名中OpenStack的直接用户：中国移动和中国银联。中国移动更是参选了OpenStack SuperAward的评比，预祝他们能顺利当选。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-china-companies.png"></p>
+
+<h3>人员投入分析</h3>
+
+<p>我们再来从人员投入来分析贡献情况一下：</p>
+
+<ul>
+<li>投入人数最多的仍然是华为，有65名工程师贡献了本次的commits</li>
+<li>中兴无疑是本次人员投入增长最快的，从6名工程师一下子扩张到61名，也是唯一能和华为抗衡的</li>
+<li>超过2位数人员投入的包括，Easystack，九州云和Unitedstack，另外海云捷迅有9人，华三有8人，中国移动有7人参与社区贡献</li>
+</ul>
+
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-companies-effort.png"></p>
+
+<h3>模块贡献分析</h3>
+
+<p>从模块贡献角度来分析，国内企业的贡献仍然没有出现一个统一的趋势，与Mitaka Release相比，贡献涉及模块的总量从192个增加至Newton Release的246个，一方面说明OpenStack本身模块的增加，也说明国内企业使用或开发OpenStack在方向上的多元化。</p>
+
+<p>从贡献的模块来看，华为主导的dargonflow高居榜首，紧随其后的是手册和clients两个项目，随后的贡献集中在OpenStack的核心模块，与Docker相关的几个模块中。Kolla项目无疑是最近关注的热点，随着Docker的快速发展，OpenStack和Docker不断碰撞出新的火花。</p>
+
+<p><img class="center" src="/images/blogs/contribution-in-newton-modules.png"></p>
+
+<h3>投入产出比</h3>
+
+<p>这个问题仍然是比较敏感的问题，只有每个公司的CEO能够回答这个问题，这里面我从融资的角度来回顾一下2015至2016年之间在OpenStack领域发生过什么。</p>
+
+<ul>
+<li>2015年9月17日，英特尔投资部门披露了此前投资的中国8家公司名单。投资总额达6700万美元，领域覆盖了新材料、智能设备、物联网、云服务等领域。其中包含九州云和海云捷迅两家OpenStack企业。(<a href="http://tech.qq.com/a/20150917/038604.htm">http://tech.qq.com/a/20150917/038604.htm</a>)</li>
+<li>2015年10月17日，中国最大的独立公有云提供商UCloud和全球领先的OpenStack厂商Mirantis在东京的OpenStack峰会上正式宣布成立合资公司UMCloud，以求更好的在中国做OpenStack。(<a href="http://www.doit.com.cn/article/1027290510.html">http://www.doit.com.cn/article/1027290510.html</a>)</li>
+<li>2015年12月16日，UnitedStack有云宣布完成C轮融资，该轮融资由思科和红杉资本投资，具体数额未公布(<a href="http://www.infoq.com/cn/news/2015/12/unitedstack-financing">http://www.infoq.com/cn/news/2015/12/unitedstack-financing</a>)</li>
+<li>2016年5月20日，云途腾(T2Cloud)完成A轮3650万融资(<a href="http://iimedia.cn/42262.html">http://iimedia.cn/42262.html</a>)</li>
+<li>2016年9月21日，腾讯与海云捷迅昨日下午在京共同宣布达成战略投资合作关系，海云捷迅接受腾讯的战略投资(<a href="http://www.36dsj.com/archives/62353">http://www.36dsj.com/archives/62353</a>)</li>
+</ul>
+
+
+<h2>总结</h2>
+
+<p>回到开篇的那句话，OpenStack贡献量只能反应中国企业对于开源项目的重视程度，无法反应真实的用户需求。VMWare花了将近10年的时间教育用户，说服用户把应用从物理机迁移至虚拟机。OpenStack从2011年出生到现在也仅仅短短的5年，可见OpenStack还有很长的路要走。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[深度解读OpenStack Mitaka国内代码贡献]]></title>
@@ -705,124 +839,6 @@ EOF
 
 <pre><code class="bash bash"># service diamond restart
 </code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[深度解读OpenStack Liberty国内代码贡献]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/"/>
-    <updated>2015-10-29T18:56:06+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty</id>
-    <content type="html"><![CDATA[<p>又到了OpenStack 新版本发布的季节，虽然秋意寒寒，但是仍然挡不住OpenStack再次掀起全球关注的热点。这是OpenStack第12个版本，与之前的沉稳低调相比，这次的Release中一口气多了5个新模块，也创下了OpenStack项目创建以来的最高纪录。由于天然的架构优势，让OpenStack在云计算横行天下的年代游刃有余，已经逐步成为了云平台的即成标准，从OpenStack对待AWS的API兼容的态度就能看出，OpenStack变得越来越自信。</p>
-
-<p>OpenStack Liberty完整版本的翻译可见：<a href="https://wiki.openstack.org/wiki/ReleaseNotes/Liberty/zh-hans">https://wiki.openstack.org/wiki/ReleaseNotes/Liberty/zh-hans</a></p>
-
-<p>本次OpenStack Liberty更新日志中文版本的翻译工作由我完成。由于时间仓促，难免有很多问题，欢迎各位批评指正。</p>
-
-<!-- more -->
-
-
-<h2>社区贡献分析</h2>
-
-<p>本次统计，并没有采用Review的数量为依据，而直接采用commits的方式，也就是代码实际merge入库的数量。</p>
-
-<p>我们仍然要先看一下模块的贡献情况：</p>
-
-<p><img class="left" src="/images/blogs/contribution-in-liberty-contribution-by-modules.png" width="400"></p>
-
-<p>与之前Release的特点相似，OpenStack早期的核心模块Nova, Keystone代码commits数量出现明显下滑状态，而Neutron, Heat, Trove, Ceilometer, Cinder等模块都保持着稳中有升的态势。值得关注的是，在排名前20名的项目中，出现了两个直接与Docker有关的项目Kolla和Magnum，一个与docker间接有关的项目Murano。可以预见，OpenStack下一步发展的热点就是在与Docker之间的勾勾搭搭。</p>
-
-<p>特别需要注意的是，在stackalytics.com统计的模块中，在Kilo中是259个，而到了Liberty到了389个，当然有一些项目并非完全是OpenStack的项目，但是也从一个侧面反映出OpenStack以及周边项目的蓬勃发展。</p>
-
-<p>从更新日志中我们也能看到，本次Release的正式项目中，变动较大的是Neutron和Heat两个模块。在经历不断锤炼后，Neutron逐渐走向成熟，但是从生产级别角度看，Neutron的确还有很长的路要走。</p>
-
-<h2>国内社区贡献分析</h2>
-
-<p><img class="center" src="/images/blogs/contribution-in-liberty-contributor.png" width="400"></p>
-
-<p>从全球企业的贡献排名来看，排名状况基本变化不大，仍然是HP, Redhat, Mirantis, IBM, Rackspace, Intel, Cisco，但是非常欣喜的，国内的IT的航空母舰华为已经成功杀入前十名，这无疑是振奋人心的事情，希望华为未来能多一些对OpenStack社区的主导力，提高中国在OpenStack社区的地位，当然最好也能扶植一下国内的OpenStack创业公司，实现共同发展、共同进步。华为的主要代码贡献集中在dragonflow，magnum，heat等模块，特别是在dragonflow上，几乎全部是华为贡献的，magnum上也将近有五分之一的代码。</p>
-
-<p><strong><em>华为社区贡献统计</em></strong></p>
-
-<p><img class="center" src="/images/blogs/contribution-in-liberty-huawei.png" width="800"></p>
-
-<p>记得在OpenStack五周年的庆祝活动上，Intel的陈绪博士说过，国内OpenStack贡献企业，就是一朵大云，四朵小云，下面让我们来看看这几朵小云在这个版本的表现。</p>
-
-<p><strong><em> 99cloud社区贡献统计</em></strong></p>
-
-<p><img class="center" src="/images/blogs/contribution-in-liberty-99cloud.png" width="800"></p>
-
-<p>排名第16位的是99cloud，99cloud自上一个版本排名四朵小云之首后，本次继续强劲来袭，排名创造历史新高，第16名。通过对贡献模块的分析，我们能看出99cloud最大的贡献来自于社区文档，而在项目方面的贡献则主要来自murano-dashboard，horizon，neutron等项目上，从中可以看出99cloud对murano这个applicaton catalog的项目关注程度比较高，可能会在将来的产品中有所体现。从贡献中，我们隐约看到了九州云的副总裁李开总的提交，由此可见九州云为社区贡献的积极程度。
-更加难能可贵的是，Horizon的全球贡献99cloud是全球前十，Tempest全球前八，Murano项目更是进入全球前三，相当给力。</p>
-
-<p><strong><em> UnitedStack社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-unitedstack.png" width="800"></p>
-
-<p>排在第30位的是UnitedStack，经过了上一个版本的短暂沉寂后，这个版本卷土重来，杀回前30。从代码贡献来看，UnitedStack的主要贡献来自python-openstackclient以及部署用到的puppet相关代码，当然对neutron、trove、kolla、heat等也有一定数量的贡献。</p>
-
-<p><strong><em> Kylin Cloud社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-kylincloud.png" width="800"></p>
-
-<p>排名第38位的是麒麟云，其实麒麟云每次Release中总是有她的身影，但好像总是被忽略的。麒麟云最大的贡献来自Horizon项目，其他模块也有一定数量的贡献。总之，我们想到OpenStack企业的时候，的确应该时常提起麒麟云。</p>
-
-<p><strong><em> Easystack社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-easystack.png" width="800"></p>
-
-<p>排名第70位的是Easystack，Easystack也属于OpenStack早期创业的公司，对于OpenStack的贡献也是持续的。Easystack最大的贡献来自nova，虽然数量不是很多，但是在国内企业里应该算名列前茅的啦。Easystack对Nova的贡献主要来自对libvirt层的bug修复。</p>
-
-<p><strong><em> Awcloud社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-awcloud.png" width="800"></p>
-
-<p>排名第75位的是海云捷迅，海云应该算是在国内发展比较迅猛的一家OpenStack早期创业公司。他们的贡献主要来自Neutron相关的项目，看起来应该是为了解决项目中出现的实际问题所做的努力。海云的马力应该是公司内部贡献排名第一的，尤其是前一段时间发布的两篇关于&#8221;Neutron &amp; OpenStack漫谈&#8221;，非常值得一读。</p>
-
-<p><strong><em> LeTV社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-letv.png" width="800"></p>
-
-<p><strong><em> Netease社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-netease.png" width="800"></p>
-
-<p>排名第94和95位的分别是两家互联网企业，乐视和网易，乐视是最近互联网中使用OpenStack动静最大的一家了，应该能在大规模应用中发现OpenStack很多问题吧。</p>
-
-<p><strong><em> Huron社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-huron.png" width="800"></p>
-
-<p>排名第122位的是我的公司——北京休伦科技有限公司，其实我们公司也算是国内最早一批从事OpenStack创业的公司，z早在2013年的时候就已经开始投入OpenStack私有云产品相关的研发。我们贡献的代码主要来自Nova和Murano两个模块中，都是我们在开发和项目使用中发现的问题，修复后回馈给社区的，我也希望我们能在下一个版本Release中贡献更多的力量。</p>
-
-<p><strong><em> China Mobile社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-chinamobile.png" width="800"></p>
-
-<p>排名第133位的是中国移动，之前并没有在哪一个排名上看到过中国移动在OpenStack贡献，我也是第一次发现。中国移动应该算是国内运营商领域技术实力较强的一家，也是运营商里开始从事OpenStack预研较早的一家。中国移动有大量的IT资源和设备，理应像AT&amp;T一样在OpenStack领域大有所为。纵观中国移动的社区贡献，主要来自Neutron和Ceilometer两个项目，几个Bug修复都是与Volume相关。</p>
-
-<p><strong><em> Lenovo社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-lenovo.png" width="800"></p>
-
-<p>排名第135位的是联想。不评论了。</p>
-
-<p>排名第139位的是清华大学医学院附属医院，这个有点意思。但是stackalytics.com有Bug，他们的具体统计显示不出来。</p>
-
-<p><strong><em> H3C社区贡献统计 </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-h3c.png" width="800"></p>
-
-<p>排名第143位的是H3C。贡献是Nova中的关于VMware的Bug Fix。</p>
-
-<p>由于stackalytics并没有按照区域统计的功能，所以本次统计完全是全自动统计(全靠我自己手动)，所以难免遗漏了为OpenStack贡献的国内企业，如果发生该情况请及时告知。</p>
-
-<h2>社区贡献内容分析</h2>
-
-<p><img class="center" src="/images/blogs/contribution-in-liberty-complete-blueprints.png" width="800"></p>
-
-<p>从贡献的commits的类型来区分，国内贡献出的代码主要还是以bug为主，这可能也与我们使用的都是OpenStack较成熟的模块有关，本身这些模块成熟程度较高，所以想做blueprint很难。另外一个很重要的原因是和OpenStack管理流程有关的，现在像Nova, Cinder等项目都是需要先Review Specs的，其实就是所谓的设计文档，语言成为国内很多工程师贡献的最大障碍，所以这也导致了Blueprint的贡献度在国内并不高。</p>
-
-<p><strong><em> Huawei社区贡献——完成Blueprint </em></strong>
-<img class="center" src="/images/blogs/contribution-in-liberty-blueprint-huawei.png" width="800"></p>
-
-<p>纵观整个Blueprint的完成统计情况，华为作为国内最有实力的企业，高居全球第五名，完成最多的模块为cinder和mistral。</p>
-
-<p>之后能完成Blueprint的企业还包括UnitedStack、中国移动、麒麟云、海云捷迅和九州云，但是相比来说数量较少，都是个位数字。</p>
-
-<p>OpenStack在国内发展已经超过了四年的时间，但是遗憾的一点，尽管我们拥有世界上最多的开发人员，但是我们对社区仍然没有话语权，国内的用户的需求无法对社区上游形成影响，导致很多本地化定制的需求无法真正的在社区版本代码得到体现。所以如何让中国的声音出现在社区，是我们所有OpenStack人需要思考的问题。欣喜的一点，本土的巨头华为已经身先士卒，投入很大的力量搞OpenStack的社区贡献，我们更希望越来越多的国内传统IT巨头能够意识到这个问题，投身于开源的事业中，否则我们又在起跑线上输给了别人。</p>
-
-<p>以上仅代表个人观点，如有任何异议，欢迎批评指正。</p>
 ]]></content>
   </entry>
   

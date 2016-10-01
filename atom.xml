@@ -4,7 +4,7 @@
   <title><![CDATA[RaySun's Blog]]></title>
   <link href="http://xiaoquqi.github.io/atom.xml" rel="self"/>
   <link href="http://xiaoquqi.github.io/"/>
-  <updated>2016-06-19T17:38:38+08:00</updated>
+  <updated>2016-10-01T16:15:03+08:00</updated>
   <id>http://xiaoquqi.github.io/</id>
   <author>
     <name><![CDATA[Ray Sun ]]></name>
@@ -12,6 +12,140 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[深度解读OpenStack Newton国内代码贡献]]></title>
+    <link href="http://xiaoquqi.github.io/blog/2016/10/01/contricution-in-newton/"/>
+    <updated>2016-10-01T09:00:49+08:00</updated>
+    <id>http://xiaoquqi.github.io/blog/2016/10/01/contricution-in-newton</id>
+    <content type="html"><![CDATA[<p>今天是十一黄金周开始的第一天，在2016年10月6日，OpenStack马上要迎来第14个版本的发布，也是Big Tent后的第三个版本，计划Release项目达到32个，比Mitaka版本多了3个。</p>
+
+<p>这是继OpenStack Liberty贡献分析后的第三篇系列文章，我们很欣喜的看到在每次的OpenStack Release之后，我们总是可以发现有很多新的中国企业投身于OpenStack生态圈中，无论如何，随着时间的推移，像OpenStack这样的开源软件势必在企业市场中有越来越多的应用。在当今房价飞速增长的今天，整个的社会充满了浮躁，能出现一个像OpenStack一样的项目实属不易。我们的国家、我们的民族太需要一些脚踏实地的人做一些真正的“自主可控”的技术积累，否则我们的未来仍然摆脱不了表面强大的现实。</p>
+
+<p>最近一段时间一直在接触客户，也在思考为什么OpenStack无法像苹果手机那样轻松落地、供不应求，当然这个对比并不恰当。记得寄云科技的时博士曾经说过：越接近于用户底层的应用越难落地。现实也的确如此，就好像用户盖了一栋大楼，这时候你告诉用户，我这有个地基比你原来的好，来我给你换了；又或者你告诉用户说，我这个地基比你以前的好，我给你重新搭个地基，你再盖个楼。我想如果我是用户，我也不会答应的。所以，在用户基础架构已经非常成熟的企业中，OpenStack在落地过程中势必会遇到痛点不痛，落地困难的问题。我觉得解决这个问题无外乎几个方面：第一，有一位高瞻远瞩的领导，像携程的叶总、恒丰银行的张总；第二，把OpenStack的解决方案做的像VMWare一样完整，比如用户原来的业务系统怎么无缝迁移过来，用户原有资产怎么重新利用，怎么让OpenStack适用用户现有的网络架构，怎么让OpenStack适用用户现有的管理流程；第三，将OpenStack和刺中用户痛点的应用结合起来，进而推进OpenStack在企业中的应用，这也是我一直在寻找的方向。这仅仅是我在从事四年多OpenStack研发、销售过程中的一点点思考，也欢迎各位一起进行讨论。</p>
+
+<p>还是那句话，排名并不是这篇文章的真正目的。我们希望能有更多的用户看到，我们中国企业在OpenStack上的影响力，让更多的用户了解OpenStack，从而能够在未来的应用中使用OpenStack，形成真正的OpenStack的生态圈。</p>
+
+<p>OpenStack Liberty深度解读请见：<a href="http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/">http://xiaoquqi.github.io/blog/2015/10/29/contribution-in-liberty/</a></p>
+
+<p>OpenStack Mitaka深度解读请见：<a href="http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka/">http://xiaoquqi.github.io/blog/2016/04/07/contribution-in-mitaka/</a></p>
+
+<!-- more -->
+
+
+<h2>Release项目简介</h2>
+
+<p>Openstack官方的Release的网站已经更新为：<a href="http://releases.openstack.org/">http://releases.openstack.org/</a></p>
+
+<p>下面是最近三个版本Release的详细对比：</p>
+
+<p>让我们先来关注一些这次Release中的三个新项目：</p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-projects.png"></p>
+
+<h3>Panko(计量服务事件消息存储)</h3>
+
+<p>Panko是计量模块中的一部分，主要是为了计量模块提供事件消息存储，众所周知，在上一个OpenStack Release中，Ceilometer被一分为三，分别为aodh(告警服务)/Gnocchi(基于时间的数据库服务)/Ceilometer，为了解决当前Ceilometer中存在的性能问题，提高更好的扩展性。</p>
+
+<p>现在Panko的文档并不是很丰富，如果有需要了解更多详细内容的，可以关注Developer的文档：<a href="http://docs.openstack.org/developer/panko/">http://docs.openstack.org/developer/panko/</a></p>
+
+<h3>Vitrage(广大OpenStack管理员的福音，平台问题定位分析服务)</h3>
+
+<p>Vitrage是一个OpenStack RCA(Root Cause Analysis)服务，用于组织、分析和扩展OpenStack的告警和事件，在真正的问题发生前找到根本原因。</p>
+
+<p>众所周知，OpenStack平台最大的优势来自于架构的可扩展性，这也是OpenStack能够在基础架构曾一枝独秀的重要原因。分布式架构最大的优势在于扩展，但是过于灵活的扩展性为运维带来的极大的困难，所以Vitrage的出现在一定程度上缓解了OpenStack运维上的痛点。</p>
+
+<p>我们来简单看一下他的架构，更多详细的介绍请查看WIKI：<a href="https://wiki.openstack.org/wiki/Vitrage">https://wiki.openstack.org/wiki/Vitrage</a></p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-vitrage-architecture.png"></p>
+
+<h3>Watcher(OpenStack平台优化服务)</h3>
+
+<p>从名字上看，我们并不能理解这个模块的具体左右，我们通过文档中用户应用场景来了解一下Watcher的作用：</p>
+
+<p>作为一名云平台的管理员在云平台使用一段时间后，想根据一些物理特性对云平台虚拟机的分布进行重新平衡，例如服务器的温度、电源的状态等信息，那么这时候就可以通过watcher，利用Nova虚拟机的在线迁移对整个数据中心云平台的虚拟机进行一些优化处理，从而达到某种平衡。我认为这其实类似于VMWare的DRS功能。</p>
+
+<p>当然Watcher还有更多的应用场景，更多详细的介绍请查看：<a href="https://wiki.openstack.org/wiki/Watcher">https://wiki.openstack.org/wiki/Watcher</a></p>
+
+<p>我们来简单看一下他的架构，更多架构方面的详细的介绍请查看：<a href="http://docs.openstack.org/developer/watcher/architecture.html">http://docs.openstack.org/developer/watcher/architecture.html</a></p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-watcher-architecture.svg"></p>
+
+<h2>社区贡献总体分析</h2>
+
+<p>本次统计的方法仍然为commits和blueprints的方式，统计范围为stackalystatics默认统计的全部项目。</p>
+
+<p>从总体参与的公司和贡献者来说，都有所上升，这也不难理解，随着OpenStack模块增加，势必涉及更多的领域，所以更多的公司加入了这个生态圈。</p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-companies-contributors.png"></p>
+
+<p>从commits角度进行分析，传统几大好强几乎没有变化，日本的Fujitsu在commits上挤掉了华为，进入了前十名的位置。模块方面，核心模块的贡献仍然位于前十名，也说明是应用最多的模块，所以才会不断的发现问题。本次统计的总项目数量为629个，可能stackalytics在统计策略上有所调整。</p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-companies-modules-commits.png"></p>
+
+<p>单从commits角度统计其实有失偏颇，真正能够体现公司在OpenStack实力的指标应该是Blueprints。我认为完成Blueprints至少具备三个必要条件：英语要好、在社区有一定的影响力、架构设计能力。这些都是需要不断在社区进行积累和沉淀的。</p>
+
+<p>本次release周期内，能够完成Blueprints的公司为64个，国内的华为和九州云均进入前10名，排名比较靠前的国内企业还包括：Easystack、中兴。</p>
+
+<p>完成Blueprints最多的仍然是核心模块，排在第二名的是kolla，看来在上一个周期中，kolla项目的活跃程度是较高的。</p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-companies-modules-blueprints.png"></p>
+
+<h2>OpenStack国内社区分析</h2>
+
+<p>看完总体的状况，再来关注一些国内的贡献情况，与去年相比，今年上榜的国内企业达到了21家，创历年之最，比去年的15家企业整整多了7家，并且我们发现在这些新增企业中大部分都是提供企业服务的公司，说明OpenStack在国内的企业级市场开始站稳脚跟。下面我们来做一个详细的分析：</p>
+
+<h3>贡献企业</h3>
+
+<p>在最近的三个版本连续对社区有贡献的企业包括：华为，Easystack，九州云，海云捷迅，华三，Unitedstack，乐视，中国移动和北京休伦科技(Huron)。</p>
+
+<p>本次爬升最快的企业：中兴，从108位攀升至13位。</p>
+
+<p>本次统计新增的7家企业：云途腾(t2cloud)，大唐高鸿数据(GohighSec)，华云数据，烽火通信，爱数，北京国电通，云英，中国银联，赛特斯信息。</p>
+
+<p>本次排名中OpenStack的直接用户：中国移动和中国银联。中国移动更是参选了OpenStack SuperAward的评比，预祝他们能顺利当选。</p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-china-companies.png"></p>
+
+<h3>人员投入分析</h3>
+
+<p>我们再来从人员投入来分析贡献情况一下：</p>
+
+<ul>
+<li>投入人数最多的仍然是华为，有65名工程师贡献了本次的commits</li>
+<li>中兴无疑是本次人员投入增长最快的，从6名工程师一下子扩张到61名，也是唯一能和华为抗衡的</li>
+<li>超过2位数人员投入的包括，Easystack，九州云和Unitedstack，另外海云捷迅有9人，华三有8人，中国移动有7人参与社区贡献</li>
+</ul>
+
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-companies-effort.png"></p>
+
+<h3>模块贡献分析</h3>
+
+<p>从模块贡献角度来分析，国内企业的贡献仍然没有出现一个统一的趋势，与Mitaka Release相比，贡献涉及模块的总量从192个增加至Newton Release的246个，一方面说明OpenStack本身模块的增加，也说明国内企业使用或开发OpenStack在方向上的多元化。</p>
+
+<p>从贡献的模块来看，华为主导的dargonflow高居榜首，紧随其后的是手册和clients两个项目，随后的贡献集中在OpenStack的核心模块，与Docker相关的几个模块中。Kolla项目无疑是最近关注的热点，随着Docker的快速发展，OpenStack和Docker不断碰撞出新的火花。</p>
+
+<p><img class="center" src="http://xiaoquqi.github.io/images/blogs/contribution-in-newton-modules.png"></p>
+
+<h3>投入产出比</h3>
+
+<p>这个问题仍然是比较敏感的问题，只有每个公司的CEO能够回答这个问题，这里面我从融资的角度来回顾一下2015至2016年之间在OpenStack领域发生过什么。</p>
+
+<ul>
+<li>2015年9月17日，英特尔投资部门披露了此前投资的中国8家公司名单。投资总额达6700万美元，领域覆盖了新材料、智能设备、物联网、云服务等领域。其中包含九州云和海云捷迅两家OpenStack企业。(<a href="http://tech.qq.com/a/20150917/038604.htm">http://tech.qq.com/a/20150917/038604.htm</a>)</li>
+<li>2015年10月17日，中国最大的独立公有云提供商UCloud和全球领先的OpenStack厂商Mirantis在东京的OpenStack峰会上正式宣布成立合资公司UMCloud，以求更好的在中国做OpenStack。(<a href="http://www.doit.com.cn/article/1027290510.html">http://www.doit.com.cn/article/1027290510.html</a>)</li>
+<li>2015年12月16日，UnitedStack有云宣布完成C轮融资，该轮融资由思科和红杉资本投资，具体数额未公布(<a href="http://www.infoq.com/cn/news/2015/12/unitedstack-financing">http://www.infoq.com/cn/news/2015/12/unitedstack-financing</a>)</li>
+<li>2016年5月20日，云途腾(T2Cloud)完成A轮3650万融资(<a href="http://iimedia.cn/42262.html">http://iimedia.cn/42262.html</a>)</li>
+<li>2016年9月21日，腾讯与海云捷迅昨日下午在京共同宣布达成战略投资合作关系，海云捷迅接受腾讯的战略投资(<a href="http://www.36dsj.com/archives/62353">http://www.36dsj.com/archives/62353</a>)</li>
+</ul>
+
+
+<h2>总结</h2>
+
+<p>回到开篇的那句话，OpenStack贡献量只能反应中国企业对于开源项目的重视程度，无法反应真实的用户需求。VMWare花了将近10年的时间教育用户，说服用户把应用从物理机迁移至虚拟机。OpenStack从2011年出生到现在也仅仅短短的5年，可见OpenStack还有很长的路要走。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[使用国内源部署Ceph]]></title>
@@ -4414,7 +4548,7 @@ deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/havana main
 <p>最后，我们仍然希望有更多的热爱OpenStack的朋友们加入我们公司，如果有意向的请与我联系</p>
 
 <ul>
-<li>邮箱：<a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#58;&#x78;&#105;&#97;&#111;&#113;&#x75;&#113;&#105;&#64;&#x67;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#x6f;&#109;">&#120;&#105;&#x61;&#111;&#113;&#x75;&#x71;&#x69;&#64;&#x67;&#x6d;&#97;&#x69;&#108;&#46;&#x63;&#x6f;&#109;</a></li>
+<li>邮箱：<a href="&#109;&#97;&#x69;&#x6c;&#x74;&#x6f;&#58;&#120;&#x69;&#97;&#111;&#x71;&#x75;&#x71;&#x69;&#64;&#103;&#109;&#x61;&#x69;&#108;&#46;&#99;&#111;&#109;">&#120;&#105;&#x61;&#111;&#x71;&#117;&#113;&#x69;&#x40;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#111;&#x6d;</a></li>
 <li>新浪微博：@RaySun(<a href="http://weibo.com/xiaoquqi">http://weibo.com/xiaoquqi</a>)</li>
 </ul>
 
@@ -4860,130 +4994,6 @@ min_l3_agents_per_router = 2
 <p>未来非常好的开发方向可能是将这个功能集成到OpenStack管理界面。我希望通过部署的控制面板告诉我哪些失败了，出发了哪些响应动作。这个需要pcsd提供REST API(WIP)来导出这些信息。</p>
 
 <p>最后，值得思考一下TripleO在这个问题的内容。如果你使用OpenStack部署OpenStack，解决方案是不是不同呢？在那个世界里，你所有的裸金属节点都是通过OpenStack Ironic管理的资源。Ceilometer可以被用于监控这些资源。如果是那样，OpenStack本身就有足够的信息来支持基础设施完成这个功能。再次强调，为了避免对OpenStack的改造，我们在这种条件小也应该使用更通用的Pacemaker解决方案。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[使用MongoDB作为Salt Pillar后端存储数据]]></title>
-    <link href="http://xiaoquqi.github.io/blog/2015/02/23/use-mongodb-to-store-salt-pillar/"/>
-    <updated>2015-02-23T15:19:21+08:00</updated>
-    <id>http://xiaoquqi.github.io/blog/2015/02/23/use-mongodb-to-store-salt-pillar</id>
-    <content type="html"><![CDATA[<p>今天在查找salt中pillar嵌套pillar的方法时，无意之间发现了pillar除了可以直接使用文件(sls)外，也同时支持多种后端的数据存储方式。例如：MySQL, MongoDB, Ldap, json, cobbler甚至是puppet。这无疑为开发中的接口提供了极大的便利。</p>
-
-<!-- more -->
-
-
-<p>详细的支持列表可见：<a href="http://docs.saltstack.com/en/latest/ref/pillar/all/index.html#all-salt-pillars">http://docs.saltstack.com/en/latest/ref/pillar/all/index.html#all-salt-pillars</a></p>
-
-<p>严格意义上来说，这篇博文并非完全原创，英文原文请参考：<a href="http://www.tmartin.io/articles/2014/salt-pillar-mongodb/">http://www.tmartin.io/articles/2014/salt-pillar-mongodb/</a></p>
-
-<p>下面就来说说详细的配置方式，假定你已经有了一个部署好的salt环境，并且正确配置了salt master和salt minion，并且完成认证，主机名为salt-master.salt.com，这里我们使用Ubuntu 12.04 64bit作为演示环境。</p>
-
-<h2>安装MongoDB和Python MongoDB</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>apt-get install mongodb python-pymongo python-pymongo-ext</span></code></pre></td></tr></table></div></figure>
-
-
-<p>确保你能连接到MongoDB</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mongo</span></code></pre></td></tr></table></div></figure>
-
-
-<pre><code>MongoDB shell version: 2.2.3
-connecting to: test
-&gt;
-</code></pre>
-
-<h2>创建MongoDB数据库和存放Pillar的Collection</h2>
-
-<ul>
-<li>创建数据库pillar</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>use pillar</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>在数据库中插入pillar数据</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>db.pillar.insert({
-</span><span class='line'>    _id: 'salt-master.salt.com',
-</span><span class='line'>    mongo_pillar: {
-</span><span class='line'>        key1: "value1",
-</span><span class='line'>        key2: "value2",
-</span><span class='line'>    }})</span></code></pre></td></tr></table></div></figure>
-
-
-<p>注意：这里的_id必须要和你的minion节点的主机名一致，并且无法使用通配符，也就是一个节点都有自己一套独立的pillar，这一点和文件中定义pillar有很大的不同。mongo_pillar部分中是定义的是pillar中的内容，也就是我们可以直接引用的部分。</p>
-
-<h3>配置Salt Master</h3>
-
-<ul>
-<li><p>下一步就是告诉Salt Master，我们在MongoDB中存放了pillar数据，需要劳您大驾，移步MongoDB读取数据。修改：</p>
-
-<p>  /etc/salt/master</p></li>
-</ul>
-
-
-<p>添加</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mongo.db: "pillar"
-</span><span class='line'>mongo.host: "localhost"
-</span><span class='line'>ext_pillar:
-</span><span class='line'>    - mongo: {}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>注意：如果需要使用不同于标准安装接口，请使用mongo.port，如果需要配置用户名和密码，请使用mongo.user和mongo.password。其他参数定义，请详见：<a href="http://docs.saltstack.com/en/latest/ref/pillar/all/salt.pillar.mongo.html#module-documentation">http://docs.saltstack.com/en/latest/ref/pillar/all/salt.pillar.mongo.html#module-documentation</a></p>
-
-<ul>
-<li>测试</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>salt salt-master.salt.com pillar.item mongo_pillar</span></code></pre></td></tr></table></div></figure>
-
-
-<p>返回</p>
-
-<pre><code>salt-master.salt.com:
-    ----------
-    mongo_pillar:
-        ----------
-        key1:
-            value1
-        key2:
-            value2
-</code></pre>
-
-<ul>
-<li>如果想在sls中直接使用</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>{{ salt['pillar.get']('mongo_pillar:key1') }}</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>总结</h2>
-
-<p>pillar应该是salt中一个比较灵活的配置选项，个人理解pillar的作用就像puppet中init定义的初始化的参数的默认值，每次部署时，只需要更改pillar的文件就可以啦。但是随着代码的增长(主要用于部署OpenStack)，发现pillar的管理越来越难，pillar本身对如何组织结构并没有严格的限制，而且嵌套(extend)功能暂时还不能很完美的支持(<a href="https://github.com/saltstack/salt/issues/3991">https://github.com/saltstack/salt/issues/3991</a>)，这也给pillar的管理提高了复杂度。</p>
 ]]></content>
   </entry>
   
